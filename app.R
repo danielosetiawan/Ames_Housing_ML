@@ -10,9 +10,9 @@ library(leaflet)
 library(shinydashboard)
 library(shinycssloaders)
 
-location = read.csv("Ames_loc.csv")
+location = read.csv("./data/Ames_loc.csv")
 location = na.omit(location)
-df = read.csv('cleaned_housing.csv')
+df = read.csv('./data/cleaned_housing.csv')
 housing = merge(df, location, by="PID")
 
 # 
