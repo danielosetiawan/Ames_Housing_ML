@@ -1,4 +1,0 @@
-"0","wn = rnorm(1000)"
-"0","wn.ts = ts(wn)"
-"0",""
-"0","plot.ts(wn.ts, main=""White Noise Time Series"")"

@@ -1,5 +1,0 @@
-"0","# TS1 is a random walk, and is not stationary because its variance and mean change through time."
-"0",""
-"0","# TS2 has a trend, and is not stationary because its variance and mean change through time."
-"0",""
-"0","# TS3 is white noise, so it is strictly stationary, which also means its weakly stationary. "

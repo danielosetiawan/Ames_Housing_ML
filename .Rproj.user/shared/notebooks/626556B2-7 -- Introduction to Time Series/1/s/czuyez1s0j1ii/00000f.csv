@@ -1,6 +1,0 @@
-"0","w = rnorm(1000)"
-"0","w2 = rnorm(1000)"
-"0","w3 = rnorm(1000)"
-"0","w4 = rnorm(1000)"
-"0",""
-"0","plot.ts(w, main = ""Four White Noises"", ylab = ""Position"")"

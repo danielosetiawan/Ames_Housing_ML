@@ -1,3 +1,0 @@
-"0","rw_diff = diff(rw, 1)"
-"0",""
-"0","plot.ts(rw_diff, main = 'Random Walk Differenced by 1', ylab = ""Position"")"

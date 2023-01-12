@@ -1,3 +1,0 @@
-"0","windspeed.ts = ts(airquality[,'Wind'])"
-"0",""
-"0","plot.ts(windspeed.ts, main = ""Wind Speed in New York, Daily Measurement May to July 1973"", ylab='Knots', xlab = ""Days"")"

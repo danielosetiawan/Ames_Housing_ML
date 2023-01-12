@@ -1,3 +1,0 @@
-"0","ar2.diff = diff(ar2, 1)"
-"0",""
-"0","plot.ts(ar2.diff)"

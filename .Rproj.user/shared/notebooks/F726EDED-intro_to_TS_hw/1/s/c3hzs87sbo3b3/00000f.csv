@@ -1,4 +1,0 @@
-"0","ts1 = diff(complete_df[,2], 1)"
-"0","ts2 = diff(complete_df[,1], 1)"
-"0",""
-"0","plot.ts(ts1, main = 'Random Walk differenced by 1')"

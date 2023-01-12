@@ -1,2 +1,0 @@
-"0",""
-"0","plot.ts(diff(diff(log(jj)), 4), main = ""Log-Return J&J Quarterly Stock Data (Non-Seasonal)"", ylab = ""Log-Return"")"

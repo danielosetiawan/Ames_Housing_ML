@@ -1,5 +1,0 @@
-"0",""
-"0","# in order to difference seasonally, we use the second argument of the diff function."
-"0","AP.log.seasonaldiff = diff(diff(AP.log), 12)"
-"0",""
-"0","plot.ts(AP.log.seasonaldiff[1:48])"

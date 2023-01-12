@@ -1,5 +1,0 @@
-"0","# plot.ts(diff(log_ts)[1:40])"
-"0",""
-"0","# so this took out the trend, but looks like the season is still there. so lets plot the difference again"
-"0","log_return_ts = diff(diff(log_ts, 12))"
-"0","plot.ts(log_return_ts)"
