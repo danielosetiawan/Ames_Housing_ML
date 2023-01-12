@@ -1,0 +1,3 @@
+"0",""
+"0","# difference a second time, still see trend"
+"0","plot.ts(diff(diff(BJsales)), main = ""Double Differenced BJ Sales Data"")"

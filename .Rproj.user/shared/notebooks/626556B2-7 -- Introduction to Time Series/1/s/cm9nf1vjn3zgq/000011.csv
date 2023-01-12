@@ -1,0 +1,4 @@
+"0",""
+"0","AP.log = log(AirPassengers)"
+"0",""
+"0","plot.ts(AP.log)"

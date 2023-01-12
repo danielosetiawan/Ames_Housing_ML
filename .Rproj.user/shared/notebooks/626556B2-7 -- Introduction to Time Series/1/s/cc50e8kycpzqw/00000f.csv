@@ -1,0 +1,7 @@
+"0","library(datasets)"
+"0",""
+"0","# investigate the data"
+"0","?BJsales"
+"0",""
+"0","# visualize, see trend"
+"0","plot.ts(BJsales, main = ""BJ Sales Data"", ylab = ""Sales"")"

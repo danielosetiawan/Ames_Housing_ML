@@ -1,0 +1,5 @@
+"0","nottem.sarima = arima(x=nottem.log, order = c(1,1,1), seasonal = list(order = c(2,1,1), per = 12))"
+"0",""
+"0","nottem.predict = forecast(nottem.sarima, h=12, level = 80)"
+"0",""
+"0","autoplot(nottem.predict)"

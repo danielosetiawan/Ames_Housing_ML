@@ -1,0 +1,3 @@
+"0",""
+"0","# differencing, still see trend"
+"0","plot.ts(diff(BJsales), main = ""Differenced BJ Sales Data"")"

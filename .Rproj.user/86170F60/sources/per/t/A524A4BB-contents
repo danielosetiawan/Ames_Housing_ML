@@ -1,0 +1,400 @@
+---
+title: "Introduction to Time Series - Homework"
+author: "NYC Data Science Academy"
+date: "11/18/2021"
+Author: 'Daniel'
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Libraries
+```{r libraries}
+library(datasets)
+library(forecast)
+library(astsa)
+
+# run these lines if you do not have devtools or tsdl installed.
+# install.packages("devtools")
+# devtools::install_github("FinYang/tsdl")
+library(tsdl)
+
+complete_df = read.csv("./data.csv", row.names = 1)
+set.seed(444)
+```
+
+### Section 1: Decoding the ACF/PACF.
+
+Q1. Stationary, or Not? Below are three time series graphs. Write which you think are weakly stationary, and which are not. Give your reasons as to why.
+
+```{r Q1 Stationarity}
+plot.ts(complete_df[,2], main = "Time Series 1")
+
+plot.ts(complete_df[,1], main = "Time Series 2")
+
+plot.ts(complete_df[,5], main = "Time Series 3")
+```
+
+```{r Q1 Answer Space}
+# TS1 is a random walk, and is not stationary because its variance and mean change through time.
+
+# TS2 has a trend, and is not stationary because its variance and mean change through time.
+
+# TS3 is white noise, so it is strictly stationary, which also means its weakly stationary. 
+```
+
+Q2. After identifying the non-stationary Time Series, use the diff() function to transform the function to be weakly stationary.
+
+```{r Q2 Answer Space}
+ts1 = diff(complete_df[,2], 1)
+ts2 = diff(complete_df[,1], 1)
+
+plot.ts(ts1, main = 'Random Walk differenced by 1')
+plot.ts(ts2, main = 'Positive Trend differenced by 1')
+```
+
+
+### Section 2: Identifying Orders of AR(p) and MA(q) via ACF/PACF.
+
+Reminder: the consecutive significant lags of the ACF (excluding 0) determine the order of q, and the consecutive significant lags of the PACF determine the order of p.
+
+Q1. Consider the ACF and PACF of the following TS data. Determine the order of p and q. You may assume all the time series below are stationary. Once you have determined the order of p and q, fit an arima model to the data. Look at the coefficients and explain in a few words what the order of p and q mean in our context here. Models in this section are only generated via AR terms.
+
+```{r sec2 Q1a}
+plot.ts(complete_df[,6])
+
+acf(complete_df[,6])
+acf(complete_df[,6], type = 'partial')
+
+# the q is the order (lags) of the moving average. (3 significant lines)
+# the p is how many steps in the past we consider when estimating the next term (4 significant lines)
+
+model = arima(complete_df[,6], order = c(4, 0, 0)) # q is 0 because model generated through AR terms
+
+model
+
+prediction = forecast(model, h = 20, level = 80)
+ # h and level can be anything
+
+autoplot(prediction)
+```
+
+```{r sec2 Q1b}
+plot.ts(complete_df[,7])
+
+acf(complete_df[,7])
+acf(complete_df[,7], type = 'partial')
+
+# the q is the order (lags) of the moving average. (8 significant lines)
+# the p is how many steps in the past we consider when estimating the next term (2 significant lines)
+
+model = arima(complete_df[,7], order = c(2, 0, 0)) # q is 0 because model generated through AR terms
+
+model
+
+prediction = forecast(model, h = 20, level = 80)
+ # h and level can be anything
+
+autoplot(prediction)
+
+```
+
+Q2. Consider the ACF and PACF of the following TS data. Determine the order of p and q. You may assume all the time series below are stationary. Once you have determined the order of p and q, fit an arima model to the data. Look at the coefficients and explain in a few words what the order of p and q mean in our context here. Models in this section are only generated via MA terms.
+
+```{r sec2 Q2a}
+plot.ts(complete_df[,9])
+
+acf(complete_df[,9])
+acf(complete_df[,9], type = 'partial')
+
+# the q is the order (lags) of the moving average. (4 significant lines)
+# the p is how many steps in the past we consider when estimating the next term (2 significant lines)
+
+model = arima(complete_df[,9], order = c(0, 0, 4)) # q is 0 because model generated through MA terms
+
+model
+
+prediction = forecast(model, h = 20, level = 80)
+ # h and level can be anything
+
+autoplot(prediction)
+```
+
+
+```{r sec2 Q2b}
+plot.ts(complete_df[,11])
+
+acf(complete_df[,11])
+acf(complete_df[,11], type = 'partial')
+
+# the q is the order (lags) of the moving average. (2 significant lags)
+# the p is how many steps in the past we consider when estimating the next term (8 significant lags)
+
+model = arima(complete_df[,11], order = c(0, 0, 2)) # q is 0 because model generated through MA terms
+
+model
+
+prediction = forecast(model, h = 20, level = 80)
+ # h and level can be anything
+
+autoplot(prediction)
+```
+
+
+### Section 3: Identifying Orders of ARMA(p,q) via ACF/PACF
+
+Q1. Consider the ACF and PACF of the following TS data. Determine the order of p and q. You may assume all the time series below are stationary. Once you have determined the order of p and q, fit an arima model to the data. Explain in a few words what the order of p and q mean in our context here. Models in this section are composed of both AR and MA terms.
+
+```{r sec3 Q1a}
+plot.ts(complete_df[,3])
+
+acf(complete_df[,3])
+acf(complete_df[,3], type = 'partial')
+
+# the q is the order (lags) of the moving average. (3 significant lags)
+# the p is how many steps in the past we consider when estimating the next term (3 significant lags)
+
+d = 0 
+
+for (p in 1:4) {
+  for (q in 1:4) {
+    if (p + d + q <= 8) {
+      model=arima(x=complete_df[,3], 
+                  order = c((p-1),d,(q-1)))
+      pval=Box.test(model$residuals, 
+                    lag=log(length(model$residuals)))
+      sse=sum(model$residuals**2)
+      cat(p-1,d,q-1, 'AIC=', model$aic, 
+          ' SSE=',sse,' p-VALUE=', pval$p.value,'\n')
+    }
+  }
+}
+
+model = arima(complete_df[,3], order = c(2, 0, 1)) # q is 0 because model generated through MA terms
+
+model
+
+prediction = forecast(model, h = 20, level = 80)
+ # h and level can be anything
+
+autoplot(prediction)
+```
+
+```{r sec3 Q1b}
+plot.ts(complete_df[,5])
+
+acf(complete_df[,5])
+acf(complete_df[,5], type = 'partial')
+
+# the q is the order (lags) of the moving average. (3 significant lags)
+# the p is how many steps in the past we consider when estimating the next term (4 significant lags)
+
+d = 0 
+
+for (p in 1:4) {
+  for (q in 1:5) {
+    if (p + d + q <= 9) {
+      model=arima(x=complete_df[,5], 
+                  order = c((p-1),d,(q-1)))
+      pval=Box.test(model$residuals, 
+                    lag=log(length(model$residuals)))
+      sse=sum(model$residuals**2)
+      cat(p-1,d,q-1, 'AIC=', model$aic, 
+          ' SSE=',sse,' p-VALUE=', pval$p.value,'\n')
+    }
+  }
+}
+
+model = arima(complete_df[,5], order = c(1, 0, 4)) # q is 0 because model generated through MA terms
+
+model
+
+prediction = forecast(model, h = 20, level = 80)
+ # h and level can be anything
+
+autoplot(prediction)
+```
+
+### Section 4: Real World Examples
+
+In this section, we'll be working through three real-world data sets. As a challenge question at the end, try to pick a data set that interests you from the tsdl library and do your own analysis. Remember you can refer to the slides (put slide number here) for the process of investigating 
+
+Q1. Investigate the description of the data given in the meta_tsdl part of the list. Determine the order of the SARIMA model; fit the model; and then describe what the model is doing. 
+
+```{r sec4 Q1}
+ts_data3 = list(tsdl[[481]], meta_tsdl[481,])
+meta_tsdl[[481,2]]
+
+plot.ts(ts_data3[[1]])
+plot.ts(ts_data3[[1]][1:40])
+
+# data looks good
+
+Box.test(ts_data3[[1]], 
+         lag=log(length(ts_data3[[1]])))
+
+#pvalue is low, meaning we can reject the null hypothesis and go for the test (some autocorrelations are significant)
+
+
+acf2(ts_data3[[1]])
+# acf = 1 sig. lag, pacf = 3 sig lags
+
+d = 0
+DD = 0
+per = 0
+for(p in 1:4){
+  for(q in 1:2){
+    for(p_seasonal in 1:1){
+      for(q_seasonal in 1:1){
+        if(p+d+q+p_seasonal+DD+q_seasonal<=8){
+          model<-arima(x=ts_data3[[1]], order = c((p-1),d,(q-1)), seasonal = list(order=c((p_seasonal-1),DD,(q_seasonal-1)), period=per))
+          pval<-Box.test(model$residuals, lag=log(length(model$residuals)))
+          sse<-sum(model$residuals**2)
+          cat(p-1,d,q-1,p_seasonal-1,DD,q_seasonal-1,per, 'AIC=', model$aic, ' SSE=',sse,' p-VALUE=', pval$p.value,'\n')
+        }
+      }
+    }
+  }
+}
+
+
+model = arima(x=ts_data3[[1]], order = c(3,0,1), seasonal = list(order = c(0,0,0), period = per))
+
+model
+predict = forecast(model, h=24, level = 80)
+
+autoplot(predict)
+```
+
+Q2. Repeat the steps for this data.
+
+```{r sec4 Q2}
+ts_data = list(tsdl[[2]], meta_tsdl[2,])
+meta_tsdl[[2,2]]
+
+plot.ts(ts_data[[1]])
+plot.ts(ts_data[[1]][1:40])
+
+# there's definitely a season, and a trend
+# so first, we need to take the log transformation, then do the differencing
+
+log_ts = log(ts_data[[1]])
+diff(log_ts)
+
+plot.ts(diff(log_ts, 12))
+# plot.ts(diff(log_ts)[1:40])
+
+# so this took out the trend, but looks like the season is still there. so lets plot the difference again
+log_return_ts = diff(diff(log_ts, 12))
+plot.ts(log_return_ts)
+# plot.ts(log_return_ts[1:40])
+
+Box.test(log_return_ts, 
+         lag=log(length(log_return_ts)))
+
+#pvalue is low, meaning we can reject the null hypothesis and go for the test (some autocorrelations are significant)
+
+
+acf2(log_return_ts)
+# q = 1
+# Q = 1
+# p = 3
+# P = 0
+
+d = 1
+DD = 1
+per = 12
+for(p in 1:4){
+  for(q in 1:2){
+    for(p_seasonal in 1:1){
+      for(q_seasonal in 1:2){
+        if(p+d+q+p_seasonal+DD+q_seasonal<=11){
+          model<-arima(x=log_ts, 
+                       order = c((p-1),d,(q-1)), seasonal = list(order=c((p_seasonal-1),DD,(q_seasonal-1)), period=per))
+          pval<-Box.test(model$residuals, lag=log(length(model$residuals)))
+          sse<-sum(model$residuals**2)
+          cat(p-1,d,q-1,p_seasonal-1,DD,q_seasonal-1,per, 'AIC=', model$aic, ' SSE=',sse,' p-VALUE=', pval$p.value,'\n')
+        }
+      }
+    }
+  }
+}
+
+
+model = arima(x=log_ts, order = c(3,1,1), seasonal = list(order = c(0,1,1), period = per))
+
+model
+predict = forecast(model, h=24, level = 80)
+
+autoplot(predict)
+```
+
+Q3 (Bonus). Choose any data set from the tsdl library. You can filter the meta_tsdl list via the subject column in order to pick something that you are interested in. Good luck!
+
+```{r sec4 Q3}
+# these are all the subjects
+unique(meta_tsdl$subject)
+
+ts_data = list(tsdl[[2]], meta_tsdl[2,])
+meta_tsdl[[2,2]]
+
+data = tsdl[[400]]
+
+
+plot.ts(data)
+plot.ts(data[1:80])
+
+# there's definitely a season, but no trend
+# we dont need to reduce the variance, but we do need to have a difference to remove seasonal
+
+data2 = diff(data, 12)
+
+plot.ts(diff(data, 12))
+# plot.ts(diff(log_ts)[1:40])
+
+# so this took out the trend, but looks like the season is still there. so lets plot the difference again
+data2 = diff(diff(data, 12))
+plot.ts(data2)
+# plot.ts(log_return_ts[1:40])
+
+Box.test(data2, 
+         lag=log(length(data2)))
+
+#pvalue is low, meaning we can reject the null hypothesis and go for the test (some autocorrelations are significant)
+
+
+acf2(data2)
+# q = 2
+# Q = 1
+# p = 3
+# P = 2
+
+d = 0
+DD = 1
+per = 12
+for(p in 1:4){
+  for(q in 1:3){
+    for(p_seasonal in 1:3){
+      for(q_seasonal in 1:2){
+        if(p+d+q+p_seasonal+DD+q_seasonal<=14){
+          model<-arima(x=data, 
+                       order = c((p-1),d,(q-1)), seasonal = list(order=c((p_seasonal-1),DD,(q_seasonal-1)), period=per))
+          pval<-Box.test(model$residuals, lag=log(length(model$residuals)))
+          sse<-sum(model$residuals**2)
+          cat(p-1,d,q-1,p_seasonal-1,DD,q_seasonal-1,per, 'AIC=', model$aic, ' SSE=',sse,' p-VALUE=', pval$p.value,'\n')
+        }
+      }
+    }
+  }
+}
+
+
+model = arima(x=data, order = c(3,1,1), seasonal = list(order = c(0,1,1), period = per))
+
+model
+predict = forecast(model, h=24, level = 80)
+
+autoplot(predict)
+```

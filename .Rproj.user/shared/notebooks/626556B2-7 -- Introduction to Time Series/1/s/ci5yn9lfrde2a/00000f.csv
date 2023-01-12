@@ -1,0 +1,5 @@
+"0","phi = c(0.7,0.2)"
+"0",""
+"0","ar2 = arima.sim(list(ar = c(phi[1], phi[2])), n = 1000)"
+"0",""
+"0","plot.ts(ar2, main = ""AR(2) Model with phi1 = 0.7, phi2 = 0.2"", ylab = ""Position"")"
