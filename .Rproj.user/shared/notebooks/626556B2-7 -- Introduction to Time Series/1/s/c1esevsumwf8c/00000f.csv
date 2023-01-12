@@ -1,0 +1,3 @@
+"0","rw.ts = ts(rw)"
+"0",""
+"0","acf(rw.ts, type = ""covariance"", main = ""Autocovariance Plot of Random Walk"")"

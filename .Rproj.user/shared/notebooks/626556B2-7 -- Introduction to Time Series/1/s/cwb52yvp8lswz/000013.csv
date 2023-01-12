@@ -1,0 +1,4 @@
+"0",""
+"0","WWWusage.diff = diff(WWWusage)"
+"0",""
+"0","plot.ts(diff(diff(WWWusage)))"

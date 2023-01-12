@@ -1,0 +1,11 @@
+"0","ts_data = list(tsdl[[2]], meta_tsdl[2,])"
+"0","meta_tsdl[[2,2]]"
+"1","[[1]]
+"
+"1","[1]"
+"1"," ""Monthly demand repair parts large/heavy equip. Iowa 1972 – 1979"""
+"1","
+"
+"1","
+"
+"0","plot.ts(ts_data[[1]])"

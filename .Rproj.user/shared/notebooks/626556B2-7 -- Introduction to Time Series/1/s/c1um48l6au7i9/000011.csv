@@ -1,0 +1,4 @@
+"0",""
+"0","nottem.log = log(nottem)"
+"0",""
+"0","plot.ts(nottem.log[1:48])"
