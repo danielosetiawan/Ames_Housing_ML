@@ -9,6 +9,7 @@ library(mapview)
 library(leaflet)
 library(shinydashboard)
 library(shinycssloaders)
+library(shinyWidgets)
 # library(reticulate)
 
 # sns = import('seaborn')
@@ -59,9 +60,25 @@ ui <- dashboardPage(
                     value = c(0.25 * max(df$SalePrice), 
                               0.75 * max(df$SalePrice))),
         tabsetPanel(type = "tabs",
-                    tabPanel("Plot", plotOutput("plot")),
-                    tabPanel("Summary", verbatimTextOutput("summary")),
-                    tabPanel("Table", tableOutput("table")))
+                    tabPanel(
+                      'Homes', 
+                      pickerInput(
+                        inputId = "Id093",
+                        label = 'In this neighborhood, the most undervalued homes are...', 
+                        choices = rownames(mtcars),
+                        choicesOpt = list(
+                          subtext = paste("mpg", 
+                                          mtcars$mpg,
+                                          sep = ": "))
+                      )
+                      ),
+                    tabPanel(
+                      'Time Prediction', verbatimTextOutput("summary")
+                      ),
+                    tabPanel(
+                      '', tableOutput("table")
+                      )
+                    )
       )
     )
   )
