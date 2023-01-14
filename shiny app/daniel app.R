@@ -21,6 +21,8 @@ location = na.omit(location)
 df = read.csv('./../data/cleaned_housing.csv')
 housing = merge(df, location, by="PID")
 
+df_neighborhood = read.csv("./../data/Predicted_vs_Sales.csv")
+
 
 # 
 # # Define UI for application
@@ -56,14 +58,17 @@ ui <- dashboardPage(
                     max = max(df$SalePrice),
                     value = c(0.25 * max(df$SalePrice), 
                               0.75 * max(df$SalePrice))),
-        plotOutput('timeseries')
+        tabsetPanel(type = "tabs",
+                    tabPanel("Plot", plotOutput("plot")),
+                    tabPanel("Summary", verbatimTextOutput("summary")),
+                    tabPanel("Table", tableOutput("table")))
       )
     )
   )
 )
 
 
-source_python('timeseries.py')
+# source_python('timeseries.py')
 server <- function(input, output, session) {
   
   
