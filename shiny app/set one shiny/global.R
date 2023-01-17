@@ -1,5 +1,3 @@
-# AirBNB RProject
-
 library(sf)
 library(tigris)
 library(mapview)
@@ -11,12 +9,12 @@ library(tidyr)
 library(lubridate)
 library(shinyWidgets)
 library(DT)
-# remotes::install_github("deepanshu88/summaryBox")
-library(summaryBox)
-library(shinythemes)
 
 location = na.omit(read.csv("./../../data/Ames_loc.csv"))
 df = read.csv('./../../data/cleaned_housing.csv')
+df2 = read.csv('./../../data/cleaned_housing.csv')
 housing = merge(df, location, by="PID")
 df_predictions = read.csv("./home_flipping.csv")
 undervalued25 = read.csv('./undervalued25.csv')
+df_coefs = read_csv('./../../data/final_predictions.csv')
+df_feats = read.csv('./final_features.csv')

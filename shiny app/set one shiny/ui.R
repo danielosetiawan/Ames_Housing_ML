@@ -73,14 +73,21 @@ dashboardPage(
             menuSide = 'right',
             
             verticalTabPanel(
+              materialSwitch(
+                status = 'success',
+                inputId = 'ts_ci', 
+                label = 'Show confidence intervals', 
+                value = TRUE, right = TRUE
+              ),
               title = 'Time Forecasting', box_height = 5,
               icon = icon("line-chart", class = "fa-2x"),
               # tags$b('Forecasted Time Analysis of Homes in Ames'),
-              tags$br(), tags$br(), tags$br(), 
+              # tags$br(), tags$br(), tags$br(), 
               addSpinner(
                 uiOutput(outputId = "sarima", height = "100%"),
                 spin = spinner
               )
+              
             ),
             
             verticalTabPanel(
@@ -109,13 +116,38 @@ dashboardPage(
                       status = 'info', 
                       solidHeader = TRUE,                    
                       collapsible = TRUE,
-                      sliderInput(inputId = "animation", 
-                                  label = "Looping Animation:",
-                                  min = 1, max = 2000,
-                                  value = 1, step = 10,
-                                  animate =
-                                    animationOptions(interval = 300, loop = TRUE)),
-                      valueBoxOutput(width=NULL, 'prediction')),
+                      sliderInput(
+                        inputId = 'sqft_slider',
+                        label = 'Total Sq. Ft',
+                        min = 1, max = 2000,
+                        value = 1, step = 10,
+                        animate =
+                          animationOptions(interval = 300, loop = TRUE)),
+                      
+                      # tags$b('Overall'),
+                      # uiOutput(outputId = 'OverallCondition'),
+                      column(
+                        width = 6,
+                        uiOutput(outputId = 'OverallCondition'),
+                        actionGroupButtons(
+                          inputIds = c('OvCond_up', 'OvCond_down'),
+                          labels = list(tags$span(icon('arrow-up'), ''), 
+                                      tags$span(icon('arrow-down'), '')),
+                          status = c('success', 'danger')
+                        ),
+                        uiOutput(outputId = 'OverallConditionVal'),
+                      ),
+                      column(
+                        width = 6,
+                        uiOutput(outputId = 'OverallQuality'),
+                        actionGroupButtons(
+                          inputIds = c('OvQual_up', 'OvQual_down'),
+                          labels = list(tags$span(icon('arrow-up'), ''), 
+                                       tags$span(icon('arrow-down'), '')),
+                          status = c('success', 'danger')
+                       ))
+                      ),
+                      infoBoxOutput(width=NULL, 'prediction'),
                   
                   
                 
@@ -125,17 +157,14 @@ dashboardPage(
             
             verticalTabPanel(
               box_height = 5,
-              title = "Exchange", icon = icon("exchange", class = "fa-2x"),
-              addSpinner(
-                billboarderOutput(outputId = "plot_exchange", height = "100%"),
-                spin = spinner
-              ),
-              materialSwitch(
-                inputId = "by_country", 
-                label = "See details by country", 
-                value = FALSE, right = TRUE
-              )
+              title = 'Dataset', 
+              icon = icon("exchange", class = "fa-2x"),
+              fluidRow(
+                dataTableOutput(
+                  outputId = 'prediction_df', 
+                  height = "100%"))
             ),
+            
             
             verticalTabPanel(
               box_height = 5,

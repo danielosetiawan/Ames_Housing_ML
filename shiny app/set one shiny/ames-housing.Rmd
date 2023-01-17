@@ -68,8 +68,6 @@ read.csv("./home_flipping.csv") %>%
 ```
 
 
-```{r}
-```
 
 
 ```{r}
@@ -98,17 +96,54 @@ df_predictions %>%
 ```
 
 ```{r}
-typeof(df_predictions %>% 
-  mutate(Delta = ifelse(Value == 'fair price', ')', paste0(abs(round(Delta)), 'K'))))
+df
 ```
-
 
 ```{r}
-sarima_model = 'NAmes'
-
-paste0('./img/', sarima_model, 
-                            '_sarima_prediction.png')
+feats = read_csv('./../../data/final_predictions.csv', show_col_types=FALSE)
+feats
 ```
 
+```{r}
+coefs = read_csv('./../../data/final_predictions.csv', show_col_types=FALSE)
 
+df_predictions %>%
+  select(PID, Prop_Addr) %>%
+  merge(., read.csv('./../../data/final_features.csv')) %>%
+  distinct() %>%
+  select(-PID) %>%
+  write_csv('./final_features.csv')
+
+features
+coefs
+```
+
+```{r}
+address = '3113 NORTHWOOD DR'
+
+predicted = read_csv('./final_features.csv', show_col_types = FALSE) %>%
+  filter(Prop_Addr == address) %>%
+  select(-Prop_Addr) %>%
+  as_vector()
+
+(predicted %*% coefs$coefs)
+```
+
+```{r}
+address = '208 S WALNUT AVE'
+
+feats2 = read_csv('./final_features.csv', show_col_types = FALSE) %>%
+  filter(Prop_Addr == address) %>%
+  select(-Prop_Addr)
+
+
+feats2 %>%
+  mutate(GrLivArea = 1628) %>%
+  as_vector() %*% 
+  coefs$coefs
+```
+
+```{r}
+coefs
+```
 
