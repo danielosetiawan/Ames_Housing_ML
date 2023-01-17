@@ -38,18 +38,13 @@ address = '623 RIVER OAK DR, Ames, USA'
 df_predictions %>%
   filter(Prop_Addr == address)
 ```
-valueBoxOutput(width = NULL, 'square_ft'),
-                valueBoxOutput(width = NULL, 'saleprice'),
-                valueBoxOutput(width = NULL, 'year'),
-                valueBoxOutput(width = NULL, 'accommodation'),
-                valueBoxOutput(width = NULL, 'neighborhood_income'),
-                valueBoxOutput(width = NULL, 'school_quality'),
+
 ```{r}
 df_predictions = housing %>%
   select(PID, GrLivArea, school_quality, nb_income, nb_appreciation, crime_rate, 
          YearBuilt, FullBath, HalfBath, BedroomAbvGr, YearRemodAdd, OverallQual,
          OverallCond, LotArea, X1stFlrSF, X2ndFlrSF, TotalBsmtSF,
-         KitchenQual, GarageQual, BsmtQual) %>%
+         KitchenQual, GarageQual, BsmtQual, Latitude, Longitude) %>%
   mutate(KitchenQual = case_when(
     KitchenQual == 'Po' ~ '1', KitchenQual == 'Fa' ~ '2', KitchenQual == 'TA' ~ '3',
     KitchenQual == 'Gd' ~ '4', KitchenQual == 'Ex' ~ '5'),
@@ -64,7 +59,8 @@ df_predictions = housing %>%
 read.csv("./home_flipping.csv") %>%
   tail(10)
   
-#{'Po': 1, 'Fa': 2, 'TA': 3, 'Gd': 4, 'Ex': 5}
+housing %>%
+  select(Latitude)
 ```
 
 
@@ -144,6 +140,12 @@ feats2 %>%
 ```
 
 ```{r}
-coefs
+5.5 / 
+```
+
+
+```{r}
+df_predictions %>%
+  mutate(FullBath = 5)
 ```
 

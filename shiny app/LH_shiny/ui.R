@@ -1,3 +1,5 @@
+## laurel he
+
 library(shiny)
 library(shinydashboard)
 
@@ -191,10 +193,10 @@ dashboardPage(
               ),
               conditionalPanel(
                 condition = "input.capacities_plot == 'summary'",
-                addSpinner(
-                  billboarderOutput(outputId = "plot_active_units_p", height = "100%"),
-                  spin = spinner
-                )
+                # addSpinner(
+                #   # billboarderOutput(outputId = "plot_active_units_p", height = "100%"),
+                #   spin = spinner
+                # )
               ),
               conditionalPanel(
                 condition = "input.capacities_plot != 'summary'",

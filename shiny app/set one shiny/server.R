@@ -1,38 +1,8 @@
-# ML Ames
-# backend code
+## daniel server
 
 function(input, output, session) {
   
-  
-  # assignments if neighborhood changes
-  
-  
-  
-  # slider_range = reactive({
-  #   c(input$budget[1], input$budget[2])
-  # })
-  # observeEvent(input$budget, {
-  #   slider_min = input$budget[1]
-  #   slider_max = input$budget[2]
-  
   observeEvent(input$neighborhood, {
-    
-    
-    ##### budget slider
-    # min_price = min(df_neighborhood()$SalePrice)
-    # max_price = max(df_neighborhood()$SalePrice)
-    # mid_price = max_price - min_price
-    # first_qtl = signif(min_price + 0.25 * mid_price, 2)
-    # third_qtl = signif(max_price - 0.25 * mid_price, 2)
-    
-    # updateSliderInput(
-    #   session,
-    #   inputId = 'budget',
-    #   min = signif(min_price, 2),
-    #   max = signif(max_price, 2),
-    #   value = c(first_qtl, third_qtl)
-    # )
-  
 
 ### timeseries
     observeEvent(input$ts_ci, {
@@ -40,15 +10,13 @@ function(input, output, session) {
       if (input$neighborhood == 'All Neighborhoods') {
         
         sarima_model = ifelse(input$ts_ci == TRUE, 
-                              './img/with_ci/Ames_sarima_prediction.png', 
-                              './img/without_ci/Ames_sarima_prediction_noci.png')
+                              './img/ts_with_ci/Ames_sarima_prediction.png', 
+                              './img/ts_without_ci/Ames_sarima_prediction_noci.png')
       } else {
-        # sarima_model = paste0('./img/', input$neighborhood, 
-        #                       '_sarima_prediction.png')
         sarima_model = ifelse(input$ts_ci == TRUE, 
-                              paste0('./img/with_ci/', input$neighborhood, 
+                              paste0('./img/ts_with_ci/', input$neighborhood, 
                                      '_sarima_prediction.png'),
-                              paste0('./img/without_ci/', input$neighborhood, 
+                              paste0('./img/ts_without_ci/', input$neighborhood, 
                                      '_sarima_prediction_noci.png'))
       }
       
@@ -199,15 +167,15 @@ function(input, output, session) {
       )
       
       output$OverallCondition = renderUI({
-        HTML(paste0('Overall Condition: ', OverallCondVal()))
-      })
-      
-      # output$OverallConditionVal = renderUI({
-      #   HTML(paste0(OverallCondVal()))
-      # })
+        
+        
+        
+        HTML(paste0('Condition: ', OverallCondVal()))
+        
+        })
       
       output$OverallQuality = renderUI({
-        HTML(paste0('Overall Condition: ', OverallQualVal()))
+        HTML(paste0('Quality: ', OverallQualVal()))
       })
       
       
@@ -232,6 +200,7 @@ function(input, output, session) {
         
         
         
+        
       })
     })
   })
@@ -246,21 +215,21 @@ function(input, output, session) {
   ############ reactive functions ############
   
   OverallCondVal = reactive({
-    
+
     feature = df_features()$OverallCond
-    up = reactive({input$OvCond_up})
-    down = reactive({input$OvCond_down})
-    
-    return(feature + up() - down())
+    up = input$OvCond_up
+    down = input$OvCond_down
+
+    return(feature + up - down)
   })
   
   OverallQualVal = reactive({
     
     feature = df_features()$OverallQual
-    up = reactive({input$OvQual_up})
-    down = reactive({input$OvQual_down})
+    up = input$OvQual_up
+    down = input$OvQual_down
     
-    return(feature + up() - down())
+    return(feature + up - down)
   })
   
   sqft = reactive({

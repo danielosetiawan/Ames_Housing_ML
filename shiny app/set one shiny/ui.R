@@ -2,11 +2,12 @@ library(shiny)
 library(shinydashboard)
 
 # # Define UI for application
-spinner = 'folding-cube'
+spinner = 'double-bounce'
 
 dashboardPage(
   dashboardHeader(
-    title = ''),
+    title = ''
+    ),
   dashboardSidebar(
     collapsed = TRUE,
     sidebarMenu(
@@ -81,8 +82,6 @@ dashboardPage(
               ),
               title = 'Time Forecasting', box_height = 5,
               icon = icon("line-chart", class = "fa-2x"),
-              # tags$b('Forecasted Time Analysis of Homes in Ames'),
-              # tags$br(), tags$br(), tags$br(), 
               addSpinner(
                 uiOutput(outputId = "sarima", height = "100%"),
                 spin = spinner
@@ -124,29 +123,31 @@ dashboardPage(
                         animate =
                           animationOptions(interval = 300, loop = TRUE)),
                       
-                      # tags$b('Overall'),
-                      # uiOutput(outputId = 'OverallCondition'),
-                      column(
-                        width = 6,
+                        column(
+                        offset = 1,
+                        width = 5,
+                        style='padding:0px',
+                        
                         uiOutput(outputId = 'OverallCondition'),
+
                         actionGroupButtons(
                           inputIds = c('OvCond_up', 'OvCond_down'),
-                          labels = list(tags$span(icon('arrow-up'), ''), 
+                          labels = list(tags$span(icon('arrow-up'), ''),
                                       tags$span(icon('arrow-down'), '')),
                           status = c('success', 'danger')
-                        ),
-                        uiOutput(outputId = 'OverallConditionVal'),
+                        )
                       ),
                       column(
-                        width = 6,
-                        uiOutput(outputId = 'OverallQuality'),
+                        offset = 1,
+                        width = 5,
+                      style='padding:0px',
+                      uiOutput(outputId = 'OverallQuality'),
                         actionGroupButtons(
                           inputIds = c('OvQual_up', 'OvQual_down'),
-                          labels = list(tags$span(icon('arrow-up'), ''), 
+                          labels = list(tags$span(icon('arrow-up'), ''),
                                        tags$span(icon('arrow-down'), '')),
                           status = c('success', 'danger')
-                       ))
-                      ),
+                      ))),
                       infoBoxOutput(width=NULL, 'prediction'),
                   
                   

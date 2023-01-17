@@ -1,5 +1,4 @@
-# ML Ames
-# backend code
+## laurel he
 
 function(input, output, session) {
   
@@ -43,38 +42,23 @@ function(input, output, session) {
   
   observeEvent(input$neighborhood, {
     
-    
-    ##### budget slider
-    # min_price = min(df_neighborhood()$SalePrice)
-    # max_price = max(df_neighborhood()$SalePrice)
-    # mid_price = max_price - min_price
-    # first_qtl = signif(min_price + 0.25 * mid_price, 2)
-    # third_qtl = signif(max_price - 0.25 * mid_price, 2)
-    
-    # updateSliderInput(
-    #   session,
-    #   inputId = 'budget',
-    #   min = signif(min_price, 2),
-    #   max = signif(max_price, 2),
-    #   value = c(first_qtl, third_qtl)
-    # )
   
 
-### timeseries
+###### timeseries panel ######
     observeEvent(input$ts_ci, {
       
       if (input$neighborhood == 'All Neighborhoods') {
-        sarima_model = ifelse(input$ts_ci == TRUE, 
-                              './img/with_ci/Ames_sarima_prediction.png', 
-                              './img/without_ci/Ames_sarima_prediction_noci.png')
+        sarima_model = ifelse(
+          input$ts_ci == TRUE, 
+          './img/with_ci/Ames_sarima_prediction.png', 
+          './img/without_ci/Ames_sarima_prediction_noci.png'
+          )
       } else {
-        # sarima_model = paste0('./img/', input$neighborhood, 
-        #                       '_sarima_prediction.png')
-        sarima_model = ifelse(input$ts_ci == TRUE, 
-                              paste0('./img/with_ci/', input$neighborhood, 
-                                     '_sarima_prediction.png'),
-                              paste0('./img/without_ci/', input$neighborhood, 
-                                     '_sarima_prediction_noci.png'))
+        sarima_model = ifelse(
+          input$ts_ci == TRUE, 
+          paste0('./img/with_ci/', input$neighborhood, '_sarima_prediction.png'),
+          paste0('./img/without_ci/', input$neighborhood, '_sarima_prediction_noci.png')
+          )
       }
       
       output$sarima = renderUI({
@@ -86,7 +70,7 @@ function(input, output, session) {
     
     })
     
-### addresses
+###### main panel #####
     updatePickerInput(
       session,
       inputId = 'address',
@@ -118,7 +102,7 @@ function(input, output, session) {
   
     observeEvent(input$address, {
       
-      ## info boxes
+##### main info boxes  #####
       output$crime_rate <- renderValueBox({
         valueBox(
           value = tags$p('Crime Rate', style = "font-size: 50%;"),
@@ -156,19 +140,9 @@ function(input, output, session) {
           color = 'yellow')
       })
       
-      output$saleprice <- renderValueBox({
-        
-        price = paste0(round(df_property()$SalePrice / 1000), 'K')
-        
-        valueBox(
-          value = tags$p('Sale Price', style = "font-size: 50%;"),
-          subtitle=tags$p(price, style = "font-size: 200%;"),
-          icon = icon('sack-dollar'),
-          color = 'light-blue')
-      })
+##### parameter tuning panel #####
       
-      
-      ## current home
+      ### current home ###
       
       output$current_home = renderUI({
         
@@ -211,7 +185,7 @@ function(input, output, session) {
       })
       
       
-      ###### what if..?
+      ### what if..? ###
       
       updateSliderInput(
         session,
@@ -225,16 +199,12 @@ function(input, output, session) {
         HTML(paste0('Overall Condition: ', OverallCondVal()))
       })
       
-      # output$OverallConditionVal = renderUI({
-      #   HTML(paste0(OverallCondVal()))
-      # })
-      
       output$OverallQuality = renderUI({
         HTML(paste0('Overall Condition: ', OverallQualVal()))
       })
       
       
-      ##### predicted home
+      ### predicted homeprice ###
       
       output$prediction = renderInfoBox({
         
@@ -259,14 +229,15 @@ function(input, output, session) {
     })
   })
   
-  ## 
+##### dataframe panel #####
+  
   output$prediction_df <- renderDataTable(
     df_predictions,
     options = list(pageLength = 4,
                    scrollX = TRUE,
                    scrollY = TRUE))
   
-  ############ reactive functions ############
+############ reactive functions ############
   
   OverallCondVal = reactive({
     
