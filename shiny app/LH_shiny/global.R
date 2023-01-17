@@ -1,0 +1,24 @@
+library(sf)
+library(tigris)
+library(mapview)
+library(leaflet)
+library(shinycssloaders)
+library(dplyr)
+library(tidyverse)
+library(tidyr)
+library(lubridate)
+library(shinyWidgets)
+library(DT)
+library(leaflegend)
+
+location = na.omit(read.csv("./../../data/Ames_loc.csv"))
+df = read.csv('./../../data/cleaned_housing.csv')
+df2 = read.csv('./../../data/cleaned_housing.csv')
+housing = merge(df, location, by="PID")
+df_predictions = read.csv("./home_flipping.csv")
+undervalued25 = read.csv('./undervalued25.csv')
+df_coefs = read_csv('./../../data/final_predictions.csv')
+df_feats = read.csv('./final_features.csv')
+sub_house = housing[, c('GrLivArea', 'LotFrontage', 'LotArea', 'BldgType', 'YearBuilt', 'YearRemodAdd', 'HouseStyle', 
+                        'OverallCond', 'GarageArea', 'TotalBsmtSF', 'Foundation', 'SalePrice', 'crime_rate', 'school_quality',
+                        'nb_appreciation', 'nb_income', 'Neighborhood')]
