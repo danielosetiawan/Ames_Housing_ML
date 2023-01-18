@@ -119,9 +119,9 @@ dashboardPage(
               )
             ),
             
-          # ------------------------------
+          # --------------------------------
           # Vertical Panel: Parameter Tuning
-          # ------------------------------
+          # --------------------------------
             
             verticalTabPanel(
               title = 'Parameter Tuning', box_height = 5,
@@ -159,9 +159,9 @@ dashboardPage(
                       solidHeader = TRUE,                    
                       collapsible = TRUE,
                       
-                      # ------------------------------------
+                      # ----------------------------------
                       # Parameter Tuning: Sq. Ft. Slider
-                      # ------------------------------------
+                      # ----------------------------------
                       
                       sliderInput(
                         inputId = 'sqft_slider',
