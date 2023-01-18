@@ -5,7 +5,7 @@ library(shinydashboard)
 spinner = 'double-bounce'
 
 dashboardPage(
-  dashboardHeader(
+  dashboardHeader(titleWidth = 100,
     title = ''
     # titleWidth = 0
     ),
@@ -13,21 +13,25 @@ dashboardPage(
     collapsed = TRUE,
     sidebarMenu(
       menuItem('Homepage', tabName = 'dashboard', icon = icon('house')),
-      menuItem("Home Flipping", tabName = 'flipping', icon = icon('wand-magic-sparkles')),
-      menuItem("Machine Learning", tabName = 'ml', icon = icon('gears')),
+      menuItem('Dataset', tabName = 'dataset', icon = icon('wand-magic-sparkles')),
       menuItem("About", tabName = 'about', icon = icon('user'))
     )
   ),
   dashboardBody(
     tabItems(
+
+# ----------------------------------------------------------------
+# HOMEPAGE
+# ----------------------------------------------------------------
+      
       tabItem(
         tabName = 'dashboard',
         fluidPage(
           theme = 'journal',
           
-# ----------------------------------------------------------------
-# MAIN PANEL
-# ----------------------------------------------------------------
+    # ----------------------------------------------------------------
+    # MAIN PANEL
+    # ----------------------------------------------------------------
           
           fluidRow(
             box(
@@ -84,9 +88,9 @@ dashboardPage(
             verticalTabsetPanel(
               menuSide = 'right',
             
-# ----------------------------------------------------------------
-# HOUSING MAP PANEL
-# ----------------------------------------------------------------
+    # ----------------------------------------------------------------
+    # HOUSING MAP PANEL
+    # ----------------------------------------------------------------
             
             verticalTabPanel(
               title = 'Ames Housing Map', box_height = 5,
@@ -94,9 +98,9 @@ dashboardPage(
               leafletOutput("map")
             ),
             
-# ----------------------------------------------------------------
-# TIMESERIES PANEL
-# ----------------------------------------------------------------
+    # ----------------------------------------------------------------
+    # TIMESERIES PANEL
+    # ----------------------------------------------------------------
 
             verticalTabPanel(
               title = 'Time Forecasting', box_height = 5,
@@ -111,12 +115,11 @@ dashboardPage(
                 uiOutput(outputId = "sarima", height = "100%"),
                 spin = spinner
               )
-              
             ),
             
-# ----------------------------------------------------------------
-# PARAMETER TUNING PANEL
-# ----------------------------------------------------------------
+    # ----------------------------------------------------------------
+    # PARAMETER TUNING PANEL
+    # ----------------------------------------------------------------
             
             verticalTabPanel(
               title = 'Parameter Tuning', box_height = 5,
@@ -277,9 +280,9 @@ dashboardPage(
               )
             ),
             
-# ----------------------------------------------------------------
-# DATASET PANEL
-# ----------------------------------------------------------------
+    # ----------------------------------------------------------------
+    # DATASET PANEL
+    # ----------------------------------------------------------------
 
             verticalTabPanel(
               box_height = 5,
