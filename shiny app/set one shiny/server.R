@@ -1,35 +1,93 @@
-## daniel server
+# ----------------------------------------------------------------
+
+# Backend for Ames Housing Project
+
+# ----------------------------------------------------------------
 
 function(input, output, session) {
   
   observeEvent(input$neighborhood, {
+    
 
-### timeseries
+# ----------------------------------------------------------------
+# HOUSING MAP PANEL
+# ----------------------------------------------------------------
+    
+    session$onFlushed(once=TRUE, function(){
+      output$map = renderLeaflet({  
+        factpal = colorFactor(
+          palette = rainbow(25), 
+          domain = housing$Neighborhood)
+        leaflet(data = housing) %>%
+          addTiles() %>% 
+          addCircleMarkers(
+            lng = ~Longitude, lat = ~Latitude, color = ~factpal(Neighborhood), 
+            radius = 0.5, layerId = ~PID) %>% 
+          addLegendFactor(
+            pal = factpal, values = ~Neighborhood, position = 'topright', 
+            labelStyle = 'font-size: 8px;', height = 8, width=8)
+      })
+    })
+    
+    
+    
+    observe({
+      click <- input$map_marker_click
+      if (is.null(click))
+        return()
+      data = housing[housing$PID == click$id,]
+      content <- as.character(tagList(
+        sprintf("Sale Price: $ %s", data$SalePrice), tags$br(),
+        sprintf("Neighborhood: %s", data$Neighborhood), tags$br(),
+        sprintf("Living Area: %s sq ft", data$GrLivArea), tags$br(),
+        sprintf("Overall Condition: %s", data$OverallCond)
+      ))
+      leafletProxy(mapId = "map") %>%
+        addPopups(lng = click$lng, lat = click$lat, 
+                  popup = content, layerId = click$id)
+    })
+    
+# from generation
+    output$map_capacities <- renderLeaflet({
+      if (input$capacities_plot == 'map') {
+        req(active_units_r())
+        autoplot(active_units_r(), interactive = TRUE, map = TRUE)
+      } else if (input$capacities_plot == 'global') {
+        req(installed_capacities_r())
+        autoplot(installed_capacities_r(), interactive = TRUE)
+      }
+    })
+        
+# ----------------------------------------------------------------
+# TIMESERIES PANEL
+# ----------------------------------------------------------------
+    
     observeEvent(input$ts_ci, {
       
       if (input$neighborhood == 'All Neighborhoods') {
-        
-        sarima_model = ifelse(input$ts_ci == TRUE, 
-                              './img/ts_with_ci/Ames_sarima_prediction.png', 
-                              './img/ts_without_ci/Ames_sarima_prediction_noci.png')
+        sarima_model = ifelse(
+          input$ts_ci == TRUE, 
+          './img/ts_with_ci/Ames_sarima_prediction.png', 
+          './img/ts_without_ci/Ames_sarima_prediction_noci.png'
+        )
       } else {
-        sarima_model = ifelse(input$ts_ci == TRUE, 
-                              paste0('./img/ts_with_ci/', input$neighborhood, 
-                                     '_sarima_prediction.png'),
-                              paste0('./img/ts_without_ci/', input$neighborhood, 
-                                     '_sarima_prediction_noci.png'))
+        sarima_model = ifelse(
+          input$ts_ci == TRUE, 
+          paste0('./img/ts_with_ci/', input$neighborhood, '_sarima_prediction.png'),
+          paste0('./img/ts_without_ci/', input$neighborhood, '_sarima_prediction_noci.png')
+        )
       }
       
       output$sarima = renderUI({
         HTML(paste0('<img width = "100%", height = "70%",
                     src= "', sarima_model, '"/>'))
         
+      })
     })
     
-    
-    })
-    
-### addresses
+# ----------------------------------------------------------------
+# MAIN PANEL
+# ----------------------------------------------------------------
     updatePickerInput(
       session,
       inputId = 'address',
@@ -42,26 +100,29 @@ function(input, output, session) {
           df_undervalued()$SalePrice, ' (',
           df_undervalued()$Value,
           df_undervalued()$Delta, ')'
-          )
         )
+      )
     )
     
     output$undervalued_dt = renderDataTable(
       server = FALSE,
       datatable(df_undervalued(), 
-      filter = 'top', 
-      selection = 'single',
-      options = list(
-        pageLength = 5, 
-        scrollY = "600px", 
-        autoWidth = TRUE))
+                filter = 'top', 
+                selection = 'single',
+                options = list(
+                  pageLength = 5, 
+                  scrollY = "600px", 
+                  autoWidth = TRUE))
     )
     
-
-  
+    
+    
     observeEvent(input$address, {
+
+      # ------------------------------
+      # Main Panel: Info Boxes
+      # ------------------------------
       
-      ## info boxes
       output$crime_rate <- renderValueBox({
         valueBox(
           value = tags$p('Crime Rate', style = "font-size: 50%;"),
@@ -82,7 +143,6 @@ function(input, output, session) {
       })
       
       output$income <- renderValueBox({
-        
         valueBox(
           value = tags$p('Neighborhood Income', style = "font-size: 50%;"),
           subtitle=tags$p(paste0(df_property()$nb_income, ' / 10'), 
@@ -92,7 +152,6 @@ function(input, output, session) {
       })
       
       output$appreciation <- renderValueBox({
-        
         valueBox(
           value = tags$p('Neighborhood Appreciation', style = "font-size: 50%;"),
           subtitle=tags$p(paste0(df_property()$nb_appreciation, ' / 10'), 
@@ -101,19 +160,13 @@ function(input, output, session) {
           color = 'yellow')
       })
       
-      output$saleprice <- renderValueBox({
-        
-        price = paste0(round(df_property()$SalePrice / 1000), 'K')
-        
-        valueBox(
-          value = tags$p('Sale Price', style = "font-size: 50%;"),
-          subtitle=tags$p(price, style = "font-size: 200%;"),
-          icon = icon('sack-dollar'),
-          color = 'light-blue')
-      })
+# ----------------------------------------------------------------
+# PARAMETER TUNING PANEL
+# ----------------------------------------------------------------
       
-      
-      ## current home
+      # ------------------------------
+      # Parameter Tuning: Current Home
+      # ------------------------------
       
       output$current_home = renderUI({
         
@@ -151,12 +204,14 @@ function(input, output, session) {
                  'Kitchen Quality: <b>', df_property()$KitchenQual, '/5</b><br>',
                  'Garage Quality: <b>', df_property()$GarageQual, '/5</b><br>',
                  'Basement Quality: <b>', df_property()$BsmtQual, '/5</b><br>'
-             ))
+          ))
         
       })
       
       
-      ###### what if..?
+      # ------------------------------
+      # Parameter Tuning: What If...?
+      # ------------------------------
       
       updateSliderInput(
         session,
@@ -165,28 +220,43 @@ function(input, output, session) {
         value = df_features()$GrLivArea,
         max = 5000
       )
+
+      
+      output$Bedrooms = renderUI({
+        
+        
+        
+        
+        HTML(paste0('Bedrooms: ', BedroomsVal()))
+      })
+      
+      output$Bathrooms = renderUI({
+        HTML(paste0('Bathrooms: ', BathroomsVal()))
+      })
       
       output$OverallCondition = renderUI({
-        
-        
-        
         HTML(paste0('Condition: ', OverallCondVal()))
-        
-        })
+      })
       
       output$OverallQuality = renderUI({
         HTML(paste0('Quality: ', OverallQualVal()))
       })
       
       
-      ##### predicted home
+      # ------------------------------
+      # Parameter Tuning: Prediction
+      # ------------------------------
       
       output$prediction = renderInfoBox({
         
         predicted_df = df_features() %>%
           mutate(GrLivArea = sqft(),
                  OverallCond = OverallCondVal(),
-                 OverallQual = OverallQualVal()) %>%
+                 OverallQual = OverallQualVal(),
+                 BedroomAbvGr = BedroomsVal(),
+                 HalfBath = BathroomsVal()
+                 
+                 ) %>%
           as_vector() %*% 
           df_coefs$coefs
         
@@ -200,79 +270,93 @@ function(input, output, session) {
         
         
         
-        
       })
     })
   })
   
-  ## 
+# ----------------------------------------------------------------
+# DATASET PANEL
+# ----------------------------------------------------------------
+  
   output$prediction_df <- renderDataTable(
     df_predictions,
     options = list(pageLength = 4,
                    scrollX = TRUE,
                    scrollY = TRUE))
   
-  ############ reactive functions ############
+
+# ----------------------------------------------------------------
+# ALL REACTIVE FUNCTIONS
+# ----------------------------------------------------------------
+  
+  ### note: these reactive functions dont reset when you change property
+  # maybe put them inside the observe and do an if function ??
+  # how to achieve?
+  BedroomsVal = reactive({
+
+    df_property()$BedroomAbvGr +
+      input$bedrooms_up - input$bedrooms_down
+
+  })
+  
+  BathroomsVal = reactive({
+    
+    df_property()$FullBath + df_property()$HalfBath / 2 +
+      input$bathrooms_up - input$bathrooms_down
+    
+  })
   
   OverallCondVal = reactive({
-
-    feature = df_features()$OverallCond
-    up = input$OvCond_up
-    down = input$OvCond_down
-
-    return(feature + up - down)
+    
+    df_features()$OverallCond + 
+      input$OvCond_up - input$OvCond_down
+    
   })
   
   OverallQualVal = reactive({
     
-    feature = df_features()$OverallQual
-    up = input$OvQual_up
-    down = input$OvQual_down
+    df_features()$OverallQual + 
+      input$OvQual_up - input$OvQual_down
     
-    return(feature + up - down)
   })
   
   sqft = reactive({
     input$sqft_slider
   })
+  
+  df_neighborhood = reactive({
     
-    df_neighborhood = reactive({
-
-      if (input$neighborhood == 'All Neighborhoods') {
-        df_predictions
-      } else {
-        df_predictions %>%
-          filter(Neighborhood == input$neighborhood)
-      }})
-    
-    df_property = reactive({
+    if (input$neighborhood == 'All Neighborhoods') {
+      df_predictions
+    } else {
       df_predictions %>%
-        filter(Prop_Addr == input$address)
-    })
-    
-    
-    
-    df_undervalued = reactive({
-      df_neighborhood() %>%
-        head(25) %>%
-        select(Prop_Addr, Delta, SalePrice) %>%
-        mutate(SalePrice = paste0(round(as.numeric(SalePrice / 1000)), 'K'),
-               Value = case_when(as.numeric(Delta/1e3) <= -5  ~ 'undervalued by ',
-                                 as.numeric(Delta/1e3) >= 5 ~ 'overvalued by ',
-                                 TRUE ~ 'fair price'),
-               Delta = ifelse(Value == 'fair price', '', 
-                              paste0(abs(round(as.numeric(Delta/1e3))), 'K')))
-    })
-    
-    df_features = reactive({
-      df_feats %>%
-        filter(Prop_Addr == input$address) %>%
-        select(-Prop_Addr)
-    })
-    
-    
-    
-    ####################
+        filter(Neighborhood == input$neighborhood)
+    }})
+  
+  df_property = reactive({
+    df_predictions %>%
+      filter(Prop_Addr == input$address)
+  })
+  
+  
+  
+  df_undervalued = reactive({
+    df_neighborhood() %>%
+      head(25) %>%
+      select(Prop_Addr, Delta, SalePrice) %>%
+      mutate(SalePrice = paste0(round(as.numeric(SalePrice / 1000)), 'K'),
+             Value = case_when(as.numeric(Delta/1e3) <= -5  ~ 'undervalued by ',
+                               as.numeric(Delta/1e3) >= 5 ~ 'overvalued by ',
+                               TRUE ~ 'fair price'),
+             Delta = ifelse(Value == 'fair price', '', 
+                            paste0(abs(round(as.numeric(Delta/1e3))), 'K')))
+  })
+  
+  df_features = reactive({
+    df_feats %>%
+      filter(Prop_Addr == input$address) %>%
+      select(-Prop_Addr)
+  })
   
   
 }
