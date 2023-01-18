@@ -1,5 +1,3 @@
-## laurel he
-
 library(shiny)
 library(shinydashboard)
 
@@ -38,38 +36,38 @@ dashboardPage(
               collapsible=TRUE,
               width = 4,
               height = 200, 
-                selectInput(
-                  inputId = 'neighborhood', 
-                  label = 'Neighborhood',
-                  choices = c('All Neighborhoods', 
-                              unique(df_predictions$Neighborhood)),
-                  selected = 'Neighborhood'
-                ),
-                pickerInput(
-                  inputId = 'address',
-                  label = 'Homes',
-                  choices = df_predictions$Prop_Addr),
-                  options = pickerOptions(
-                    virtualScroll = TRUE,
-                    dropupAuto = FALSE,
-                    width = '70%',
-                    title = FALSE
-            )),
-          
-          column(
+              selectInput(
+                inputId = 'neighborhood', 
+                label = 'Neighborhood',
+                choices = c('All Neighborhoods', 
+                            unique(df_predictions$Neighborhood)),
+                selected = 'Neighborhood'
+              ),
+              pickerInput(
+                inputId = 'address',
+                label = 'Homes',
+                choices = df_predictions$Prop_Addr),
+              options = pickerOptions(
+                virtualScroll = TRUE,
+                dropupAuto = FALSE,
+                width = '70%',
+                title = FALSE
+              )),
+            
+            column(
               width = 4,
               style='padding:3px',
-                valueBoxOutput(width=NULL, 'crime_rate'),
-                valueBoxOutput(width=NULL, 'school_quality')),
-          column(
-            width = 4, 
-            style='padding:3px',
-                valueBoxOutput(width=NULL, 'income'),
-                valueBoxOutput(width=NULL, 'appreciation')),
+              valueBoxOutput(width=NULL, 'crime_rate'),
+              valueBoxOutput(width=NULL, 'school_quality')),
+            column(
+              width = 4, 
+              style='padding:3px',
+              valueBoxOutput(width=NULL, 'income'),
+              valueBoxOutput(width=NULL, 'appreciation')),
           ),
-        
-##################################################################
-
+          
+          ##################################################################
+          
           verticalTabsetPanel(
             menuSide = 'right',
             
@@ -80,7 +78,7 @@ dashboardPage(
                 title = "Ames Housing Property Locations Colored by Neighborhood",
                 width = "100%",
                 height = "100%",
-                leafletOutput("map", height = 550)
+                leafletOutput("map", height = 450)
               )
             ),
             
@@ -119,49 +117,49 @@ dashboardPage(
                     uiOutput(outputId = 'current_home')
                   )),
                 column(
-                    width = 5,
-                    style='padding:3px',
-                    box(
-                      width = NULL,
-                      title=tagList('What if...', icon('question')),
-                      status = 'info', 
-                      solidHeader = TRUE,                    
-                      collapsible = TRUE,
-                      sliderInput(
-                        inputId = 'sqft_slider',
-                        label = 'Total Sq. Ft',
-                        min = 1, max = 2000,
-                        value = 1, step = 10,
-                        animate =
-                          animationOptions(interval = 300, loop = TRUE)),
-                      
-                      # tags$b('Overall'),
-                      # uiOutput(outputId = 'OverallCondition'),
-                      column(
-                        width = 6,
-                        uiOutput(outputId = 'OverallCondition'),
-                        actionGroupButtons(
-                          inputIds = c('OvCond_up', 'OvCond_down'),
-                          labels = list(tags$span(icon('arrow-up'), ''), 
+                  width = 5,
+                  style='padding:3px',
+                  box(
+                    width = NULL,
+                    title=tagList('What if...', icon('question')),
+                    status = 'info', 
+                    solidHeader = TRUE,                    
+                    collapsible = TRUE,
+                    sliderInput(
+                      inputId = 'sqft_slider',
+                      label = 'Total Sq. Ft',
+                      min = 1, max = 2000,
+                      value = 1, step = 10,
+                      animate =
+                        animationOptions(interval = 300, loop = TRUE)),
+                    
+                    # tags$b('Overall'),
+                    # uiOutput(outputId = 'OverallCondition'),
+                    column(
+                      width = 6,
+                      uiOutput(outputId = 'OverallCondition'),
+                      actionGroupButtons(
+                        inputIds = c('OvCond_up', 'OvCond_down'),
+                        labels = list(tags$span(icon('arrow-up'), ''), 
                                       tags$span(icon('arrow-down'), '')),
-                          status = c('success', 'danger')
-                        ),
-                        uiOutput(outputId = 'OverallConditionVal'),
+                        status = c('success', 'danger')
                       ),
-                      column(
-                        width = 6,
-                        uiOutput(outputId = 'OverallQuality'),
-                        actionGroupButtons(
-                          inputIds = c('OvQual_up', 'OvQual_down'),
-                          labels = list(tags$span(icon('arrow-up'), ''), 
-                                       tags$span(icon('arrow-down'), '')),
-                          status = c('success', 'danger')
-                       ))
-                      ),
-                      infoBoxOutput(width=NULL, 'prediction'),
+                      uiOutput(outputId = 'OverallConditionVal'),
+                    ),
+                    column(
+                      width = 6,
+                      uiOutput(outputId = 'OverallQuality'),
+                      actionGroupButtons(
+                        inputIds = c('OvQual_up', 'OvQual_down'),
+                        labels = list(tags$span(icon('arrow-up'), ''), 
+                                      tags$span(icon('arrow-down'), '')),
+                        status = c('success', 'danger')
+                      ))
+                  ),
+                  infoBoxOutput(width=NULL, 'prediction'),
                   
                   
-                
+                  
                 )
               )
             ),
