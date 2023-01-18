@@ -286,17 +286,23 @@ dashboardPage(
           # Vertical Panel: Visualization
           # ------------------------------
 
-            verticalTabPanel( #daniel erickson
-              box_height = 5,
-              title = 'Visualize Parameters', 
-              icon = icon("exchange", class = "fa-2x"),
-              fluidRow(
-                
-              )
+          verticalTabPanel(
+            box_height=5,
+            title = 'Visualize Prediction',
+            icon = icon('cog'),  ## Should change. Having trouble implementing other icons.
+            fluidRow(
+              infoBoxOutput(
+                width=6, 
+                outputId = 'predicted'),
+              infoBoxOutput(
+                width =6,
+                outputId='addedarea'),
+              plotOutput('scatplot')
+            )
             )
           )
         )
-      ),
+        ),
       
 # ------------------------------
 # Menu Item: Dataset

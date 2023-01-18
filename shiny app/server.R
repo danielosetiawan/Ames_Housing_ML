@@ -264,6 +264,92 @@ function(input, output, session) {
     })
   })
   
+  # ----------------------------------------------------------------
+  # VISUAL PANEL
+  # ----------------------------------------------------------------  
+  
+  output$predicted = renderInfoBox({
+    
+    predicted_df2 = df_features() %>%
+      mutate(GrLivArea = sqft(),
+             OverallCond = OverallCondVal(),
+             OverallQual = OverallQualVal(),
+             BedroomAbvGr = BedroomsVal(),
+             HalfBath = BathroomsVal()
+             
+      ) %>%
+      as_vector() %*%
+      df_coefs$coefs
+    
+    predicted_price = paste0(round(predicted_df2 / 1000), 'K')
+    
+    infoBox(
+      title = 'Predicted Price',
+      value = HTML(paste0('<b><h3>', predicted_price, '</b></h3>')),
+      icon = icon('money-bill-transfer'),
+      color = 'green', fill = TRUE)
+  })
+  
+  output$addedarea = renderInfoBox({
+    infoBox(
+      title = 'Added Square Footage',
+      value = HTML(paste0('<b><h3>', sqft()-df_features()['GrLivArea'], '</b></h3>')),
+      color = 'blue', fill = TRUE
+    )
+  })
+  
+  
+  output$scatplot = renderPlot({
+    
+    predicted_df3 = df_features() %>%
+      mutate(GrLivArea = sqft(),
+             OverallCond = OverallCondVal(),
+             OverallQual = OverallQualVal(),
+             BedroomAbvGr = BedroomsVal(),
+             HalfBath = BathroomsVal()
+             
+      ) %>%
+      as_vector() %*%
+      df_coefs$coefs
+    
+    orig_predict = df_features() %>%
+      as_vector() %*% 
+      df_coefs$coefs
+    
+    ggplot(data = df, aes(x= GrLivArea, y = SalePrice)) +
+      geom_point(size=.5) +
+      labs(x = 'Gross Living Area', y = 'Price') +
+      geom_point(data = data.frame('GrLivArea' = sqft(),
+                                   'SalePrice' = predicted_df3),
+                 aes(x=GrLivArea, y = SalePrice, 
+                     color = 'Estimated price after renovation'),
+                 size = 3,
+                 shape = 7,
+                 alpha = 1,
+                 stroke = 1.25) +
+      geom_point(data = data.frame('GrLivArea' = df_features()$GrLivArea,
+                                   'SalePrice' = orig_predict),
+                 aes(x=GrLivArea, y = SalePrice, 
+                     color = 'Estimated price before renovation'),
+                 size = 3,
+                 shape = 7,
+                 alpha = 1,
+                 stroke = 1.25)+
+      geom_point(data = df_property(),
+                 aes(x=GrLivArea, y = SalePrice, 
+                     color = 'Original price of home'),
+                 size = 3,
+                 shape = 7,
+                 alpha = 1,
+                 stroke = 1.25,
+      ) + 
+      scale_color_manual(name ='', 
+                         values = c('Estimated price after renovation'='red', 
+                                    'Estimated price before renovation'='orange', 
+                                    'Original price of home'='green')
+      )
+  })
+  
 # ----------------------------------------------------------------
 # DATASET PANEL
 # ----------------------------------------------------------------
