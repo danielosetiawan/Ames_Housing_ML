@@ -47,16 +47,6 @@ function(input, output, session) {
                   popup = content, layerId = click$id)
     })
     
-# from generation
-    output$map_capacities <- renderLeaflet({
-      if (input$capacities_plot == 'map') {
-        req(active_units_r())
-        autoplot(active_units_r(), interactive = TRUE, map = TRUE)
-      } else if (input$capacities_plot == 'global') {
-        req(installed_capacities_r())
-        autoplot(installed_capacities_r(), interactive = TRUE)
-      }
-    })
         
 # ----------------------------------------------------------------
 # TIMESERIES PANEL
