@@ -1,33 +1,9 @@
-## laurel he
+# ML Ames
+# backend code
 
 function(input, output, session) {
   
-  map = createLeafletMap(session, 'map')
   
-  session$onFlushed(once=T, function(){
-    output$map = renderLeaflet({
-      factpal = colorFactor(rainbow(25), housing$Neighborhood)
-      leaflet(data = housing) %>%
-        addTiles() %>% addCircleMarkers(~Longitude, ~Latitude, color = ~factpal(Neighborhood), radius = 0.5, layerId = ~PID) %>% 
-        addLegendFactor(pal = factpal, values = ~Neighborhood, position = 'topright', labelStyle = 'font-size: 8px;', height = 8, width=8)  
-    })
-  })
-  
-  observe({
-    click <- input$map_marker_click
-    if (is.null(click))
-      return()
-    data = housing[housing$PID == click$id,]
-    content <- as.character(tagList(
-      sprintf("Sale Price: $ %s", data$SalePrice), tags$br(),
-      sprintf("Neighborhood: %s", data$Neighborhood), tags$br(),
-      sprintf("Living Area: %s sq ft", data$GrLivArea), tags$br(),
-      sprintf("Overall Condition: %s", data$OverallCond)
-    ))
-    leafletProxy(mapId = "map") %>%
-      addPopups(lng = click$lng, lat= click$lat, 
-                popup = content, layerId = click$id)
-  })
   
   # assignments if neighborhood changes
   
@@ -42,23 +18,82 @@ function(input, output, session) {
   
   observeEvent(input$neighborhood, {
     
+    ### map
+    map = createLeafletMap(session, 'map')
+    
+    session$onFlushed(once=T, function(){
+      observe({
+        if (input$neighborhood == 'All Neighborhoods') {
+          output$map = renderLeaflet({
+            factpal = colorFactor(rainbow(25), housing$Neighborhood)
+            leaflet(data = housing) %>%
+              addTiles() %>% addCircleMarkers(~Longitude, ~Latitude, color = ~factpal(Neighborhood), radius = 0.5, layerId = ~PID)
+          })
+        }
+        else {
+          house = housing[housing$Neighborhood == input$neighborhood,]
+          output$map = renderLeaflet({
+            leaflet(data = house) %>%
+              addTiles() %>% addCircleMarkers(~Longitude, ~Latitude, color = 'red', radius = 0.5, layerId = ~PID)
+          })
+        }
+      })
+  })
+    
+    observe({
+      click <- input$map_marker_click
+      if (is.null(click))
+        return()
+      if (input$neighborhood == 'All Neighborhoods') {
+        data = housing[housing$PID == click$id,]
+      }
+      else {
+        house = housing[housing$Neighborhood == input$neighborhood,]
+        data = house[house$PID == click$id,]
+      }
+      content <- as.character(tagList(
+        sprintf("Sale Price: $ %s", data$SalePrice), tags$br(),
+        sprintf("Neighborhood: %s", data$Neighborhood), tags$br(),
+        sprintf("Living Area: %s sq ft", data$GrLivArea), tags$br(),
+        sprintf("Overall Condition: %s", data$OverallCond)
+      ))
+      leafletProxy(mapId = "map") %>%
+        addPopups(lng = click$lng, lat= click$lat,
+                  popup = content, layerId = click$id)
+    })
+    
+      
+    ##### budget slider
+    # min_price = min(df_neighborhood()$SalePrice)
+    # max_price = max(df_neighborhood()$SalePrice)
+    # mid_price = max_price - min_price
+    # first_qtl = signif(min_price + 0.25 * mid_price, 2)
+    # third_qtl = signif(max_price - 0.25 * mid_price, 2)
+    
+    # updateSliderInput(
+    #   session,
+    #   inputId = 'budget',
+    #   min = signif(min_price, 2),
+    #   max = signif(max_price, 2),
+    #   value = c(first_qtl, third_qtl)
+    # )
   
 
-###### timeseries panel ######
+### timeseries
     observeEvent(input$ts_ci, {
       
       if (input$neighborhood == 'All Neighborhoods') {
-        sarima_model = ifelse(
-          input$ts_ci == TRUE, 
-          './img/with_ci/Ames_sarima_prediction.png', 
-          './img/without_ci/Ames_sarima_prediction_noci.png'
-          )
+        sarima_model = ifelse(input$ts_ci == TRUE, 
+                              './img/with_ci/Ames_sarima_prediction.png', 
+                              './img/without_ci/Ames_sarima_prediction_noci.png')
       } else {
-        sarima_model = ifelse(
-          input$ts_ci == TRUE, 
-          paste0('./img/with_ci/', input$neighborhood, '_sarima_prediction.png'),
-          paste0('./img/without_ci/', input$neighborhood, '_sarima_prediction_noci.png')
-          )
+        # sarima_model = paste0('./img/', input$neighborhood, 
+        #                       '_sarima_prediction.png')
+        sarima_model = ifelse(input$ts_ci == TRUE, 
+                              paste0('./img/with_ci/', input$neighborhood, 
+                                     '_sarima_prediction.png'),
+                              paste0('./img/without_ci/', input$neighborhood, 
+                                     '_sarima_prediction_noci.png'))
       }
       
       output$sarima = renderUI({
@@ -70,7 +105,7 @@ function(input, output, session) {
     
     })
     
-###### main panel #####
+### addresses
     updatePickerInput(
       session,
       inputId = 'address',
@@ -102,7 +137,7 @@ function(input, output, session) {
   
     observeEvent(input$address, {
       
-##### main info boxes  #####
+      ## info boxes
       output$crime_rate <- renderValueBox({
         valueBox(
           value = tags$p('Crime Rate', style = "font-size: 50%;"),
@@ -140,9 +175,19 @@ function(input, output, session) {
           color = 'yellow')
       })
       
-##### parameter tuning panel #####
+      output$saleprice <- renderValueBox({
+        
+        price = paste0(round(df_property()$SalePrice / 1000), 'K')
+        
+        valueBox(
+          value = tags$p('Sale Price', style = "font-size: 50%;"),
+          subtitle=tags$p(price, style = "font-size: 200%;"),
+          icon = icon('sack-dollar'),
+          color = 'light-blue')
+      })
       
-      ### current home ###
+      
+      ## current home
       
       output$current_home = renderUI({
         
@@ -185,7 +230,7 @@ function(input, output, session) {
       })
       
       
-      ### what if..? ###
+      ###### what if..?
       
       updateSliderInput(
         session,
@@ -199,12 +244,16 @@ function(input, output, session) {
         HTML(paste0('Overall Condition: ', OverallCondVal()))
       })
       
+      # output$OverallConditionVal = renderUI({
+      #   HTML(paste0(OverallCondVal()))
+      # })
+      
       output$OverallQuality = renderUI({
         HTML(paste0('Overall Condition: ', OverallQualVal()))
       })
       
       
-      ### predicted homeprice ###
+      ##### predicted home
       
       output$prediction = renderInfoBox({
         
@@ -229,15 +278,14 @@ function(input, output, session) {
     })
   })
   
-##### dataframe panel #####
-  
+  ## 
   output$prediction_df <- renderDataTable(
     df_predictions,
     options = list(pageLength = 4,
                    scrollX = TRUE,
                    scrollY = TRUE))
   
-############ reactive functions ############
+  ############ reactive functions ############
   
   OverallCondVal = reactive({
     
