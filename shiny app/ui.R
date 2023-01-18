@@ -6,11 +6,10 @@ spinner = 'double-bounce'
 
 dashboardPage(
   dashboardHeader(
-    title = '',
-    titleWidth = 0
+    title = ''
+    # titleWidth = 0
     ),
   dashboardSidebar(
-    width = 100,
     collapsed = TRUE,
     sidebarMenu(
       menuItem('Homepage', tabName = 'dashboard', icon = icon('house')),

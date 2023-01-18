@@ -220,8 +220,13 @@ function(input, output, session) {
         value = df_features()$GrLivArea,
         max = 5000
       )
+
       
       output$Bedrooms = renderUI({
+        
+        
+        
+        
         HTML(paste0('Bedrooms: ', BedroomsVal()))
       })
       
@@ -285,12 +290,13 @@ function(input, output, session) {
 # ----------------------------------------------------------------
   
   ### note: these reactive functions dont reset when you change property
-  # maybe put them inside the observe and do an if function
+  # maybe put them inside the observe and do an if function ??
+  # how to achieve?
   BedroomsVal = reactive({
-    
-    df_property()$BedroomAbvGr + 
+
+    df_property()$BedroomAbvGr +
       input$bedrooms_up - input$bedrooms_down
-    
+
   })
   
   BathroomsVal = reactive({
