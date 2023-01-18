@@ -1,0 +1,151 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+```{r}
+location = read.csv("./../../data/Ames_loc.csv")
+location = na.omit(location)
+df = read.csv('./../../data/cleaned_housing.csv')
+df_predictions = read.csv("./../../data/Predicted_vs_Sales.csv")
+df_predictions 
+```
+
+```{r}
+df2 = df %>%
+  filter(Neighborhood == 'Mitchel')
+
+(mean(df2$SalePrice) - min(df2$SalePrice))/2 + min(df2$SalePrice)
+```
+```{r}
+
+```
+```{r}
+df_predictions %>%
+      select(Prop_Addr, Delta, SalePrice) %>%
+      mutate(SalePrice = paste0(round(as.numeric(SalePrice / 1000)), 'K'),
+             Value = case_when(as.numeric(Delta/1e3) <= -5  ~ 'undervalued by ',
+                               as.numeric(Delta/1e3) >= 5 ~ 'overvalued by ',
+                               TRUE ~ 'fair price'),
+             Delta = ifelse(Value == 'fair price', '', 
+                            paste0(abs(round(as.numeric(Delta/1e3))), 'K')))
+```
+
+```{r}
+address = '623 RIVER OAK DR, Ames, USA'
+
+df_predictions %>%
+  filter(Prop_Addr == address)
+```
+
+```{r}
+df_predictions = housing %>%
+  select(PID, GrLivArea, school_quality, nb_income, nb_appreciation, crime_rate, 
+         YearBuilt, FullBath, HalfBath, BedroomAbvGr, YearRemodAdd, OverallQual,
+         OverallCond, LotArea, X1stFlrSF, X2ndFlrSF, TotalBsmtSF,
+         KitchenQual, GarageQual, BsmtQual, Latitude, Longitude) %>%
+  mutate(KitchenQual = case_when(
+    KitchenQual == 'Po' ~ '1', KitchenQual == 'Fa' ~ '2', KitchenQual == 'TA' ~ '3',
+    KitchenQual == 'Gd' ~ '4', KitchenQual == 'Ex' ~ '5'),
+    across(c(GarageQual, BsmtQual, X2ndFlrSF, YearRemodAdd), ~ ifelse(. == 0, '-', .))) %>%
+  merge(read.csv("./../../data/Predicted_vs_Sales.csv"), by = 'PID') %>%
+  distinct() %>%
+  arrange(Delta) %>%
+  write_csv('./home_flipping.csv')
+```
+
+```{r}
+read.csv("./home_flipping.csv") %>%
+  tail(10)
+  
+housing %>%
+  select(Latitude)
+```
+
+
+
+
+```{r}
+address = '1712 AMHERST DR'
+df_property = df_predictions %>%
+  filter(Prop_Addr == address)
+  
+df_property
+```
+
+
+```{r}
+neighborhood = 'Veenker'
+df_predictions %>%
+  # filter(Neighborhood == neighborhood) %>%
+  select(Prop_Addr, Delta, SalePrice) %>%
+  # filter(SalePrice < 2e5 | SalePrice > 5.7e5) %>%
+  mutate(SalePrice = paste0(round(as.numeric(SalePrice / 1000)), 'K'),
+         Delta = as.numeric(Delta/1000),
+         Value = case_when(Delta <= -5  ~ 'undervalued by ',
+                           Delta >= 5 ~ 'overvalued by ',
+                           TRUE ~ 'fair price'),
+         Delta = ifelse(Value == 'fair price', ')', paste0(abs(round(Delta)), 'K'))) %>%
+  head(25) %>%
+  write_csv('undervalued25.csv')
+```
+
+```{r}
+df
+```
+
+```{r}
+feats = read_csv('./../../data/final_predictions.csv', show_col_types=FALSE)
+feats
+```
+
+```{r}
+coefs = read_csv('./../../data/final_predictions.csv', show_col_types=FALSE)
+
+df_predictions %>%
+  select(PID, Prop_Addr) %>%
+  merge(., read.csv('./../../data/final_features.csv')) %>%
+  distinct() %>%
+  select(-PID) %>%
+  write_csv('./final_features.csv')
+
+features
+coefs
+```
+
+```{r}
+address = '3113 NORTHWOOD DR'
+
+predicted = read_csv('./final_features.csv', show_col_types = FALSE) %>%
+  filter(Prop_Addr == address) %>%
+  select(-Prop_Addr) %>%
+  as_vector()
+
+(predicted %*% coefs$coefs)
+```
+
+```{r}
+address = '208 S WALNUT AVE'
+
+feats2 = read_csv('./final_features.csv', show_col_types = FALSE) %>%
+  filter(Prop_Addr == address) %>%
+  select(-Prop_Addr)
+
+
+feats2 %>%
+  mutate(GrLivArea = 1628) %>%
+  as_vector() %*% 
+  coefs$coefs
+```
+
+```{r}
+5.5 / 
+```
+
+
+```{r}
+df_predictions %>%
+  mutate(FullBath = 5)
+```
+

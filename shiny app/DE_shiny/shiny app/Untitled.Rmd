@@ -1,0 +1,40 @@
+---
+title: "Imputing"
+output: html_document
+date: "2023-01-03"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(missForest)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+df = read_csv('mfData.csv')
+
+df = type.convert(df, as.is=FALSE)
+
+df = df %>% select(-Prop_Addr)
+str(df)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r}
+X = missForest(df, maxiter = 10, ntree = 100, variablewise = FALSE,
+                       decreasing = FALSE, verbose = FALSE,
+                       mtry = floor(sqrt(ncol(df))), replace = TRUE,
+                       classwt = NULL, cutoff = NULL, strata = NULL,
+                       sampsize = NULL, nodesize = NULL, maxnodes = NULL,
+                       xtrue = NA, parallelize = c('no', 'variables', 'forests'))
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
