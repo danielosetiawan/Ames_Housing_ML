@@ -5,9 +5,9 @@ library(shinydashboard)
 spinner = 'double-bounce'
 
 dashboardPage(
-  dashboardHeader(titleWidth = 100,
-    title = ''
-    # titleWidth = 0
+  dashboardHeader(
+    title = '',
+    titleWidth = 0
     ),
   dashboardSidebar(
     collapsed = TRUE,
@@ -20,18 +20,18 @@ dashboardPage(
   dashboardBody(
     tabItems(
 
-# ----------------------------------------------------------------
-# HOMEPAGE
-# ----------------------------------------------------------------
+# ------------------------------
+# Menu Item: Homepage
+# ------------------------------
       
       tabItem(
         tabName = 'dashboard',
         fluidPage(
           theme = 'journal',
           
-    # ----------------------------------------------------------------
-    # MAIN PANEL
-    # ----------------------------------------------------------------
+      # ------------------------------
+      # Homepage: Main Panel
+      # ------------------------------
           
           fluidRow(
             box(
@@ -83,14 +83,16 @@ dashboardPage(
               )
             ),
             
-##################### VERTICAL PANELS ############################
+      # ------------------------------
+      # Homepage: Vertical Panels
+      # ------------------------------
 
             verticalTabsetPanel(
               menuSide = 'right',
             
-    # ----------------------------------------------------------------
-    # HOUSING MAP PANEL
-    # ----------------------------------------------------------------
+          # ------------------------------
+          # Vertical Panel: Ames Housing
+          # ------------------------------
             
             verticalTabPanel(
               title = 'Ames Housing Map', box_height = 5,
@@ -98,9 +100,9 @@ dashboardPage(
               leafletOutput("map")
             ),
             
-    # ----------------------------------------------------------------
-    # TIMESERIES PANEL
-    # ----------------------------------------------------------------
+          # ------------------------------
+          # Vertical Panel: Time Analysis
+          # ------------------------------
 
             verticalTabPanel(
               title = 'Time Forecasting', box_height = 5,
@@ -117,9 +119,9 @@ dashboardPage(
               )
             ),
             
-    # ----------------------------------------------------------------
-    # PARAMETER TUNING PANEL
-    # ----------------------------------------------------------------
+          # ------------------------------
+          # Vertical Panel: Parameter Tuning
+          # ------------------------------
             
             verticalTabPanel(
               title = 'Parameter Tuning', box_height = 5,
@@ -280,23 +282,50 @@ dashboardPage(
               )
             ),
             
-    # ----------------------------------------------------------------
-    # DATASET PANEL
-    # ----------------------------------------------------------------
+          # ------------------------------
+          # Vertical Panel: Visualization
+          # ------------------------------
 
-            verticalTabPanel(
+            verticalTabPanel( #daniel erickson
               box_height = 5,
-              title = 'Dataset', 
+              title = 'Visualize Parameters', 
               icon = icon("exchange", class = "fa-2x"),
               fluidRow(
-                dataTableOutput(
-                  outputId = 'prediction_df', 
-                  height = "100%")
+                
               )
             )
           )
         )
+      ),
+      
+# ------------------------------
+# Menu Item: Dataset
+# ------------------------------
+
+      tabItem(
+        tabName = 'dataset',
+        fluidPage(
+          theme = 'journal',
+          dataTableOutput(
+            outputId = 'prediction_df', 
+            height = "100%")
+        )
+      ),
+
+# ------------------------------
+# Menu Item: About Me
+# ------------------------------
+
+      tabItem(
+        tabName = 'about',
+        fluidPage(
+          theme = 'journal',
+        )
       )
+
+# ------------------------------
+# END
+# ------------------------------
     )
   )
 )
