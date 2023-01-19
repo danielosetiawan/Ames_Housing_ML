@@ -88,6 +88,7 @@ dashboardPage(
       # ------------------------------
 
             verticalTabsetPanel(
+              # style = 'padding: 1em',
               menuSide = 'right',
             
           # ------------------------------
@@ -318,11 +319,92 @@ dashboardPage(
 
       tabItem(
         tabName = 'about',
+        theme = 'journal',
         fluidPage(
-          theme = 'journal',
+          fluidRow(
+        # ------------------------------
+        # About Me: Laurel He
+        # ------------------------------
+        
+            column(
+              width = 4,
+              fluidRow(
+                box(
+                  title = div(
+                    a(href = 'https://github.com/LaurelHe1',
+                      icon('github')),
+                    a(href = 'https://www.linkedin.com/in/cheng-laurel-he-b04a59104/',
+                      icon('linkedin'))),
+                  width = 12,
+                  status = 'primary',
+                  boxProfile(
+                    image = './img/about_me/laurel.jpg',
+                    title = 'Laurel He',
+                    subtitle = 'Data Science Fellow',
+                    bordered = TRUE,
+                    uiOutput(align = 'center',
+                             outputId = 'laurel_bio')
+                    )
+                  )
+                )
+              ),
+        
+        # ------------------------------
+        # About Me: Daniel Setiawan
+        # ------------------------------
+            
+            column(
+              width = 4,
+              fluidRow(
+                box(
+                  title = div(
+                    a(href = 'https://github.com/set-one',
+                      icon('github')),
+                    a(href = 'https://www.linkedin.com/in/danielosetiawan/',
+                      icon('linkedin'))),
+                  width = 12,
+                  status = 'success',
+                  boxProfile(
+                    image = './img/about_me/daniel_s.jpeg',
+                    title = 'Daniel Setiawan',
+                    subtitle = 'Data Science Fellow',
+                    bordered = TRUE,
+                    uiOutput(align = 'center',
+                             outputId = 'daniels_bio')
+                  )
+                )
+              )
+            ),
+        
+        # ------------------------------
+        # About Me: Daniel Erickson
+        # ------------------------------
+        
+            column(
+              width = 4,
+              fluidRow(
+                box(
+                  title = div(
+                    a(href = 'https://github.com/LaurelHe1',
+                      icon('github')),
+                    a(href = 'https://www.linkedin.com/in/cheng-laurel-he-b04a59104/',
+                      icon('linkedin'))),
+                  width = 12,
+                  status = 'warning',
+                  boxProfile(
+                    image = './img/about_me/laurel.jpg',
+                    title = 'Daniel Erickson',
+                    subtitle = 'Data Science Fellow',
+                    bordered = TRUE,
+                    uiOutput(align = 'center',
+                             outputId = 'daniele_bio')
+                  )
+                )
+              )
+            )
+          )
         )
       )
-
 # ------------------------------
 # END
 # ------------------------------

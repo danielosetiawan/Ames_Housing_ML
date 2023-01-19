@@ -96,8 +96,10 @@ df
 ```
 
 ```{r}
-feats = read_csv('./../../data/final_predictions.csv', show_col_types=FALSE)
-feats
+df_coefs = read_csv('./../../data/final_predictions.csv', show_col_types=FALSE)
+df_coefs
+
+as.vector(df_coefs[1])
 ```
 
 ```{r}
@@ -126,26 +128,61 @@ predicted = read_csv('./final_features.csv', show_col_types = FALSE) %>%
 ```
 
 ```{r}
-address = '208 S WALNUT AVE'
+address = '3126 NORTHWOOD DR'
 
 feats2 = read_csv('./final_features.csv', show_col_types = FALSE) %>%
   filter(Prop_Addr == address) %>%
   select(-Prop_Addr)
 
-
 feats2 %>%
-  mutate(GrLivArea = 1628) %>%
+  # mutate(GrLivArea = 1628) %>%
   as_vector() %*% 
-  coefs$coefs
-```
+  df_coefs$coefs
 
-```{r}
-5.5 / 
-```
-
-
-```{r}
 df_predictions %>%
-  mutate(FullBath = 5)
+  filter(Prop_Addr == '3126 NORTHWOOD DR')
+```
+
+```{r}
+df_predictions = read.csv("./home_flipping.csv")
+df_feats =  read.csv('./final_features.csv')
+```
+
+```{r}
+predicted_prices = as.vector(as.matrix(df_feats[-1]) %*%
+  as.matrix(df_coefs[2]))
+
+```
+
+
+
+
+
+```{r}
+df_predictions[order(match(df_predictions$Prop_Addr,df_feats$Prop_Addr)),] %>%
+  mutate(Predicted = predicted_prices,
+         Delta = SalePrice - Predicted) %>%
+  write_csv('./home_flipping.csv')
+```
+
+
+```{r}
+df_feats
+df_predictions
+df_coefs
+```
+
+
+```{r}
+df_features() %>%
+          mutate(GrLivArea = sqft(),
+                 OverallCond = OverallCondVal(),
+                 OverallQual = OverallQualVal(),
+                 BedroomAbvGr = BedroomsVal(),
+                 HalfBath = BathroomsVal()
+                 
+                 ) %>%
+          as_vector() %*% 
+          df_coefs$coefs
 ```
 

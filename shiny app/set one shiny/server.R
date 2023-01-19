@@ -47,16 +47,6 @@ function(input, output, session) {
                   popup = content, layerId = click$id)
     })
     
-# from generation
-    output$map_capacities <- renderLeaflet({
-      if (input$capacities_plot == 'map') {
-        req(active_units_r())
-        autoplot(active_units_r(), interactive = TRUE, map = TRUE)
-      } else if (input$capacities_plot == 'global') {
-        req(installed_capacities_r())
-        autoplot(installed_capacities_r(), interactive = TRUE)
-      }
-    })
         
 # ----------------------------------------------------------------
 # TIMESERIES PANEL
@@ -271,6 +261,56 @@ function(input, output, session) {
         
         
       })
+      
+      # ----------------------------------------------------------------
+      # ABOUT ME
+      # ----------------------------------------------------------------
+      
+      
+      # Laurel He
+      output$laurel_bio = renderUI({
+        
+        HTML("<font size='-1'>  Hi, my name is Laurel He. My undergrad was in 
+       Geosystems Engineering and Hydrogeology at the University of Texas 
+       at Austin. I got my Master’s in Atmosphere and Energy, 
+       Civil Engineering at Stanford University. I’m passionate about nature, 
+       environmental protection and renewable energy. I’m excited about how 
+       machine learning and data analytics are giving us better tools to 
+       understand and fight climate change, and I’m looking forward to kickstart 
+       my career in this exciting field.</font>")
+        
+      })
+      
+      # Daniel Setiawan
+      output$daniels_bio = renderUI({
+        
+        
+        
+        HTML("<font size='-1'>  I'm an alumnus of UCSB with a BS in Chemistry. 
+        I spent the last few years as an R&D engineer at a quantum computing 
+        startup, where I was able to interface with various electronics (RF/DC) 
+        and code (Python) to analyze failure rates, improve product performance, 
+        and develop methods attuned to scalability. This journey had brought me 
+        to channel my inner passion for data science, as there are many ways to 
+        creatively tell a story using data.</font>")
+        
+      })
+      
+      
+      
+      # Daniel Erickson
+      output$daniele_bio = renderUI({
+        
+        HTML("<font size='-1'>  Hi, my name is Laurel He. My undergrad was in 
+       Geosystems Engineering and Hydrogeology at the University of Texas 
+       at Austin. I got my Master’s in Atmosphere and Energy, 
+       Civil Engineering at Stanford University. I’m passionate about nature, 
+       environmental protection and renewable energy. I’m excited about how 
+       machine learning and data analytics are giving us better tools to 
+       understand and fight climate change, and I’m looking forward to kickstart 
+       my career in this exciting field.</font>")
+        
+      })
     })
   })
   
@@ -333,11 +373,16 @@ function(input, output, session) {
         filter(Neighborhood == input$neighborhood)
     }})
   
-  df_property = reactive({
+  df_property = reactive({ # features for current home and main panel
     df_predictions %>%
       filter(Prop_Addr == input$address)
   })
   
+  df_features = reactive({ # features for dot matrix
+    df_feats %>%
+      filter(Prop_Addr == input$address) %>%
+      select(-Prop_Addr)
+  })
   
   
   df_undervalued = reactive({
@@ -352,11 +397,10 @@ function(input, output, session) {
                             paste0(abs(round(as.numeric(Delta/1e3))), 'K')))
   })
   
-  df_features = reactive({
-    df_feats %>%
-      filter(Prop_Addr == input$address) %>%
-      select(-Prop_Addr)
-  })
   
   
 }
+
+
+
+
