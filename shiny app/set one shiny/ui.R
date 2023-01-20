@@ -3,11 +3,12 @@ library(shinydashboard)
 
 # # Define UI for application
 spinner = 'double-bounce'
+theme = 'Minty'
+
 
 dashboardPage(
   dashboardHeader(
-    title = '',
-    titleWidth = 0
+    disable = TRUE
     ),
   dashboardSidebar(
     collapsed = TRUE,
@@ -27,7 +28,7 @@ dashboardPage(
       tabItem(
         tabName = 'dashboard',
         fluidPage(
-          theme = 'journal',
+          theme = theme,
           
       # ------------------------------
       # Homepage: Main Panel
@@ -135,7 +136,6 @@ dashboardPage(
               fluidRow(
                 column(
                   width = 5,
-                  offset = 1,
                   style='padding:3px',
                   box(
                     width = NULL,
@@ -151,150 +151,83 @@ dashboardPage(
                 # ------------------------------
                 
                 column(
-                    width = 5,
-                    style='padding:3px',
+                    width = 7,
+                    # style='padding:0px',
                     box(
                       width = NULL,
-                      title=tagList('What if...', icon('question')),
+                      title = uiOutput('predicted_price'),
                       status = 'info', 
                       solidHeader = TRUE,                    
                       collapsible = TRUE,
+                      
                       
                       # ----------------------------------
                       # Parameter Tuning: Sq. Ft. Slider
                       # ----------------------------------
                       
+                      chooseSliderSkin('Flat'),
                       sliderInput(
                         inputId = 'sqft_slider',
                         label = 'Total Sq. Ft',
                         min = 1, max = 2000,
                         value = 1, step = 10,
                         animate =
-                          animationOptions(interval = 300, loop = TRUE)),
-                      
-                      # ------------------------------------
-                      # Parameter Tuning: Bed/Bath Slider
-                      # ------------------------------------
-                      
-                      # column(
-                      #   width = 6,
-                      #   style='padding:1px',
-                      # sliderInput(
-                      #   inputId = 'sqft_slider',
-                      #   label = 'Total Sq. Ft',
-                      #   min = 1, max = 2000,
-                      #   value = 1, step = 10,
-                      #   animate =
-                      #     animationOptions(interval = 300, loop = TRUE))),
-                      # 
-                      # column(
-                      #   width = 6,
-                      #   style='padding:1px',
-                      #   sliderInput(
-                      #     inputId = 'sqft_slider',
-                      #     label = 'Total Sq. Ft',
-                      #     min = 1, max = 2000,
-                      #     value = 1, step = 10,
-                      #     animate =
-                      #       animationOptions(interval = 300, loop = TRUE))),
+                          animationOptions(interval = 500, loop = TRUE)),
                       
                       # ------------------------------
                       # Parameter Tuning: Left Column
                       # ------------------------------
-                      
-                      column(
-                        offset = 1,
-                        width = 5,
-                        style='padding:0px',
-                        
-                        # ------------------------------
-                        # Left Column: Bedrooms
-                        # ------------------------------
-                        
-                        uiOutput(outputId = 'Bedrooms'),
-                        actionGroupButtons(
-                          inputIds = c('bedrooms_up', 'bedrooms_down'),
-                          labels = list(tags$span(icon('arrow-up'), ''),
-                                      tags$span(icon('arrow-down'), '')),
-                          status = c('success', 'danger')
+                      fluidRow(
+                        column(
+                          width = 3,
+                          uiOutput(outputId = 'bedrooms'),
+                          # uiOutput(outputId = 'condition'),
+                          uiOutput(outputId = 'quality')
+                          ),
+                        column(
+                          width = 3,
+                          # fluidRow(
+                          uiOutput(outputId = 'bathrooms'),
+                          uiOutput(outputId = 'kitchen')
                         ),
-                        
-                        # ------------------------------
-                        # Left Column: Overall Condition
-                        # ------------------------------
-                        
-                        tags$br(), tags$br(),
-                        uiOutput(outputId = 'OverallCondition'),
-                        actionGroupButtons(
-                          inputIds = c('OvCond_up', 'OvCond_down'),
-                          labels = list(tags$span(icon('arrow-up'), ''),
-                                        tags$span(icon('arrow-down'), '')),
-                          status = c('success', 'danger')
-                        )
-                      ),
-                      
-                      # ------------------------------
-                      # Parameter Tuning: Right Column
-                      # ------------------------------
-                      
-                      column(
-                        offset = 1,
-                        width = 5,
-                        style='padding:0px',
-                        
-                        # ------------------------------
-                        # Right Column: Bathrooms
-                        # ------------------------------
-                        
-                        uiOutput(outputId = 'Bathrooms'),
-                        actionGroupButtons(
-                          inputIds = c('bathrooms_up', 'bathrooms_down'),
-                          labels = list(tags$span(icon('arrow-up'), ''),
-                                        tags$span(icon('arrow-down'), '')),
-                          status = c('success', 'danger')
+                        column(
+                          width = 3,
+                          # fluidRow(
+                          # uiOutput(outputId = 'quality'),
+                          uiOutput(outputId = 'basement')
                         ),
-                        
-                        # ------------------------------
-                        # Right Column: Overall Quality
-                        # ------------------------------
-                        
-                        tags$br(), tags$br(),
-                        uiOutput(outputId = 'OverallQuality'),
-                        actionGroupButtons(
-                          inputIds = c('OvQual_up', 'OvQual_down'),
-                          labels = list(tags$span(icon('arrow-up'), ''),
-                                       tags$span(icon('arrow-down'), '')),
-                          status = c('success', 'danger')
-                          )
+                        column(
+                          width = 3,
+                          # fluidRow(
+                          # uiOutput(outputId = 'quality'),
+                          uiOutput(outputId = 'condition')
                         )
-                      ),
-                    
-                    # ------------------------------
-                    # Parameter Tuning: Prediction
-                    # ------------------------------
-                    
-                      infoBoxOutput(
-                        width=NULL, 
-                        outputId = 'prediction'),
-                  
-                  
-                
+                      )
+                    )
+                  )
                 )
-              )
-            ),
-            
+              ),
+              
           # ------------------------------
           # Vertical Panel: Visualization
           # ------------------------------
 
-            verticalTabPanel( #daniel erickson
+            verticalTabPanel(
               box_height = 5,
-              title = 'Visualize Parameters', 
+              title = 'Visualize Prediction', 
               icon = icon("exchange", class = "fa-2x"),
-              fluidRow(
-                
+              fluidPage(
+                fluidRow(
+                infoBoxOutput(
+                  width = 6, 
+                  outputId = 'predicted'),
+                infoBoxOutput(
+                  width =6,
+                  outputId = 'addedarea'),
+              
+                plotOutput('scatplot', height = 300)
               )
-            )
+              ))
           )
         )
       ),
@@ -306,9 +239,9 @@ dashboardPage(
       tabItem(
         tabName = 'dataset',
         fluidPage(
-          theme = 'journal',
+          theme = theme,
           dataTableOutput(
-            outputId = 'prediction_df', 
+            outputId = 'df', 
             height = "100%")
         )
       ),
@@ -319,7 +252,7 @@ dashboardPage(
 
       tabItem(
         tabName = 'about',
-        theme = 'journal',
+        theme = theme,
         fluidPage(
           fluidRow(
         # ------------------------------

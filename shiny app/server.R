@@ -293,7 +293,7 @@ function(input, output, session) {
   output$addedarea = renderInfoBox({
     infoBox(
       title = 'Added Square Footage',
-      value = HTML(paste0('<b><h3>', sqft()-df_features()['GrLivArea'], '</b></h3>')),
+      value = HTML(paste0('<b><h3>', sqft()-df_features()$'GrLivArea', '</b></h3>')),
       color = 'blue', fill = TRUE
     )
   })

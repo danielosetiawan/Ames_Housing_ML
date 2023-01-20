@@ -12,15 +12,7 @@ df_predictions = read.csv("./../../data/Predicted_vs_Sales.csv")
 df_predictions 
 ```
 
-```{r}
-df2 = df %>%
-  filter(Neighborhood == 'Mitchel')
 
-(mean(df2$SalePrice) - min(df2$SalePrice))/2 + min(df2$SalePrice)
-```
-```{r}
-
-```
 ```{r}
 df_predictions %>%
       select(Prop_Addr, Delta, SalePrice) %>%
@@ -32,12 +24,6 @@ df_predictions %>%
                             paste0(abs(round(as.numeric(Delta/1e3))), 'K')))
 ```
 
-```{r}
-address = '623 RIVER OAK DR, Ames, USA'
-
-df_predictions %>%
-  filter(Prop_Addr == address)
-```
 
 ```{r}
 df_predictions = housing %>%
@@ -55,24 +41,8 @@ df_predictions = housing %>%
   write_csv('./home_flipping.csv')
 ```
 
-```{r}
-read.csv("./home_flipping.csv") %>%
-  tail(10)
-  
-housing %>%
-  select(Latitude)
-```
 
 
-
-
-```{r}
-address = '1712 AMHERST DR'
-df_property = df_predictions %>%
-  filter(Prop_Addr == address)
-  
-df_property
-```
 
 
 ```{r}
@@ -91,9 +61,6 @@ df_predictions %>%
   write_csv('undervalued25.csv')
 ```
 
-```{r}
-df
-```
 
 ```{r}
 df_coefs = read_csv('./../../data/final_predictions.csv', show_col_types=FALSE)
@@ -105,11 +72,13 @@ as.vector(df_coefs[1])
 ```{r}
 coefs = read_csv('./../../data/final_predictions.csv', show_col_types=FALSE)
 
-df_predictions %>%
+features = df_predictions %>%
   select(PID, Prop_Addr) %>%
   merge(., read.csv('./../../data/final_features.csv')) %>%
   distinct() %>%
-  select(-PID) %>%
+  select(-PID)
+
+features %>%
   write_csv('./final_features.csv')
 
 features
@@ -139,38 +108,76 @@ feats2 %>%
   as_vector() %*% 
   df_coefs$coefs
 
-df_predictions %>%
-  filter(Prop_Addr == '3126 NORTHWOOD DR')
+(df_predictions %>%
+  filter(Prop_Addr == '3126 NORTHWOOD DR'))$GrLivArea
+  
 ```
 
 ```{r}
 df_predictions = read.csv("./home_flipping.csv")
 df_feats =  read.csv('./final_features.csv')
+df_coefs = read_csv('./../../data/final_predictions.csv')
 ```
+
+```{r}
+address = (df_predictions %>%
+  filter(PID == 526351010))$Prop_Addr
+
+read.csv("./home_flipping.csv") %>%
+  filter(Prop_Addr == '208 S WALNUT AVE')
+```
+
+```{r}
+df_feats %>%
+  filter(Prop_Addr == address)
+```
+
+
+```{r}
+as.matrix((df_feats %>%
+  filter(Prop_Addr == address))[-1]) %*% as.matrix(df_coefs[2])
+```
+
+
+```{r}
+(df_predictions[order(match(df_predictions$Prop_Addr,df_feats$Prop_Addr)),] %>%
+  mutate(Predicted = predicted_prices,
+         Delta = SalePrice - Predicted) %>%
+  filter(Prop_Addr == address))$PredictedPrice
+```
+
+
 
 ```{r}
 predicted_prices = as.vector(as.matrix(df_feats[-1]) %*%
   as.matrix(df_coefs[2]))
 
-```
-
-
-
-
-
-```{r}
 df_predictions[order(match(df_predictions$Prop_Addr,df_feats$Prop_Addr)),] %>%
   mutate(Predicted = predicted_prices,
-         Delta = SalePrice - Predicted) %>%
-  write_csv('./home_flipping.csv')
+         Delta = SalePrice - Predicted)
+  # write_csv('./home_flipping.csv')
 ```
 
 
 ```{r}
-df_feats
-df_predictions
-df_coefs
+ggplot(data = home_flipping, aes(x = GrLivArea, y = SalePrice)) +
+          geom_point(size = 0.5) +
+          labs(x = 'Gross Living Area', y = 'Price') +
+          geom_point(data = data.frame('GrLivArea' = 3933,
+                                       'SalePrice' = 2983),
+                     aes(x=GrLivArea, y = SalePrice, 
+                         color = 'Estimated price after renovation'),
+                     size = 3,
+                     shape = 7,
+                     alpha = 1,
+                     stroke = 1.25) +
+          scale_color_manual(name ='', 
+                             values = c('Estimated price after renovation'='red', 
+                                        'Estimated price before renovation'='orange', 
+                                        'Original price of home'='green')
+          )
 ```
+
 
 
 ```{r}
