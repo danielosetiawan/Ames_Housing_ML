@@ -7,50 +7,88 @@
 function(input, output, session) {
   
   observeEvent(input$neighborhood, {
-    
 
 # ----------------------------------------------------------------
-# HOUSING MAP PANEL
+# Vertical Panel: Ames Housing Map
 # ----------------------------------------------------------------
     
-    session$onFlushed(once=TRUE, function(){
-      output$map = renderLeaflet({  
-        factpal = colorFactor(
-          palette = rainbow(25), 
-          domain = housing$Neighborhood)
-        leaflet(data = housing) %>%
-          addTiles() %>% 
-          addCircleMarkers(
-            lng = ~Longitude, lat = ~Latitude, color = ~factpal(Neighborhood), 
-            radius = 0.5, layerId = ~PID) %>% 
-          addLegendFactor(
-            pal = factpal, values = ~Neighborhood, position = 'topright', 
-            labelStyle = 'font-size: 8px;', height = 8, width=8)
-      })
-    })
-    
-    
-    
-    observe({
-      click <- input$map_marker_click
-      if (is.null(click))
-        return()
-      data = housing[housing$PID == click$id,]
-      content <- as.character(tagList(
-        sprintf("Sale Price: $ %s", data$SalePrice), tags$br(),
-        sprintf("Neighborhood: %s", data$Neighborhood), tags$br(),
-        sprintf("Living Area: %s sq ft", data$GrLivArea), tags$br(),
-        sprintf("Overall Condition: %s", data$OverallCond)
-      ))
-      leafletProxy(mapId = "map") %>%
-        addPopups(lng = click$lng, lat = click$lat, 
-                  popup = content, layerId = click$id)
-    })
-    
+    session$onFlushed(once=T, function(){
         
-# ----------------------------------------------------------------
-# TIMESERIES PANEL
-# ----------------------------------------------------------------
+        map = createLeafletMap(session, 'map')
+        
+        session$onFlushed(once=T, function(){
+          observe({
+            if (input$neighborhood == 'All Neighborhoods') {
+              output$map = renderLeaflet({
+                # pal <- colorNumeric(rainbow(25), df_predictions$Value
+                #   # palette = "YlGnBu",
+                #   # domain = df_predictions$Value
+                # )
+                factpal = colorFactor(
+                  c('green', 'red', 'orange'),
+                  # rainbow(25),
+                  # 'Accent',
+                  df_predictions$Value)
+                leaflet(data = df_predictions) %>%
+                  addTiles() %>% 
+                  addProviderTiles('CartoDB') %>%
+                  addProviderTiles('Stamen.TonerLines') %>%
+                  addCircleMarkers(~Longitude, ~Latitude,
+                                   color = ~factpal(Value),
+                                   radius = 0.5, layerId = ~PID)
+                  # addLegend(
+                  #   position = "bottomright",
+                  #   pal = pal,
+                  #   labels = ~Value,
+                  #   title = "An Obvious Legend"
+                  # )
+                  
+              })
+            }
+            else {
+              house = df_predictions[df_predictions$Neighborhood == input$neighborhood,]
+              output$map = renderLeaflet({
+                leaflet(data = house) %>%
+                  addTiles() %>% 
+                  addCircleMarkers(
+                    ~Longitude, ~Latitude, radius = 0.5, layerId = ~PID,
+                    color = case_when(house$SalePrice < (house$Predicted - 0.25 * house$Predicted) ~ 'green', 
+                                      house$SalePrice > (house$Predicted + 0.25 * house$Predicted) ~ 'red',
+                                      TRUE ~ 'orange'))
+                  
+              })
+            }
+          })
+        })
+        
+        observe({
+          click <- input$map_marker_click
+          if (is.null(click))
+            return()
+          if (input$neighborhood == 'All Neighborhoods') {
+            data = df_predictions[df_predictions$PID == click$id,]
+          }
+          else {
+            house = df_predictions[df_predictions$Neighborhood == input$neighborhood,]
+            data = house[house$PID == click$id,]
+          }
+          
+          content <- as.character(tagList(
+            sprintf("Sale Price: $ %s", paste0(signif(data$SalePrice / 1e3, 3), 'K')), tags$br(),
+            sprintf("Address: %s", data$Prop_Addr), tags$br(),
+            sprintf("Neighborhood: %s", data$Neighborhood), tags$br(),
+            sprintf("Living Area: %s sq. ft.", data$GrLivArea)
+          ))
+          
+          leafletProxy(mapId = "map") %>%
+            addPopups(lng = click$lng, lat = click$lat,
+                      popup = content, layerId = click$id)
+        })
+    })
+
+# ---------------------------
+# Vertical Panel: Timeseries
+# ---------------------------
     
     observeEvent(input$ts_ci, {
       
@@ -75,9 +113,9 @@ function(input, output, session) {
       })
     })
     
-# ----------------------------------------------------------------
-# MAIN PANEL
-# ----------------------------------------------------------------
+# ---------------------
+# Homepage: Main Panel
+# ---------------------
     updatePickerInput(
       session,
       inputId = 'address',
@@ -94,30 +132,18 @@ function(input, output, session) {
       )
     )
     
-    output$undervalued_dt = renderDataTable(
-      server = FALSE,
-      datatable(df_undervalued(), 
-                filter = 'top', 
-                selection = 'single',
-                options = list(
-                  pageLength = 5, 
-                  scrollY = "600px", 
-                  autoWidth = TRUE))
-    )
-    
-    
-    
     observeEvent(input$address, {
 
-      # ------------------------------
+      # ----------------------
       # Main Panel: Info Boxes
-      # ------------------------------
+      # ----------------------
       
       output$crime_rate <- renderValueBox({
+        crime = ifelse(input$neighborhood == 'All Neighborhoods',
+                       'Various', paste0(df_property()$crime_rate, ' / 10'))
         valueBox(
           value = tags$p('Crime Rate', style = "font-size: 50%;"),
-          subtitle=tags$p(paste0(df_property()$crime_rate, ' / 10'), 
-                          style = "font-size: 200%;"),
+          subtitle=tags$p(crime, style = "font-size: 200%;"),
           icon = icon('handcuffs'),
           color = 'purple')
       })
@@ -129,7 +155,7 @@ function(input, output, session) {
           subtitle=tags$p(paste0(df_property()$school_quality, ' / 10'), 
                           style = "font-size: 200%;"),
           icon = icon('graduation-cap'),
-          color = 'light-blue')
+          color = 'aqua')
       })
       
       output$income <- renderValueBox({
@@ -150,9 +176,9 @@ function(input, output, session) {
           color = 'yellow')
       })
       
-# ----------------------------------------------------------------
-# PARAMETER TUNING PANEL
-# ----------------------------------------------------------------
+# --------------------------------
+# Vertical Panel: Parameter Tuning
+# --------------------------------
       
       # ------------------------------
       # Parameter Tuning: Current Home
@@ -181,8 +207,7 @@ function(input, output, session) {
         HTML(
           paste0('<b><span style="color:', color, '">', value, '</span></b><br><br>',
                  'Sale Price: <b>', sale_price, '</b><br>',
-                 'Predicted Price: <b>', predicted_price, '</b><br>',
-                 'Accommodations: <b>', accommodations, '</b><br>',
+                 'Bed / Bath: <b>', accommodations, '</b><br>',
                  'Year Built: <b>', df_property()$YearBuilt, '</b><br>',
                  'Year Remodeled: <b>', df_property()$YearRemodAdd, '</b><br>',
                  'Total SF: <b>', df_property()$GrLivArea, '</b><br>',
@@ -199,202 +224,285 @@ function(input, output, session) {
       })
       
       
-      # ------------------------------
-      # Parameter Tuning: What If...?
-      # ------------------------------
+  # ------------------------------
+  # Parameter Tuning: What If...?
+  # ------------------------------
+      
+      output$predicted_price = renderUI({
+        
+        title = tagList('What if...', icon('question'))
+        price = paste0(round(predicted_price() / 1000), 'K')
+        
+        tagList(
+          title, dashboardLabel('   ', status = 'primary'),
+          dashboardLabel('Predicted Price: ', status = 'primary'),
+          dashboardLabel(price, status = 'success'))
+        
+      })
+      
+      # --------------------------
+      # What If...? Square Footage
+      # --------------------------
       
       updateSliderInput(
         session,
         inputId = 'sqft_slider',
         min = df_features()$GrLivArea,
         value = df_features()$GrLivArea,
-        max = 5000
+        max = 3000
       )
-
       
-      output$Bedrooms = renderUI({
+      # --------------------
+      # What If...? Bedrooms
+      # --------------------
+      size = 53
+      
+      output$bedrooms = renderUI({
         
-        
-        
-        
-        HTML(paste0('Bedrooms: ', BedroomsVal()))
+        knobInput(
+          inputId = 'bedrooms', 
+          label = 'Beds',
+          height = size, width = size,
+          min = 0, max = 10, 
+          value = df_property()$BedroomAbvGr
+        )
       })
       
-      output$Bathrooms = renderUI({
-        HTML(paste0('Bathrooms: ', BathroomsVal()))
+      # ---------------------
+      # What If...? Bathrooms
+      # ---------------------
+      
+      output$bathrooms = renderUI({
+        knobInput(
+          inputId = 'bathrooms', 
+          label='Baths', 
+          height = size, width = size,
+          min = 0, max = 10, 
+          value = df_property()$FullBath + 
+            df_property()$HalfBath / 2
+        )
       })
       
-      output$OverallCondition = renderUI({
-        HTML(paste0('Condition: ', OverallCondVal()))
-      })
+      # ----------------------------
+      # What If...? Overall Quality
+      # ----------------------------
       
-      output$OverallQuality = renderUI({
-        HTML(paste0('Quality: ', OverallQualVal()))
+      output$quality = renderUI({
+        knobInput(
+          inputId = 'quality', 
+          label='Quality', 
+          height = size, width = size,
+          min = 0, max = 10, 
+          value = df_features()$OverallCond
+        )
       })
-      
       
       # ------------------------------
-      # Parameter Tuning: Prediction
+      # What If...? Overall Condition
       # ------------------------------
       
-      output$prediction = renderInfoBox({
+      output$condition = renderUI({
+        knobInput(
+          inputId = 'condition', 
+          label='Condition', 
+          height = size, width = size,
+          min = 0, max = 10, 
+          value = df_features()$OverallQual,
+          # fgColor = '#FFA500'
+        )
+      })
+      
+      # ------------------------------
+      # What If...? Basement Quality
+      # ------------------------------
+      
+      output$basement = renderUI({
+        knobInput(
+          inputId = 'basement', 
+          label='Basement', 
+          height = size, width = size,
+          min = 0, max = 10, 
+          value = df_features()$BsmtQual,
+          # fgColor = '#FFA500'
+        )
+      })
+      
+      # ------------------------------
+      # What If...? Kitchen Quality
+      # ------------------------------
+      
+      
+      output$kitchen = renderUI({
+        knobInput(
+          inputId = 'kitchen', 
+          label='Kitchen', 
+          height = size, width = size,
+          min = 0, max = 10, 
+          value = df_features()$KitchenQual,
+          # fgColor = '#FFA500'
+        )
+      })
+      
+      
+# -------------------------------------
+# Vertical Panel: Visualize Prediction
+# -------------------------------------
+      # -------------------------------------
+      # Visualize Prediction: Predicted Price
+      # -------------------------------------
+      
+      # session$onFlushed(once=T, function(){
+      output$predicted = renderValueBox({
         
-        predicted_df = df_features() %>%
-          mutate(GrLivArea = sqft(),
-                 OverallCond = OverallCondVal(),
-                 OverallQual = OverallQualVal(),
-                 BedroomAbvGr = BedroomsVal(),
-                 HalfBath = BathroomsVal()
-                 
-                 ) %>%
+        price = paste0(round(predicted_price() / 1000), 'K')
+        
+        valueBox(
+          subtitle = 'Predicted',
+          value = HTML(paste0('<b><h3>', price, '</b></h3>')),
+          icon = icon('money-bill-transfer'),
+          color = 'green'
+          )
+      })
+      
+      # -------------------------------------
+      # Visualize Prediction: Added Sq. Feet
+      # -------------------------------------
+      
+      output$addedarea = renderValueBox({
+        
+        added_sqft = sqft() - df_features()$GrLivArea
+        
+        valueBox(
+          subtitle = 'Added Sq. Ft.',
+          value = HTML(paste0('<b><h3>', added_sqft, '</b></h3>')),
+          icon = icon('sort-amount-up-alt'),
+          color = 'blue'
+        )
+      })
+      
+      # -----------------------------------
+      # Visualize Prediction: Scatter Plot
+      # -----------------------------------
+      
+      output$scatplot = renderPlot({
+        
+        orig_predict = df_features() %>%
           as_vector() %*% 
           df_coefs$coefs
         
-        predicted_price = paste0(round(predicted_df / 1000), 'K')
+        ggplot(data = df_predictions, aes(x = GrLivArea, y = SalePrice)) +
+          scale_color_manual(values = c('After renovation' = 'red', 
+                                        'Before renovation' = 'orange', 
+                                        'Original price' = 'green')) +
+          theme_bw() +
+          
+          # ----------------------------
+          # Scatter plot: Original Price
+          # ----------------------------
+          geom_point(data = df_property(),
+                   aes(x=GrLivArea, y = SalePrice, 
+                       color = 'Original price'),
+                   size = 3, shape = 7, alpha = 1, stroke = 1.25) + 
+          geom_point(size = 0.5) +
+          
+          # -------------------------------
+          # Scatter plot: Before Renovation
+          # -------------------------------
+          geom_point(data = data.frame('GrLivArea' = df_features()$GrLivArea,
+                                     'SalePrice' = orig_predict),
+                   aes(x=GrLivArea, y = SalePrice, 
+                       color = 'Before renovation'),
+                   size = 3, shape = 7, alpha = 1, stroke = 1.25) +
+          
+          # ------------------------------
+          # Scatter plot: After Renovation
+          # ------------------------------
+          
+          geom_point(data = data.frame('GrLivArea' = sqft(),
+                                       'SalePrice' = predicted_price()),
+                     aes(x=GrLivArea, y = SalePrice, 
+                         color = 'After renovation'),
+                     size = 3, shape = 7, alpha = 1, stroke = 1.25) +
+          
+          # ------------------------------
+          # Scatter plot: Final Touchups
+          # ------------------------------
+          
+          
+          scale_y_continuous(breaks = c(1e5, 3e5, 5e5, 7e5),
+                             labels = c('100K', '300K', '500K', '700K')) +
+          labs(x = 'Gross Living Area', y = 'Price', color = '')
         
-        infoBox(
-          title = 'Predicted', 
-          value = HTML(paste0('<b><h3>', predicted_price, '</b></h3>')),
-          icon = icon('money-bill-transfer'),
-          color = 'green', fill = TRUE)
+        })
+      # })
+      
+        
+      
+# -------------------
+# SIDEBAR : ABOUT ME
+# -------------------
+      
+      # Laurel He
+      output$laurel_bio = renderUI({
+        
+        HTML("<font size='-1'>  My undergrad was in 
+       Geosystems Engineering and Hydrogeology at the University of Texas, 
+       Austin. I got my Master’s in Atmosphere and Energy, Civil Engineering at 
+       Stanford. I’m passionate about nature, 
+       environmental protection and renewable energy. I’m excited about how 
+       machine learning and data analytics are giving us better tools to 
+       understand and fight climate change, and I’m looking forward to kickstart 
+       my career in this exciting field.</font>")
+        
+      })
+      
+      # Daniel Setiawan
+      output$daniels_bio = renderUI({
         
         
+        
+        HTML("<font size='-1'>  I'm an alumnus of UCSB with a BS in Chemistry. 
+        I currently work as an R&D engineer at a quantum computing startup, 
+        where I had the opportunity to interface with various electronics (RF/DC) 
+        and code (python, SCPI, Labview) to analyze failure rates, 
+        improve product performance, and develop methods attuned to scalability. 
+        This journey brought me to channel my inner passion for data science, 
+        as there are many ways to creatively tell a story using data.</font>")
+        
+      })
+      
+      
+      
+      # Daniel Erickson
+      output$daniele_bio = renderUI({
+        
+        HTML("<font size='-1'>  My undergrad was in 
+       Geosystems Engineering and Hydrogeology at the University of Texas 
+       at Austin. I got my Master’s in Atmosphere and Energy, 
+       Civil Engineering at Stanford University. I’m passionate about nature, 
+       environmental protection and renewable energy. I’m excited about how 
+       machine learning and data analytics are giving us better tools to 
+       understand and fight climate change, and I’m looking forward to kickstart 
+       my career in this exciting field.</font>")
         
       })
     })
   })
   
-  # ----------------------------------------------------------------
-  # VISUAL PANEL
-  # ----------------------------------------------------------------  
+# ------------------
+# SIDEBAR : DATASET
+# ------------------
   
-  output$predicted = renderInfoBox({
-    
-    predicted_df2 = df_features() %>%
-      mutate(GrLivArea = sqft(),
-             OverallCond = OverallCondVal(),
-             OverallQual = OverallQualVal(),
-             BedroomAbvGr = BedroomsVal(),
-             HalfBath = BathroomsVal()
-             
-      ) %>%
-      as_vector() %*%
-      df_coefs$coefs
-    
-    predicted_price = paste0(round(predicted_df2 / 1000), 'K')
-    
-    infoBox(
-      title = 'Predicted Price',
-      value = HTML(paste0('<b><h3>', predicted_price, '</b></h3>')),
-      icon = icon('money-bill-transfer'),
-      color = 'green', fill = TRUE)
-  })
-  
-  output$addedarea = renderInfoBox({
-    infoBox(
-      title = 'Added Square Footage',
-      value = HTML(paste0('<b><h3>', sqft()-df_features()$'GrLivArea', '</b></h3>')),
-      color = 'blue', fill = TRUE
-    )
-  })
-  
-  
-  output$scatplot = renderPlot({
-    
-    predicted_df3 = df_features() %>%
-      mutate(GrLivArea = sqft(),
-             OverallCond = OverallCondVal(),
-             OverallQual = OverallQualVal(),
-             BedroomAbvGr = BedroomsVal(),
-             HalfBath = BathroomsVal()
-             
-      ) %>%
-      as_vector() %*%
-      df_coefs$coefs
-    
-    orig_predict = df_features() %>%
-      as_vector() %*% 
-      df_coefs$coefs
-    
-    ggplot(data = df, aes(x= GrLivArea, y = SalePrice)) +
-      geom_point(size=.5) +
-      labs(x = 'Gross Living Area', y = 'Price') +
-      geom_point(data = data.frame('GrLivArea' = sqft(),
-                                   'SalePrice' = predicted_df3),
-                 aes(x=GrLivArea, y = SalePrice, 
-                     color = 'Estimated price after renovation'),
-                 size = 3,
-                 shape = 7,
-                 alpha = 1,
-                 stroke = 1.25) +
-      geom_point(data = data.frame('GrLivArea' = df_features()$GrLivArea,
-                                   'SalePrice' = orig_predict),
-                 aes(x=GrLivArea, y = SalePrice, 
-                     color = 'Estimated price before renovation'),
-                 size = 3,
-                 shape = 7,
-                 alpha = 1,
-                 stroke = 1.25)+
-      geom_point(data = df_property(),
-                 aes(x=GrLivArea, y = SalePrice, 
-                     color = 'Original price of home'),
-                 size = 3,
-                 shape = 7,
-                 alpha = 1,
-                 stroke = 1.25,
-      ) + 
-      scale_color_manual(name ='', 
-                         values = c('Estimated price after renovation'='red', 
-                                    'Estimated price before renovation'='orange', 
-                                    'Original price of home'='green')
-      )
-  })
-  
-# ----------------------------------------------------------------
-# DATASET PANEL
-# ----------------------------------------------------------------
-  
-  output$prediction_df <- renderDataTable(
-    df_predictions,
-    options = list(pageLength = 4,
-                   scrollX = TRUE,
+  output$df = renderDataTable(
+    df_predictions %>%
+      select(-c(PID, Latitude, Longitude)),
+    filter = 'top',
+    options = list(scrollX = TRUE,
                    scrollY = TRUE))
-  
 
-# ----------------------------------------------------------------
+# -----------------------
 # ALL REACTIVE FUNCTIONS
-# ----------------------------------------------------------------
-  
-  ### note: these reactive functions dont reset when you change property
-  # maybe put them inside the observe and do an if function ??
-  # how to achieve?
-  BedroomsVal = reactive({
-
-    df_property()$BedroomAbvGr +
-      input$bedrooms_up - input$bedrooms_down
-
-  })
-  
-  BathroomsVal = reactive({
-    
-    df_property()$FullBath + df_property()$HalfBath / 2 +
-      input$bathrooms_up - input$bathrooms_down
-    
-  })
-  
-  OverallCondVal = reactive({
-    
-    df_features()$OverallCond + 
-      input$OvCond_up - input$OvCond_down
-    
-  })
-  
-  OverallQualVal = reactive({
-    
-    df_features()$OverallQual + 
-      input$OvQual_up - input$OvQual_down
-    
-  })
+# -----------------------
   
   sqft = reactive({
     input$sqft_slider
@@ -409,30 +517,61 @@ function(input, output, session) {
         filter(Neighborhood == input$neighborhood)
     }})
   
-  df_property = reactive({
+  df_property = reactive({ # features for current home and main panel
     df_predictions %>%
       filter(Prop_Addr == input$address)
   })
   
-  
-  
-  df_undervalued = reactive({
-    df_neighborhood() %>%
-      head(25) %>%
-      select(Prop_Addr, Delta, SalePrice) %>%
-      mutate(SalePrice = paste0(round(as.numeric(SalePrice / 1000)), 'K'),
-             Value = case_when(as.numeric(Delta/1e3) <= -5  ~ 'undervalued by ',
-                               as.numeric(Delta/1e3) >= 5 ~ 'overvalued by ',
-                               TRUE ~ 'fair price'),
-             Delta = ifelse(Value == 'fair price', '', 
-                            paste0(abs(round(as.numeric(Delta/1e3))), 'K')))
-  })
-  
-  df_features = reactive({
+  df_features = reactive({ # features for dot matrix
     df_feats %>%
       filter(Prop_Addr == input$address) %>%
       select(-Prop_Addr)
   })
   
   
+  df_undervalued = reactive({
+    (df_neighborhood() %>%
+      # head(25) %>%
+      select(Prop_Addr, Delta, Value, SalePrice) %>%
+      arrange(Delta) %>%
+      mutate(SalePrice = paste0(round(as.numeric(SalePrice / 1000)), 'K'),
+             Value = case_when(Value == 'undervalued' ~ 'undervalued by ',
+                               Value == 'overvalues' ~ 'overvalued by  ', 
+                               TRUE ~ 'fair price'),
+             Delta = ifelse(Value == 'fair price', '', 
+                            paste0(abs(round(as.numeric(Delta/1e3))), 'K'))))[-1:-3,]
+      
+  })
+  
+  predicted_price_null = reactive({
+    df_features() %>%
+      mutate(GrLivArea = sqft(),
+             # OverallCond = OverallCondVal(),
+             # OverallQual = OverallQualVal(),
+             BedroomAbvGr = df_property()$BedroomAbvGr) %>%
+      # HalfBath = BathroomsVal()) %>%
+      as_vector() %*%
+      df_coefs$coefs
+    
+  })
+  
+  predicted_price = reactive({
+    df_features() %>%
+      mutate(GrLivArea = sqft(),
+             OverallCond = input$condition,
+             OverallQual = input$quality,
+             BedroomAbvGr = input$bedrooms,
+             HalfBath = input$bathrooms,
+             KitchenQual = input$kitchen,
+             BsmtQual = input$basement) %>%
+      as_vector() %*%
+      df_coefs$coefs
+    
+  })
+
+    
 }
+
+
+
+

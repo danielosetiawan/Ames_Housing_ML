@@ -3,17 +3,17 @@ library(shinydashboard)
 
 # # Define UI for application
 spinner = 'double-bounce'
+theme = 'Minty'
 
 dashboardPage(
   dashboardHeader(
-    title = '',
-    titleWidth = 0
+    disable = TRUE
     ),
   dashboardSidebar(
     collapsed = TRUE,
     sidebarMenu(
       menuItem('Homepage', tabName = 'dashboard', icon = icon('house')),
-      menuItem('Dataset', tabName = 'dataset', icon = icon('wand-magic-sparkles')),
+      menuItem('Dataset', tabName = 'dataset', icon = icon('database')),
       menuItem("About", tabName = 'about', icon = icon('user'))
     )
   ),
@@ -27,7 +27,7 @@ dashboardPage(
       tabItem(
         tabName = 'dashboard',
         fluidPage(
-          theme = 'journal',
+          theme = theme,
           
       # ------------------------------
       # Homepage: Main Panel
@@ -88,6 +88,7 @@ dashboardPage(
       # ------------------------------
 
             verticalTabsetPanel(
+              # style = 'padding: 1em',
               menuSide = 'right',
             
           # ------------------------------
@@ -130,179 +131,97 @@ dashboardPage(
               # ------------------------------
               # Parameter Tuning: Current Home
               # ------------------------------
-              
+              fluidPage(
               fluidRow(
                 column(
                   width = 5,
-                  offset = 1,
-                  style='padding:3px',
+                  style='padding:-2px',
                   box(
                     width = NULL,
                     title=tagList('Current Home', icon('house')),
-                    status = 'info', 
-                    solidHeader = TRUE,                    
-                    collapsible = TRUE,
+                    status = 'primary',
+                    solidHeader = TRUE,
                     uiOutput(outputId = 'current_home')
                   )),
                 
                 # ------------------------------
                 # Parameter Tuning: What If...?
                 # ------------------------------
-                
+                fluidPage(
                 column(
-                    width = 5,
-                    style='padding:3px',
+                    width = 7,
                     box(
-                      width = NULL,
-                      title=tagList('What if...', icon('question')),
-                      status = 'info', 
-                      solidHeader = TRUE,                    
-                      collapsible = TRUE,
+                      width = NULL, 
+                      title = uiOutput('predicted_price'),
+                      status = 'primary', 
+                      solidHeader = TRUE,
+                      # collapsible = TRUE,
+                      
                       
                       # ----------------------------------
                       # Parameter Tuning: Sq. Ft. Slider
                       # ----------------------------------
                       
+                      chooseSliderSkin('Flat', color = "#112446"),
                       sliderInput(
                         inputId = 'sqft_slider',
                         label = 'Total Sq. Ft',
-                        min = 1, max = 2000,
+                        min = 1, max = 3000,
                         value = 1, step = 10,
                         animate =
-                          animationOptions(interval = 300, loop = TRUE)),
-                      
-                      # ------------------------------------
-                      # Parameter Tuning: Bed/Bath Slider
-                      # ------------------------------------
-                      
-                      # column(
-                      #   width = 6,
-                      #   style='padding:1px',
-                      # sliderInput(
-                      #   inputId = 'sqft_slider',
-                      #   label = 'Total Sq. Ft',
-                      #   min = 1, max = 2000,
-                      #   value = 1, step = 10,
-                      #   animate =
-                      #     animationOptions(interval = 300, loop = TRUE))),
-                      # 
-                      # column(
-                      #   width = 6,
-                      #   style='padding:1px',
-                      #   sliderInput(
-                      #     inputId = 'sqft_slider',
-                      #     label = 'Total Sq. Ft',
-                      #     min = 1, max = 2000,
-                      #     value = 1, step = 10,
-                      #     animate =
-                      #       animationOptions(interval = 300, loop = TRUE))),
-                      
-                      # ------------------------------
-                      # Parameter Tuning: Left Column
-                      # ------------------------------
-                      
-                      column(
-                        offset = 1,
-                        width = 5,
-                        style='padding:0px',
-                        
-                        # ------------------------------
-                        # Left Column: Bedrooms
-                        # ------------------------------
-                        
-                        uiOutput(outputId = 'Bedrooms'),
-                        actionGroupButtons(
-                          inputIds = c('bedrooms_up', 'bedrooms_down'),
-                          labels = list(tags$span(icon('arrow-up'), ''),
-                                      tags$span(icon('arrow-down'), '')),
-                          status = c('success', 'danger')
+                          animationOptions(interval = 550, loop = TRUE)
                         ),
-                        
-                        # ------------------------------
-                        # Left Column: Overall Condition
-                        # ------------------------------
-                        
-                        tags$br(), tags$br(),
-                        uiOutput(outputId = 'OverallCondition'),
-                        actionGroupButtons(
-                          inputIds = c('OvCond_up', 'OvCond_down'),
-                          labels = list(tags$span(icon('arrow-up'), ''),
-                                        tags$span(icon('arrow-down'), '')),
-                          status = c('success', 'danger')
-                        )
-                      ),
-                      
-                      # ------------------------------
-                      # Parameter Tuning: Right Column
-                      # ------------------------------
-                      
-                      column(
-                        offset = 1,
-                        width = 5,
-                        style='padding:0px',
-                        
-                        # ------------------------------
-                        # Right Column: Bathrooms
-                        # ------------------------------
-                        
-                        uiOutput(outputId = 'Bathrooms'),
-                        actionGroupButtons(
-                          inputIds = c('bathrooms_up', 'bathrooms_down'),
-                          labels = list(tags$span(icon('arrow-up'), ''),
-                                        tags$span(icon('arrow-down'), '')),
-                          status = c('success', 'danger')
+                        column(
+                          width = 4,
+                          align = 'center',
+                          uiOutput(outputId = 'quality'),
+                          uiOutput(outputId = 'kitchen'),
                         ),
-                        
-                        # ------------------------------
-                        # Right Column: Overall Quality
-                        # ------------------------------
-                        
-                        tags$br(), tags$br(),
-                        uiOutput(outputId = 'OverallQuality'),
-                        actionGroupButtons(
-                          inputIds = c('OvQual_up', 'OvQual_down'),
-                          labels = list(tags$span(icon('arrow-up'), ''),
-                                       tags$span(icon('arrow-down'), '')),
-                          status = c('success', 'danger')
-                          )
+                        column(
+                          width = 4,
+                          align = 'center',
+                          uiOutput(outputId = 'condition'),
+                          uiOutput(outputId = 'basement'),
+                        ),
+                        column(
+                        width = 4,
+                        align = 'center',
+                        uiOutput(outputId = 'bedrooms'),
+                        uiOutput(outputId = 'bathrooms'),
+
                         )
-                      ),
-                    
-                    # ------------------------------
-                    # Parameter Tuning: Prediction
-                    # ------------------------------
-                    
-                      infoBoxOutput(
-                        width=NULL, 
-                        outputId = 'prediction'),
-                  
-                  
-                
+                      )
+                    )
+                  )
                 )
               )
             ),
-            
+              
           # ------------------------------
           # Vertical Panel: Visualization
           # ------------------------------
 
-          verticalTabPanel(
-            box_height=5,
-            title = 'Visualize Prediction',
-            icon = icon('cog'),  ## Should change. Having trouble implementing other icons.
-            fluidRow(
-              infoBoxOutput(
-                width=6, 
-                outputId = 'predicted'),
-              infoBoxOutput(
-                width =6,
-                outputId='addedarea'),
-              plotOutput('scatplot')
-            )
+            verticalTabPanel(
+              box_height = 5,
+              title = 'Visualize Prediction', 
+              icon = icon("magnifying-glass", class = "fa-2x"),
+              fluidPage(
+                fluidRow(
+                  column(
+                    offset = 1,
+                    width = 12,
+                valueBoxOutput(
+                  outputId = 'predicted'),
+                valueBoxOutput(
+                  outputId = 'addedarea')
+                ),
+                plotOutput('scatplot', height = 250)
+                )
+              )
             )
           )
         )
-        ),
+      ),
       
 # ------------------------------
 # Menu Item: Dataset
@@ -311,9 +230,9 @@ dashboardPage(
       tabItem(
         tabName = 'dataset',
         fluidPage(
-          theme = 'journal',
+          theme = theme,
           dataTableOutput(
-            outputId = 'prediction_df', 
+            outputId = 'df', 
             height = "100%")
         )
       ),
@@ -324,11 +243,92 @@ dashboardPage(
 
       tabItem(
         tabName = 'about',
+        theme = theme,
         fluidPage(
-          theme = 'journal',
+          fluidRow(
+        # ------------------------------
+        # About Me: Laurel He
+        # ------------------------------
+        
+            column(
+              width = 4,
+              fluidRow(
+                box(
+                  title = div(
+                    a(href = 'https://github.com/LaurelHe1',
+                      icon('github')),
+                    a(href = 'https://www.linkedin.com/in/cheng-laurel-he-b04a59104/',
+                      icon('linkedin'))),
+                  width = 12,
+                  status = 'primary',
+                  boxProfile(
+                    image = './img/about_me/laurel.jpg',
+                    title = 'Laurel He',
+                    subtitle = 'Data Science Fellow',
+                    bordered = TRUE,
+                    uiOutput(align = 'center',
+                             outputId = 'laurel_bio')
+                    )
+                  )
+                )
+              ),
+        
+        # ------------------------------
+        # About Me: Daniel Setiawan
+        # ------------------------------
+            
+            column(
+              width = 4,
+              fluidRow(
+                box(
+                  title = div(
+                    a(href = 'https://github.com/set-one',
+                      icon('github')),
+                    a(href = 'https://www.linkedin.com/in/danielosetiawan/',
+                      icon('linkedin'))),
+                  width = 12,
+                  status = 'success',
+                  boxProfile(
+                    image = './img/about_me/daniel_s.jpeg',
+                    title = 'Daniel Setiawan',
+                    subtitle = 'Data Science Fellow',
+                    bordered = TRUE,
+                    uiOutput(align = 'center',
+                             outputId = 'daniels_bio')
+                  )
+                )
+              )
+            ),
+        
+        # ------------------------------
+        # About Me: Daniel Erickson
+        # ------------------------------
+        
+            column(
+              width = 4,
+              fluidRow(
+                box(
+                  title = div(
+                    a(href = 'https://github.com/LaurelHe1',
+                      icon('github')),
+                    a(href = 'https://www.linkedin.com/in/cheng-laurel-he-b04a59104/',
+                      icon('linkedin'))),
+                  width = 12,
+                  status = 'warning',
+                  boxProfile(
+                    image = './img/about_me/laurel.jpg',
+                    title = 'Daniel Erickson',
+                    subtitle = 'Data Science Fellow',
+                    bordered = TRUE,
+                    uiOutput(align = 'center',
+                             outputId = 'daniele_bio')
+                  )
+                )
+              )
+            )
+          )
         )
       )
-
 # ------------------------------
 # END
 # ------------------------------
