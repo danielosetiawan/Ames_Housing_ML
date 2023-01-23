@@ -35,7 +35,12 @@ function(input, output, session) {
                   addProviderTiles('Stamen.TonerLines') %>%
                   addCircleMarkers(~Longitude, ~Latitude,
                                    color = ~factpal(Value),
-                                   radius = 0.5, layerId = ~PID)
+                                   radius = 0.5, layerId = ~PID) %>%
+                  addLegend(
+                    position = "topright",
+                    pal = factpal,
+                    values = ~Value
+                  )
                   # addLegend(
                   #   position = "bottomright",
                   #   pal = pal,
