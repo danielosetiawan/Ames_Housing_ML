@@ -257,4 +257,10 @@ read.csv("./home_flipping.csv") %>%
                            TRUE ~ 'fair price'),
          PID = round(Delta / 1e3), Latitude = Predicted + Predicted*0.15, Longitude = SalePrice)
 ```
+```{r}
+df_predictions = read.csv("./home_flipping.csv")
+
+df_predictions %>%
+  filter(Neighborhood == 'NridgHt')
+```
 

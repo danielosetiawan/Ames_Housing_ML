@@ -36,7 +36,7 @@ function(input, output, session) {
                   addCircleMarkers(~Longitude, ~Latitude,
                                    color = ~factpal(Value),
                                    radius = 0.5, layerId = ~PID) %>%
-                  addLegend(
+                  leaflet::addLegend(
                     position = "topright",
                     pal = factpal,
                     values = ~Value
@@ -60,7 +60,7 @@ function(input, output, session) {
                     # color = case_when(house$SalePrice < (house$Predicted - 0.25 * house$Predicted) ~ 'green', 
                     #                   house$SalePrice > (house$Predicted + 0.25 * house$Predicted) ~ 'red',
                     #                   TRUE ~ 'orange')) %>%
-                  addLegend(
+                  leaflet::addLegend(
                     position = "topright",
                     pal =  factpal,
                     values = ~ Value
@@ -149,8 +149,8 @@ function(input, output, session) {
       # ----------------------
       
       output$crime_rate <- renderValueBox({
-        crime = ifelse(input$neighborhood == 'All Neighborhoods',
-                       'Various', paste0(df_property()$crime_rate, ' / 10'))
+        crime = paste0(df_property()$crime_rate, ' / 10')
+        
         valueBox(
           value = tags$p('Crime Rate', style = "font-size: 50%;"),
           subtitle=tags$p(crime, style = "font-size: 200%;"),
