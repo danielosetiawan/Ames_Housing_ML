@@ -25,7 +25,7 @@ function(input, output, session) {
                 #   # domain = df_predictions$Value
                 # )
                 factpal = colorFactor(
-                  c('green', 'red', 'orange'),
+                  c('orange', 'red', 'green'),
                   # rainbow(25),
                   # 'Accent',
                   df_predictions$Value)
@@ -41,25 +41,30 @@ function(input, output, session) {
                     pal = factpal,
                     values = ~Value
                   )
-                  # addLegend(
-                  #   position = "bottomright",
-                  #   pal = pal,
-                  #   labels = ~Value,
-                  #   title = "An Obvious Legend"
-                  # )
-                  
               })
             }
             else {
               house = df_predictions[df_predictions$Neighborhood == input$neighborhood,]
               output$map = renderLeaflet({
+                factpal = colorFactor(
+                  c('orange', 'red', 'green'),
+                  # rainbow(25),
+                  # 'Accent',
+                  df_predictions$Value)
+                df_predictions$color = factpal(df_predictions$Value)
                 leaflet(data = house) %>%
                   addTiles() %>% 
                   addCircleMarkers(
                     ~Longitude, ~Latitude, radius = 0.5, layerId = ~PID,
-                    color = case_when(house$SalePrice < (house$Predicted - 0.25 * house$Predicted) ~ 'green', 
-                                      house$SalePrice > (house$Predicted + 0.25 * house$Predicted) ~ 'red',
-                                      TRUE ~ 'orange'))
+                    color = ~factpal(Value)) %>%
+                    # color = case_when(house$SalePrice < (house$Predicted - 0.25 * house$Predicted) ~ 'green', 
+                    #                   house$SalePrice > (house$Predicted + 0.25 * house$Predicted) ~ 'red',
+                    #                   TRUE ~ 'orange')) %>%
+                  addLegend(
+                    position = "topright",
+                    pal =  factpal,
+                    values = ~ Value
+                  )
                   
               })
             }
