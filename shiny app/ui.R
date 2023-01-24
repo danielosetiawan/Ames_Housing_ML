@@ -309,14 +309,14 @@ dashboardPage(
               fluidRow(
                 box(
                   title = div(
-                    a(href = 'https://github.com/LaurelHe1',
+                    a(href = 'https://github.com/acsuf',
                       icon('github')),
-                    a(href = 'https://www.linkedin.com/in/cheng-laurel-he-b04a59104/',
+                    a(href = 'https://www.linkedin.com/in/daniel-erickson-779943262/',
                       icon('linkedin'))),
                   width = 12,
                   status = 'warning',
                   boxProfile(
-                    image = './img/about_me/laurel.jpg',
+                    image = './img/about_me/daniel_e.jpg',
                     title = 'Daniel Erickson',
                     subtitle = 'Data Science Fellow',
                     bordered = TRUE,
