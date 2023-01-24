@@ -1,5 +1,6 @@
 library(shiny)
 library(shinydashboard)
+library(shinydashboardPlus)
 
 # # Define UI for application
 spinner = 'double-bounce'
