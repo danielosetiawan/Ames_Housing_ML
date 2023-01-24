@@ -486,14 +486,13 @@ function(input, output, session) {
       # Daniel Erickson
       output$daniele_bio = renderUI({
         
-        HTML("<font size='-1'>  My undergrad was in 
-       Geosystems Engineering and Hydrogeology at the University of Texas 
-       at Austin. I got my Master’s in Atmosphere and Energy, 
-       Civil Engineering at Stanford University. I’m passionate about nature, 
-       environmental protection and renewable energy. I’m excited about how 
-       machine learning and data analytics are giving us better tools to 
-       understand and fight climate change, and I’m looking forward to kickstart 
-       my career in this exciting field.</font>")
+        HTML("<font size='-1'>  I received my BS in mathematics from the University
+        of Minnesota, and I earned my Ph.D in mathematics from Oregon State University.
+        I am interested in the wealth of information that tools from data science
+        and machine learning can provide and how they can uncover aspects of reality
+        that would be difficult to otherwise parse.
+
+             </font>")
         
       })
     })
