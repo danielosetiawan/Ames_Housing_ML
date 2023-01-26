@@ -490,9 +490,8 @@ function(input, output, session) {
         of Minnesota, and I earned my Ph.D in mathematics from Oregon State University.
         I am interested in the wealth of information that tools from data science
         and machine learning can provide and how they can uncover aspects of reality
-        that would be difficult to otherwise parse.
-
-             </font>")
+        that would be difficult to otherwise parse. I am excited to begin my career
+        outside of education and tackle real-world problems with the skillset I've developed.  </font>")
         
       })
     })
