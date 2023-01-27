@@ -331,7 +331,7 @@ function(input, output, session) {
           inputId = 'basement', 
           label='Basement', 
           height = size, width = size,
-          min = 0, max = 10, 
+          min = 0, max = 5, 
           value = df_features()$BsmtQual,
           # fgColor = '#FFA500'
         )
@@ -347,7 +347,7 @@ function(input, output, session) {
           inputId = 'kitchen', 
           label='Kitchen', 
           height = size, width = size,
-          min = 0, max = 10, 
+          min = 0, max = 5, 
           value = df_features()$KitchenQual,
           # fgColor = '#FFA500'
         )

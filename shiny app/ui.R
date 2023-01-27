@@ -1,6 +1,3 @@
-library(shiny)
-library(shinydashboard)
-library(shinydashboardPlus)
 
 # # Define UI for application
 spinner = 'double-bounce'
@@ -166,7 +163,7 @@ dashboardPage(
                       chooseSliderSkin('Flat', color = "#112446"),
                       sliderInput(
                         inputId = 'sqft_slider',
-                        label = 'Total Sq. Ft',
+                        label = 'Gross Living Area (1st floor + 2nd floor)',
                         min = 1, max = 3000,
                         value = 1, step = 10,
                         animate =
