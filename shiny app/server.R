@@ -20,10 +20,6 @@ function(input, output, session) {
           observe({
             if (input$neighborhood == 'All Neighborhoods') {
               output$map = renderLeaflet({
-                # pal <- colorNumeric(rainbow(25), df_predictions$Value
-                #   # palette = "YlGnBu",
-                #   # domain = df_predictions$Value
-                # )
                 factpal = colorFactor(
                   c('orange', 'red', 'green'),
                   # rainbow(25),
@@ -57,9 +53,6 @@ function(input, output, session) {
                   addCircleMarkers(
                     ~Longitude, ~Latitude, radius = 0.5, layerId = ~PID,
                     color = ~factpal(Value)) %>%
-                    # color = case_when(house$SalePrice < (house$Predicted - 0.25 * house$Predicted) ~ 'green', 
-                    #                   house$SalePrice > (house$Predicted + 0.25 * house$Predicted) ~ 'red',
-                    #                   TRUE ~ 'orange')) %>%
                   leaflet::addLegend(
                     position = "topright",
                     pal =  factpal,
@@ -220,15 +213,15 @@ function(input, output, session) {
                  'Bed / Bath: <b>', accommodations, '</b><br>',
                  'Year Built: <b>', df_property()$YearBuilt, '</b><br>',
                  'Year Remodeled: <b>', df_property()$YearRemodAdd, '</b><br>',
-                 'Total SF: <b>', df_property()$GrLivArea, '</b><br>',
+                 'Gross Living Area: <b>', df_property()$GrLivArea, '</b><br>',
                  '1st floor SF: <b>', df_property()$X1stFlrSF, '</b><br>',
                  '2nd floor SF: <b>', df_property()$X2ndFlrSF, '</b><br>',
                  'Total Basement SF: <b>', df_property()$TotalBsmtSF, '</b><br>',
                  'Overall Quality: <b>', df_property()$OverallQual, '/10</b><br>',
                  'Overall Condition: <b>', df_property()$OverallCond, '/10</b><br>',
-                 'Kitchen Quality: <b>', df_property()$KitchenQual, '/5</b><br>',
-                 'Garage Quality: <b>', df_property()$GarageQual, '/5</b><br>',
-                 'Basement Quality: <b>', df_property()$BsmtQual, '/5</b><br>'
+                 'Kitchen Quality: <b>', df_property()$KitchenQual, '/10</b><br>',
+                 'Garage Quality: <b>', df_property()$GarageQual, '/10</b><br>',
+                 'Basement Quality: <b>', df_property()$BsmtQual, '/10</b><br>'
           ))
         
       })
@@ -331,7 +324,7 @@ function(input, output, session) {
           inputId = 'basement', 
           label='Basement', 
           height = size, width = size,
-          min = 0, max = 5, 
+          min = 0, max = 10, 
           value = df_features()$BsmtQual,
           # fgColor = '#FFA500'
         )
@@ -347,7 +340,7 @@ function(input, output, session) {
           inputId = 'kitchen', 
           label='Kitchen', 
           height = size, width = size,
-          min = 0, max = 5, 
+          min = 0, max = 10, 
           value = df_features()$KitchenQual,
           # fgColor = '#FFA500'
         )
@@ -444,9 +437,8 @@ function(input, output, session) {
           labs(x = 'Gross Living Area', y = 'Price', color = '')
         
         })
-      # })
+
       
-        
       
 # -------------------
 # SIDEBAR : ABOUT ME
