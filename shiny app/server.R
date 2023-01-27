@@ -80,7 +80,7 @@ function(input, output, session) {
             sprintf("Sale Price: $ %s", paste0(signif(data$SalePrice / 1e3, 3), 'K')), tags$br(),
             sprintf("Address: %s", data$Prop_Addr), tags$br(),
             sprintf("Neighborhood: %s", data$Neighborhood), tags$br(),
-            sprintf("Living Area: %s sq. ft.", data$GrLivArea)
+            sprintf("Gross Living Area: %s sq. ft.", data$GrLivArea)
           ))
           
           leafletProxy(mapId = "map") %>%
