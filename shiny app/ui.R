@@ -1,335 +1,237 @@
+# Load packages
+library(shiny)
+library(bs4Dash)
+library(thematic)
+library(waiter)
 
-# # Define UI for application
-spinner = 'double-bounce'
-theme = 'Minty'
+thematic_shiny()
 
 dashboardPage(
-  dashboardHeader(
-    disable = TRUE
-    ),
-  dashboardSidebar(
-    collapsed = TRUE,
-    sidebarMenu(
-      menuItem('Homepage', tabName = 'dashboard', icon = icon('house')),
-      menuItem('Dataset', tabName = 'dataset', icon = icon('database')),
-      menuItem("About", tabName = 'about', icon = icon('user'))
-    )
-  ),
-  dashboardBody(
-    tabItems(
-
-# ------------------------------
-# Menu Item: Homepage
-# ------------------------------
-      
-      tabItem(
-        tabName = 'dashboard',
-        fluidPage(
-          theme = theme,
-          
-      # ------------------------------
-      # Homepage: Main Panel
-      # ------------------------------
-          
-          fluidRow(
-            box(
-              title = tagList('Location', 
-                icon('location-dot')),
-              status='success',
-              collapsible=TRUE,
-              width = 4,
-              height = 200, 
-              
-              # ------------------------------
-              # Main Panel: Property Selection
-              # ------------------------------
-              selectInput(
-                inputId = 'neighborhood', 
-                label = 'Neighborhood',
-                choices = c('All Neighborhoods', 
-                            unique(df_predictions$Neighborhood)),
-                selected = 'Neighborhood'
-              ),
-              pickerInput(
-                inputId = 'address',
-                label = 'Property',
-                choices = df_predictions$Prop_Addr,
-                options = pickerOptions(
-                  virtualScroll = TRUE,
-                  dropupAuto = FALSE,
-                  width = '100%'
-                )
-              )
-            ),
-          
-            # ------------------------------
-            # Main Panel: Info Boxes
-            # ------------------------------
-            
-              column(
-                width = 4,
-                style='padding:3px',
-                  valueBoxOutput(width=NULL, 'crime_rate'),
-                  valueBoxOutput(width=NULL, 'school_quality')
-              ),
-              column(
-                width = 4, 
-                style='padding:3px',
-                    valueBoxOutput(width=NULL, 'income'),
-                    valueBoxOutput(width=NULL, 'appreciation'),
-                  
-              )
-            ),
-            
-      # ------------------------------
-      # Homepage: Vertical Panels
-      # ------------------------------
-
-            verticalTabsetPanel(
-              # style = 'padding: 1em',
-              menuSide = 'right',
-            
-          # ------------------------------
-          # Vertical Panel: Ames Housing
-          # ------------------------------
-            
-            verticalTabPanel(
-              title = 'Ames Housing Map', box_height = 5,
-              icon = icon("house", class = "fa-2x"),
-              leafletOutput("map")
-            ),
-            
-          # ------------------------------
-          # Vertical Panel: Time Analysis
-          # ------------------------------
-
-            verticalTabPanel(
-              title = 'Time Forecasting', box_height = 5,
-              icon = icon("line-chart", class = "fa-2x"),
-              materialSwitch(
-                status = 'success',
-                inputId = 'ts_ci', 
-                label = 'Show confidence intervals', 
-                value = TRUE, right = TRUE
-              ),
-              addSpinner(
-                uiOutput(outputId = "sarima", height = "100%"),
-                spin = spinner
-              )
-            ),
-            
-          # --------------------------------
-          # Vertical Panel: Parameter Tuning
-          # --------------------------------
-            
-            verticalTabPanel(
-              title = 'Parameter Tuning', box_height = 5,
-              icon = icon('gears', class = "fa-2x"),
-              
-              # ------------------------------
-              # Parameter Tuning: Current Home
-              # ------------------------------
-              fluidPage(
-              fluidRow(
-                column(
-                  width = 5,
-                  style='padding:-2px',
-                  box(
-                    width = NULL,
-                    title=tagList('Current Home', icon('house')),
-                    status = 'primary',
-                    solidHeader = TRUE,
-                    uiOutput(outputId = 'current_home')
-                  )),
-                
-                # ------------------------------
-                # Parameter Tuning: What If...?
-                # ------------------------------
-                fluidPage(
-                column(
-                    width = 7,
-                    box(
-                      width = NULL, 
-                      title = uiOutput('predicted_price'),
-                      status = 'primary', 
-                      solidHeader = TRUE,
-                      # collapsible = TRUE,
-                      
-                      
-                      # ----------------------------------
-                      # Parameter Tuning: Sq. Ft. Slider
-                      # ----------------------------------
-                      
-                      chooseSliderSkin('Flat', color = "#112446"),
-                      sliderInput(
-                        inputId = 'sqft_slider',
-                        label = 'Gross Living Area (1st floor + 2nd floor)',
-                        min = 1, max = 3000,
-                        value = 1, step = 10,
-                        animate =
-                          animationOptions(interval = 550, loop = TRUE)
-                        ),
-                        column(
-                          width = 4,
-                          align = 'center',
-                          uiOutput(outputId = 'quality'),
-                          uiOutput(outputId = 'kitchen'),
-                        ),
-                        column(
-                          width = 4,
-                          align = 'center',
-                          uiOutput(outputId = 'condition'),
-                          uiOutput(outputId = 'basement'),
-                        ),
-                        column(
-                        width = 4,
-                        align = 'center',
-                        uiOutput(outputId = 'bedrooms'),
-                        uiOutput(outputId = 'bathrooms'),
-
-                        )
-                      )
-                    )
-                  )
-                )
-              )
-            ),
-              
-          # ------------------------------
-          # Vertical Panel: Visualization
-          # ------------------------------
-
-            verticalTabPanel(
-              box_height = 5,
-              title = 'Visualize Prediction', 
-              icon = icon("magnifying-glass", class = "fa-2x"),
-              fluidPage(
-                fluidRow(
-                  column(
-                    offset = 1,
-                    width = 12,
-                valueBoxOutput(
-                  outputId = 'predicted'),
-                valueBoxOutput(
-                  outputId = 'addedarea')
-                ),
-                plotOutput('scatplot', height = 250)
-                )
-              )
-            )
+    preloader = list(html = tagList(spin_1(), "Loading ..."), color = "#343a40"),
+    dark = TRUE,
+    help = TRUE,
+    fullscreen = TRUE,
+    scrollToTop = TRUE,
+    header = dashboardHeader(
+      title = dashboardBrand(
+        title = sprintf("bs4Dash v%s", as.character(utils::packageVersion("bs4Dash"))),
+        color = "primary",
+        href = "https://divadnojnarg.github.io/outstanding-shiny-ui/",
+        image = "https://adminlte.io/themes/v3/dist/img/user2-160x160.jpg",
+        opacity = 0.8
+      ),
+      fixed = TRUE,
+      tooltip(
+        title = "This toggles the right sidebar",
+        placement = "bottom",
+        actionButton(inputId = "controlbarToggle", label = "Toggle Controlbar", class = "mx-2")
+      ),
+      popover(
+        title = "Toggle button",
+        content = "This toggle the left sidebar",
+        placement = "bottom",
+        # `data-trigger` = "hover",
+        actionButton(inputId = "sidebarToggle", label = "Toggle left sidebar", class = "mx-2")
+      ),
+      rightUi = tagList(
+        dropdownMenu(
+          badgeStatus = "danger",
+          type = "messages",
+          messageItem(
+            inputId = "triggerAction1",
+            message = "message 1",
+            from = "Divad Nojnarg",
+            image = "https://adminlte.io/themes/v3/dist/img/user3-128x128.jpg",
+            time = "today",
+            color = "lime"
           )
-        )
+        ),
+        userOutput("user")
       ),
-      
-# ------------------------------
-# Menu Item: Dataset
-# ------------------------------
-
-      tabItem(
-        tabName = 'dataset',
-        fluidPage(
-          theme = theme,
-          dataTableOutput(
-            outputId = 'df', 
-            height = "100%")
-        )
-      ),
-
-# ------------------------------
-# Menu Item: About Me
-# ------------------------------
-
-      tabItem(
-        tabName = 'about',
-        theme = theme,
-        fluidPage(
-          fluidRow(
-        # ------------------------------
-        # About Me: Laurel He
-        # ------------------------------
-        
-            column(
-              width = 4,
-              fluidRow(
-                box(
-                  title = div(
-                    a(href = 'https://github.com/LaurelHe1',
-                      icon('github')),
-                    a(href = 'https://www.linkedin.com/in/cheng-laurel-he-b04a59104/',
-                      icon('linkedin'))),
-                  width = 12,
-                  status = 'primary',
-                  boxProfile(
-                    image = './img/about_me/laurel.jpg',
-                    title = 'Laurel He',
-                    subtitle = 'Data Science Fellow',
-                    bordered = TRUE,
-                    uiOutput(align = 'center',
-                             outputId = 'laurel_bio')
-                    )
-                  )
-                )
-              ),
-        
-        # ------------------------------
-        # About Me: Daniel Setiawan
-        # ------------------------------
-            
-            column(
-              width = 4,
-              fluidRow(
-                box(
-                  title = div(
-                    a(href = 'https://github.com/set-one',
-                      icon('github')),
-                    a(href = 'https://www.linkedin.com/in/danielosetiawan/',
-                      icon('linkedin'))),
-                  width = 12,
-                  status = 'success',
-                  boxProfile(
-                    image = './img/about_me/daniel_s.jpeg',
-                    title = 'Daniel Setiawan',
-                    subtitle = 'Data Science Fellow',
-                    bordered = TRUE,
-                    uiOutput(align = 'center',
-                             outputId = 'daniels_bio')
-                  )
-                )
-              )
-            ),
-        
-        # ------------------------------
-        # About Me: Daniel Erickson
-        # ------------------------------
-        
-            column(
-              width = 4,
-              fluidRow(
-                box(
-                  title = div(
-                    a(href = 'https://github.com/acsuf',
-                      icon('github')),
-                    a(href = 'https://www.linkedin.com/in/daniel-erickson-779943262/',
-                      icon('linkedin'))),
-                  width = 12,
-                  status = 'warning',
-                  boxProfile(
-                    image = './img/about_me/daniel_e.jpg',
-                    title = 'Daniel Erickson',
-                    subtitle = 'Data Science Fellow',
-                    bordered = TRUE,
-                    uiOutput(align = 'center',
-                             outputId = 'daniele_bio')
-                  )
-                )
-              )
-            )
+      leftUi = tagList(
+        dropdownMenu(
+          badgeStatus = "info",
+          type = "notifications",
+          notificationItem(
+            inputId = "triggerAction2",
+            text = "Error!",
+            status = "danger"
+          )
+        ),
+        dropdownMenu(
+          badgeStatus = "info",
+          type = "tasks",
+          taskItem(
+            inputId = "triggerAction3",
+            text = "My progress",
+            color = "orange",
+            value = 10
           )
         )
       )
-# ------------------------------
-# END
-# ------------------------------
-    )
+    ),
+    sidebar = dashboardSidebar(
+      
+      collapsed = TRUE,
+      # fixed = TRUE,
+      skin = "light",
+      status = "primary",
+      id = "sidebar",
+      customArea = fluidRow(
+        actionButton(
+          inputId = "myAppButton",
+          label = NULL,
+          icon = icon("users"),
+          width = NULL,
+          status = "primary",
+          style = "margin: auto",
+          dashboardBadge(textOutput("btnVal"), color = "danger")
+        )
+      ),
+      sidebarUserPanel(
+        image = "https://adminlte.io/themes/v3/dist/img/AdminLTELogo.png",
+        name = "Welcome Onboard!"
+      ),
+      sidebarMenu(
+        id = "current_tab",
+        flat = FALSE,
+        compact = FALSE,
+        childIndent = TRUE,
+        sidebarHeader("Cards"),
+        menuItem(
+          "Basic cards",
+          tabName = "cards",
+          icon = icon("sliders")
+        ),
+        menuItem(
+          "Cards API",
+          badgeLabel = "New",
+          badgeColor = "success",
+          tabName = "cardsAPI",
+          icon = icon("laptop-code")
+        ),
+        menuItem(
+          "Social cards",
+          tabName = "socialcards",
+          icon = icon("id-card")
+        ),
+        menuItem(
+          "Tab cards",
+          tabName = "tabcards",
+          icon = icon("layer-group")
+        ),
+        menuItem(
+          "Sortable cards",
+          tabName = "sortablecards",
+          icon = icon("object-ungroup")
+        ),
+        menuItem(
+          "Stats elements",
+          tabName = "statsboxes",
+          icon = icon("chart-area")
+        ),
+        sidebarHeader("Other boxes"),
+        menuItem(
+          "Value/Info boxes",
+          tabName = "valueboxes",
+          icon = icon("suitcase")
+        ),
+        
+        sidebarHeader("Colors"),
+        
+        menuItem(
+          "Colors",
+          tabName = "colors",
+          icon = icon("droplet")
+        ),
+        
+        sidebarHeader("BS4 gallery"),
+        menuItem(
+          text = "Galleries",
+          icon = icon("cubes"),
+          startExpanded = FALSE,
+          menuSubItem(
+            text = HTML(
+              paste(
+                "Gallery 1",
+                dashboardBadge(
+                  "new",
+                  position = "right",
+                  color = "danger"
+                )
+              )
+            ),
+            tabName = "gallery1",
+            icon = icon("circle")
+          ),
+          menuSubItem(
+            text = HTML(
+              paste(
+                "Gallery 2",
+                dashboardBadge(
+                  "!",
+                  position = "right",
+                  color = "success"
+                )
+              )
+            ),
+            tabName = "gallery2"
+          )
+        )
+      )
+    ),
+    body = dashboardBody(
+      tabItems(
+        basic_cards_tab,
+        cards_api_tab,
+        social_cards_tab,
+        tab_cards_tab,
+        sortable_cards_tab,
+        statsboxes_tab,
+        value_boxes_tab,
+        colors_tab,
+        gallery_1_tab,
+        gallery_2_tab
+      )
+    ),
+    controlbar = dashboardControlbar(
+      id = "controlbar",
+      skin = "light",
+      pinned = TRUE,
+      overlay = FALSE,
+      controlbarMenu(
+        id = "controlbarMenu",
+        type = "pills",
+        controlbarItem(
+          "Inputs",
+          column(
+            width = 12,
+            align = "center",
+            radioButtons(
+              inputId = "dist",
+              label = "Distribution type:",
+              c(
+                "Normal" = "norm",
+                "Uniform" = "unif",
+                "Log-normal" = "lnorm",
+                "Exponential" = "exp"
+              )
+            )
+          )
+        ),
+        controlbarItem(
+          "Skin",
+          skinSelector()
+        )
+      )
+    ),
+    footer = dashboardFooter(
+      fixed = FALSE,
+      left = a(
+        href = "https://twitter.com/divadnojnarg",
+        target = "_blank", "@DivadNojnarg"
+      ),
+      right = "2022"
+    ),
+    title = "bs4Dash Showcase"
   )
-)
