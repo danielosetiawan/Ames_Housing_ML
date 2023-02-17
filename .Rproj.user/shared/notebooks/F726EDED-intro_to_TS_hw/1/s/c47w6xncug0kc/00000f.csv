@@ -1,0 +1,11 @@
+"0","ts_data3 = list(tsdl[[481]], meta_tsdl[481,])"
+"0","meta_tsdl[[481,2]]"
+"1","[[1]]
+"
+"1","[1]"
+"1"," ""Annual Swedish fertility rates (1000's) 1750-1849 Thomas (1940)"""
+"1","
+"
+"1","
+"
+"0","plot.ts(ts_data3[[1]])"

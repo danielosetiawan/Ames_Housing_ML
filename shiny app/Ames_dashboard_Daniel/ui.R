@@ -17,37 +17,10 @@ dashboardPage(
   preloader = list(html = tagList(spin_1(), "Loading ..."), color = "#343a40"),
   dark = TRUE,
   fullscreen = TRUE,
-  scrollToTop = TRUE,
+  # scrollToTop = TRUE,
   
   dashboardHeader(
-    
-    rightUi = tags$li(class = "dropdown",
-                      
-                      tags$li(
-                        class = "dropdown", div(
-                          # selectInput(
-                          #   inputId = 'neighborhood', 
-                          #   label = '',
-                          #   choices = c('All Neighborhoods', 
-                          #               unique(df_predictions$Neighborhood)),
-                          #   selected = 'Neighborhood'
-                          # ),
-                          style= "width: 60%; margin-left: auto; margin-right: 0px; 
-                      margin-top:-20px; margin-bottom:-20px;")),
-                      
-                      tags$li(class = "dropdown", div(
-                        # selectInput(
-                        #   inputId = 'address',
-                        #   label = '',
-                        #   choices = df_predictions$Prop_Addr,
-                        # ),
-                      style= "width: 90%; margin-left: 10px; margin-right: -80px; 
-                      margin-top:-20px; margin-bottom:-20px;"))
-                      
-                        
-                      
-                      )
-    
+    rightUi = rightUi
     
     ),
   dashboardSidebar(
@@ -58,7 +31,7 @@ dashboardPage(
       id = "current_tab",
       flat = FALSE,
       compact = FALSE,
-      childIndent = TRUE,
+      childIndent = FALSE,
       sidebarHeader("Cards"),
       menuItem('Homepage', tabName = 'dashboard', icon = icon('house')),
       menuItem('Dataset', tabName = 'dataset', icon = icon('database')),
@@ -94,14 +67,135 @@ dashboardPage(
         ),
       
         
-            
+      bs4TabCard(
+        id = "tabcard",
+        side='left',
+        title = "",
+        selected = 'Compare',
+        width = 12,
+        tabPanel(
+          title = 'Search',
+            width = 12,
+          
+            fluidRow(
+              column(
+                width = 6,
+                leafletOutput('map', height=288)
+                ),
+              column(
+                width = 6,
+                  fluidRow(
+                  column(
+                    width = 6,
+                    pickerInput(
+                      inputId = 'neighborhood', 
+                      label = 'Neighborhood',
+                      choices = c('All Neighborhoods', 
+                                  unique(df_predictions$Neighborhood)),
+                      selected = 'Neighborhood'
+                    ), 
+                  boxPad(
+                    color = "info",
+                    descriptionBlock(
+                      text = "Ames is home to a number of high-tech companies, 
+                      making it a hub for innovation and cutting-edge technology. ", 
+                      rightBorder = FALSE,
+                      marginBottom = TRUE
+                    )
+                  )
+                  ),
+                  column(
+                    width = 6,
+                    pickerInput(
+                      inputId = 'address',
+                      label = 'Property',
+                      choices = df_predictions$Prop_Addr,
+                      options = pickerOptions(
+                        `live-search` = TRUE,
+                        virtualScroll = TRUE,
+                        dropupAuto = FALSE)
+                    ),
+                    boxPad(
+                      color = "info",
+                      descriptionBlock(
+                        text = "Ames is home to a number of high-tech companies, 
+                      making it a hub for innovation and cutting-edge technology. ", 
+                        rightBorder = FALSE,
+                        marginBottom = TRUE
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          ),
+        tabPanel(
+          title = 'Compare',
+          fluidRow(
+          column(5,
+                 div(class = "addrSearch",
+                     pickerInput(
+                       inputId = 'compare_1',
+                       label = 'Property #1',
+                       choices = df_predictions$Prop_Addr,
+                       options = pickerOptions(
+                         `live-search` = TRUE,
+                         virtualScroll = TRUE,
+                         dropupAuto = FALSE)
+                     ),
+                     class = "search")),
+                 column(5, offset=2,
+                        div(class = "addrSearch",
+                            pickerInput(
+                              inputId = 'compare_2',
+                              label = 'Property #2',
+                              choices = df_predictions$Prop_Addr,
+                              options = pickerOptions(
+                                `live-search` = TRUE,
+                                virtualScroll = TRUE,
+                                dropupAuto = FALSE)
+                            ),
+                            class = "search")
+                        )),
+          
+                fluidRow(
+                  column(5,
+                         leafletOutput('map1', height=288),
+                  ),
+                  column(2,
+                         checkboxGroupButtons(
+                           # width=NULL,
+                           inputId = "Id058",
+                           label = "",
+                           
+                           choices = c("Subways", 
+                                       "Restaurants", "Shops", "Storefronts"),
+                           # justified = TRUE,
+                           direction = 'vertical',
+                           checkIcon = list(
+                             yes = icon("ok", 
+                                        lib = "glyphicon"))
+                         )
+                  ),
+                  column(5,
+                         leafletOutput('map2', height=288)
+                    )
+                  
+                )
+        ),
+        tabPanel(
+          title = 'Flip',
+          "Content 3"
+        )
+      ),  
             
       # ------------------------------
-      # Homepage: Vertical Panels
+      # Homepage: Tab Panels
       # ------------------------------
-
+      
+      
+      
             verticalTabsetPanel(
-              # style = 'padding: 1em',
               menuSide = 'right',
             
           # ------------------------------
@@ -109,9 +203,9 @@ dashboardPage(
           # ------------------------------
             
             verticalTabPanel(
-              title = 'Ames Housing Map', box_height = 5,
+              title = 'Where', box_height = 5,
               icon = icon("house", class = "fa-2x"),
-              leafletOutput("map")
+              # leafletOutput("map", width=NULL)
             ),
             
           # ------------------------------
@@ -119,7 +213,7 @@ dashboardPage(
           # ------------------------------
 
             verticalTabPanel(
-              title = 'Time Forecasting', box_height = 5,
+              title = 'When', box_height = 5,
               icon = icon("line-chart", class = "fa-2x"),
               materialSwitch(
                 status = 'success',
@@ -138,7 +232,7 @@ dashboardPage(
           # --------------------------------
             
             verticalTabPanel(
-              title = 'Parameter Tuning', box_height = 5,
+              title = 'What', box_height = 5,
               icon = icon('gears', class = "fa-2x"),
               
               # ------------------------------
@@ -216,7 +310,7 @@ dashboardPage(
 
             verticalTabPanel(
               box_height = 5,
-              title = 'Visualize Prediction', 
+              title = 'How', 
               icon = icon("magnifying-glass", class = "fa-2x"),
               fluidPage(
                 fluidRow(
@@ -346,45 +440,41 @@ dashboardPage(
 # RIGHT CONTROL BAR
 # ------------------------------
     )
-  ),
-dashboardControlbar(
-  id = "controlbar",
-  skin = "light",
-  pinned = TRUE,
-  collapsed = FALSE,
-  overlay = FALSE,
-  # controlbarMenu(
-    # id = "controlbarMenu",
-    # type = "pills",
-    # controlbarItem(
-    column(width = 10, offset=1,
-      selectInput(
-        inputId = 'neighborhood', 
-        label = '',
-        choices = c('All Neighborhoods', 
-                    unique(df_predictions$Neighborhood)),
-        selected = 'Neighborhood'
-        
-      ),
-      multiInput(
-        inputId = "address",
-        label = "Address :", 
-        choices = NULL,
-        choiceNames = df_predictions$Prop_Addr,
-        choiceValues = df_predictions$Prop_Addr
-      )
-      
-      # selectInput(
-      #   inputId = 'address',
-      #   label = '',
-      #   choices = df_predictions$Prop_Addr,
-      # )
-    )
-    # )
-    # controlbarItem(
-    #   "Skin",
-    #   skinSelector()
-    # )
-  # )
-)
+  )
+# dashboardControlbar(
+#   id = "controlbar",
+#   skin = "light",
+#   # pinned = TRUE,
+#   collapsed = TRUE,
+#   overlay = FALSE,
+#   # controlbarMenu(
+#     # id = "controlbarMenu",
+#     # type = "pills",
+#     # controlbarItem(
+#     # column(width = 10, offset=1,
+#     #   # selectInput(
+#     #   #   inputId = 'neighborhood', 
+#     #   #   label = '',
+#     #   #   choices = c('All Neighborhoods', 
+#     #   #               unique(df_predictions$Neighborhood)),
+#     #   #   selected = 'Neighborhood'
+#     #   #   
+#     #   # ),
+#     #   # multiInput(
+#     #   #   inputId = "address",
+#     #   #   label = "Address :", 
+#     #   #   choices = NULL,
+#     #   #   choiceNames = df_predictions$Prop_Addr,
+#     #   #   choiceValues = df_predictions$Prop_Addr
+#     #   # )
+#     #   
+#     #   
+#     # )
+#     # )
+#     # controlbarItem(
+#     #   "Skin",
+#     #   skinSelector()
+#     # )
+#   # )
+# )
 )

@@ -13,6 +13,9 @@ function(input, output, session) {
 # ----------------------------------------------------------------
    
     session$onFlushed(once=T, function(){
+      
+      map1 = createLeafletMap(session, 'compare_map1')
+      
         
         map = createLeafletMap(session, 'map')
         # named list of circle markers
@@ -82,8 +85,10 @@ function(input, output, session) {
           )
         )
 
+        # main map
         session$onFlushed(once=T, function(){
           observe({
+            
             if (input$neighborhood == 'All Neighborhoods') {
               output$map = renderLeaflet({
                 factpal = colorFactor(
@@ -247,6 +252,31 @@ function(input, output, session) {
           })
         })
         
+        # compare-map1
+        
+        session$onFlushed(once=T, function(){
+          observe({
+              output$map1 = renderLeaflet({
+                leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
+                  addTiles() %>%
+                  addMarkers(data = df_property(), lng = ~Longitude,
+                             lat = ~Latitude)
+                })
+              })
+            })
+        
+        # compare-map2
+        session$onFlushed(once=T, function(){
+          observe({
+            output$map2 = renderLeaflet({
+              leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
+                addTiles() %>%
+                addMarkers(data = df_property2(), lng = ~Longitude,
+                           lat = ~Latitude)
+            })
+          })
+        })
+        
     })
 
 # ---------------------------
@@ -282,15 +312,14 @@ function(input, output, session) {
     updatePickerInput(
       session,
       inputId = 'address',
-      # label = label,
-      # selected = NULL,
       choices = df_undervalued()$Prop_Addr,
       choicesOpt = list(
         subtext = paste0(
           c('\t\t'), 'Price: $', 
-          df_undervalued()$SalePrice, ' (',
-          df_undervalued()$Value,
-          df_undervalued()$Delta, ')'
+          df_undervalued()$SalePrice
+          # ' (',
+          # df_undervalued()$Value,
+          # df_undervalued()$Delta, ')'
         )
       )
     )
@@ -699,6 +728,16 @@ function(input, output, session) {
   df_property = reactive({ # features for current home and main panel
     df_predictions %>%
       filter(Prop_Addr == input$address)
+  })
+  
+  df_property1 = reactive({ # property comparison #1
+    df_predictions %>%
+      filter(Prop_Addr == input$compare_1)
+  })
+  
+  df_property2 = reactive({ # property comparison #1
+    df_predictions %>%
+      filter(Prop_Addr == input$compare_2)
   })
   
   df_features = reactive({ # features for dot matrix

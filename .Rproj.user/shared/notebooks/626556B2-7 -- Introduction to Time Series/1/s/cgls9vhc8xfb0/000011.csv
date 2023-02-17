@@ -1,0 +1,4 @@
+"0",""
+"0","AP.log.seasonal.diff = diff(AP.log.diff, 12)"
+"0",""
+"0","plot.ts(AP.log.seasonal.diff)"

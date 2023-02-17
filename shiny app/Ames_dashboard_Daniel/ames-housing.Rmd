@@ -13,12 +13,17 @@ df_feats = read.csv('./final_features.csv')
 df_places = read.csv('./Ames_places.csv')
 ```
 ```{r}
+
+```
+
+
+```{r}
 address = '3412 TAFT AVE'
 property = df_predictions %>%
   filter(Prop_Addr == address)
 
 property$Latitude
-
+property
 ```
 
 ```{r}

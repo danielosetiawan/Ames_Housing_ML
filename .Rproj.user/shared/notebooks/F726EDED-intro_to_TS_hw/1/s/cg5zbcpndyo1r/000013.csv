@@ -1,0 +1,7 @@
+"0",""
+"0","# there's definitely a season, but no trend"
+"0","# we dont need to reduce the variance, but we do need to have a difference to remove seasonal"
+"0",""
+"0","data2 = diff(data, 12)"
+"0",""
+"0","plot.ts(diff(data, 12))"
