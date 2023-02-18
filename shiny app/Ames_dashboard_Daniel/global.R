@@ -36,3 +36,15 @@ rightUi = tags$li(class = "dropdown",
                       color = "default"
                     )
                   )
+
+haversine_distance <- function(lat1, lon1, lat2, lon2) {
+  R <- 3959 # Earth's radius in miles
+  dLat <- (lat2 - lat1) * pi / 180
+  dLon <- (lon2 - lon1) * pi / 180
+  lat1 <- lat1 * pi / 180
+  lat2 <- lat2 * pi / 180
+  a <- sin(dLat/2)^2 + sin(dLon/2)^2 * cos(lat1) * cos(lat2)
+  c <- 2 * atan2(sqrt(a), sqrt(1-a))
+  d <- R * c
+  return(d)
+}

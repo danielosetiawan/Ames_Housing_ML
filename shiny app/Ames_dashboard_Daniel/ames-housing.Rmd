@@ -40,7 +40,7 @@ property
 
 ```{r}
 haversine_distance <- function(lat1, lon1, lat2, lon2) {
-  R <- 6371 # Earth's radius in kilometers
+  R <- 3959 # Earth's radius in miles
   dLat <- (lat2 - lat1) * pi / 180
   dLon <- (lon2 - lon1) * pi / 180
   lat1 <- lat1 * pi / 180
@@ -59,24 +59,38 @@ for (i in 1:nrow(df_predictions)) {
   df_predictions$distance[i] = haversine_distance(
     property$Latitude, property$Longitude,
     df_predictions$Latitude[i],df_predictions$Longitude[i]
-    )
-  # } else {
-  #   df_predictions$distance[i] = ''
-  # }
+  )
 }
 ```
 ```{r}
-df_predictions# %>%
+df_predictions
+  
   # filter(Prop_Addr == address)
 ```
 
-```{r}
-comps = df_predictions %>%
-  filter(distance != 0) %>%
-  arrange(distance) %>%
-  head(10)
 
+```{r}
+df_predictions %>%
+  filter(distance != 0,
+         between(SalePrice, -0.9*property$SalePrice, 1.1*property$SalePrice),
+         between(GrLivArea, -0.9*property$GrLivArea, 1.1*property$GrLivArea),
+         between(LotArea, -0.9*property$LotArea, 1.1*property$LotArea),
+         between(OverallQual, -0.9*property$OverallQual, 1.1*property$OverallQual),
+         between(OverallCond, -0.9*property$OverallCond, 1.1*property$OverallCond),
+         
+         
+  ) %>%
+  arrange(distance) %>%
+  select(distance, SalePrice, Prop_Addr, GrLivArea,
+         BedroomAbvGr, FullBath, HalfBath) %>%
+  distinct()
+  
 comps
+
+comps[1, ]
+
+format(89000, big.mark = ",")
+
 ```
 
 

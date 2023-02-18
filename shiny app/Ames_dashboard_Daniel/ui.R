@@ -93,11 +93,12 @@ dashboardPage(
                                   unique(df_predictions$Neighborhood)),
                       selected = 'Neighborhood'
                     ),
-                    valueBoxOutput(
+                    infoBoxOutput(
                       'appreciation', 
                       width = NULL
                     ),
-                    valueBoxOutput(
+                    style = 'margin-bottom: -500px',
+                    infoBoxOutput(
                       'income', 
                       width = NULL
                     )

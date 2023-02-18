@@ -10,179 +10,179 @@ function(input, output, session) {
   
   
   observeEvent(input$neighborhood, {
-
-# ----------------------------------------------------------------
-# Vertical Panel: Ames Housing Map
-# ----------------------------------------------------------------
-   
+    
+    # ----------------------------------------------------------------
+    # Vertical Panel: Ames Housing Map
+    # ----------------------------------------------------------------
+    
     session$onFlushed(once=T, function(){
       
       map1 = createLeafletMap(session, 'compare_map1')
       
-        
-        map = createLeafletMap(session, 'map')
-        # named list of circle markers
-        markers = iconList(
-          "Undervalued" = makeIcon(
-            './icons/icons8-green-circle-48.png',
-            iconWidth = 10,
-            iconHeight = 10
-          ),
-          "Fair" = makeIcon(
-            './icons/icons8-orange-circle-48.png',
-            iconWidth = 10,
-            iconHeight = 10
-          ),
-          "Overvalued" = makeIcon(
-            './icons/icons8-red-circle-48.png',
-            iconWidth = 10,
-            iconHeight = 10
-          )
+      
+      map = createLeafletMap(session, 'map')
+      # named list of circle markers
+      markers = iconList(
+        "Undervalued" = makeIcon(
+          './icons/icons8-green-circle-48.png',
+          iconWidth = 10,
+          iconHeight = 10
+        ),
+        "Fair" = makeIcon(
+          './icons/icons8-orange-circle-48.png',
+          iconWidth = 10,
+          iconHeight = 10
+        ),
+        "Overvalued" = makeIcon(
+          './icons/icons8-red-circle-48.png',
+          iconWidth = 10,
+          iconHeight = 10
         )
-        # named list of map icons
-        logos = iconList(
-          "Park" = makeIcon(
-            './icons/icons8-evergreen-30.png',
-            iconWidth = 15,
-            iconHeight = 20
-          ),
-          "Store" = makeIcon(
-            './icons/icons8-grocery-store-30.png',
-            iconWidth = 15,
-            iconHeight = 20
-          ),
-          "Restaurant" = makeIcon(
-            './icons/icons8-dining-50.png',
-            iconWidth = 15,
-            iconHeight = 20
-          ),
-          "Church" = makeIcon(
-            './icons/icons8-church-32.png',
-            iconWidth = 15,
-            iconHeight = 20
-          ),
-          "Hotel" = makeIcon(
-            './icons/icons8-4-star-hotel-32.png',
-            iconWidth = 15,
-            iconHeight = 20
-          ),
-          "School" = makeIcon(
-            './icons/icons8-school-building-30.png',
-            iconWidth = 15,
-            iconHeight = 20
-          ),
-          "Hospital" = makeIcon(
-            './icons/icons8-hospital-sign-30.png',
-            iconWidth = 15,
-            iconHeight = 20
-          ),
-          "Airport" = makeIcon(
-            './icons/icons8-airport-30.png',
-            iconWidth = 15,
-            iconHeight = 20
-          ),
-          "Library" = makeIcon(
-            './icons/icons8-library-building-50.png',
-            iconWidth = 15,
-            iconHeight = 20
-          )
+      )
+      # named list of map icons
+      logos = iconList(
+        "Park" = makeIcon(
+          './icons/icons8-evergreen-30.png',
+          iconWidth = 15,
+          iconHeight = 20
+        ),
+        "Store" = makeIcon(
+          './icons/icons8-grocery-store-30.png',
+          iconWidth = 15,
+          iconHeight = 20
+        ),
+        "Restaurant" = makeIcon(
+          './icons/icons8-dining-50.png',
+          iconWidth = 15,
+          iconHeight = 20
+        ),
+        "Church" = makeIcon(
+          './icons/icons8-church-32.png',
+          iconWidth = 15,
+          iconHeight = 20
+        ),
+        "Hotel" = makeIcon(
+          './icons/icons8-4-star-hotel-32.png',
+          iconWidth = 15,
+          iconHeight = 20
+        ),
+        "School" = makeIcon(
+          './icons/icons8-school-building-30.png',
+          iconWidth = 15,
+          iconHeight = 20
+        ),
+        "Hospital" = makeIcon(
+          './icons/icons8-hospital-sign-30.png',
+          iconWidth = 15,
+          iconHeight = 20
+        ),
+        "Airport" = makeIcon(
+          './icons/icons8-airport-30.png',
+          iconWidth = 15,
+          iconHeight = 20
+        ),
+        "Library" = makeIcon(
+          './icons/icons8-library-building-50.png',
+          iconWidth = 15,
+          iconHeight = 20
         )
-
-        # main map
-        session$onFlushed(once=T, function(){
-          observe({
-            
-            if (input$neighborhood == 'All Neighborhoods') {
-              output$map = renderLeaflet({
-                factpal = colorFactor(
-                  c('orange', 'red', 'green'),
-                  df_predictions$Value
-                )
-                
-                undervalue = df_predictions[df_predictions$Value == 'undervalued', ]
-                fair = df_predictions[df_predictions$Value == 'fair price', ]
-                overvalue = df_predictions[df_predictions$Value == 'overvalued', ]
-                
-                leaflet() %>%
-                  addTiles() %>% 
-                  addProviderTiles('CartoDB') %>%
-                  addProviderTiles('Stamen.TonerLines') %>% 
-                  addMarkers(data = undervalue, lng = ~Longitude, lat = ~Latitude,
-                                   icon = markers['Undervalued'], layerId = ~PID, label = glue(
-                                     "<b>Sale Price: $ </b>{undervalue$SalePrice}</br>",
-                                     "<b>Address: </b> {undervalue$Prop_Addr}<br/>",
-                                     "<b>Neighborhood: </b> {undervalue$Neighborhood}<br/>",
-                                     "<b>Gross Living Area: sq. ft. </b> {undervalue$GrLivArea}<br/>") %>% lapply(htmltools::HTML),
-                                   group = 'Housing') %>%
-                  addMarkers(data = fair, lng = ~Longitude, lat = ~Latitude,
-                             icon = markers['Fair'], layerId = ~PID, label = glue(
-                               "<b>Sale Price: $ </b>{fair$SalePrice}</br>",
-                               "<b>Address: </b> {fair$Prop_Addr}<br/>",
-                               "<b>Neighborhood: </b> {fair$Neighborhood}<br/>",
-                               "<b>Gross Living Area: sq. ft. </b> {fair$GrLivArea}<br/>") %>% lapply(htmltools::HTML),
-                            group = 'Housing') %>%
-                  addMarkers(data = overvalue, lng = ~Longitude, lat = ~Latitude,
-                             icon = markers['Overvalued'], layerId = ~PID, label = glue(
-                               "<b>Sale Price: $ </b>{overvalue$SalePrice}</br>",
-                               "<b>Address: </b> {overvalue$Prop_Addr}<br/>",
-                               "<b>Neighborhood: </b> {overvalue$Neighborhood}<br/>",
-                               "<b>Gross Living Area: sq. ft. </b> {overvalue$GrLivArea}<br/>") %>% lapply(htmltools::HTML),
-                             group = 'Housing') %>%
-                  addLegend(
-                    position = "topleft",
-                    pal = factpal,
-                    values = df_predictions$Value
-                  ) %>%
-                  addMarkers(data = df_places[df_places$Type == 'Park', ], icon = logos['Park'], lng = ~Longitude, 
-                                    lat = ~Latitude, group = 'Park') %>%
-
-                  addMarkers(data = df_places[df_places$Type == 'Store', ], icon = logos['Store'], lng = ~Longitude,
-                                    lat = ~Latitude, group = 'Store') %>%
-
-                  addMarkers(data = df_places[df_places$Type == 'Restaurant', ], icon = logos['Restaurant'], lng = ~Longitude,
-                                    lat = ~Latitude, group = 'Restaurant') %>%
-
-                  addMarkers(data = df_places[df_places$Type == 'Church', ], icon = logos['Church'], lng = ~Longitude,
-                                    lat = ~Latitude, group = 'Church') %>%
-
-                  addMarkers(data = df_places[df_places$Type == 'Hotel', ], icon = logos['Hotel'], lng = ~Longitude,
-                                    lat = ~Latitude, group = 'Hotel') %>%
-
-                  addMarkers(data = df_places[df_places$Type == 'School', ], icon = logos['School'], lng = ~Longitude,
-                                    lat = ~Latitude, group = 'School') %>%
-  
-                  addMarkers(data = df_places[df_places$Type == 'Hospital', ], icon = logos['Hospital'], lng = ~Longitude,
-                                    lat = ~Latitude, group = 'Hospital') %>%
+      )
+      
+      # main map
+      session$onFlushed(once=T, function(){
+        observe({
           
-                  addMarkers(data = df_places[df_places$Type == 'Airport', ], icon = logos['Airport'], lng = ~Longitude,
-                                    lat = ~Latitude, group = 'Airport') %>%
-
-                  addMarkers(data = df_places[df_places$Type == 'Library', ], icon = logos['Library'], lng = ~Longitude,
-                                    lat = ~Latitude, group = 'Library') %>%
-                  addProviderTiles('CartoDB.Positron') %>% 
-
-                  addLayersControl(
-                    overlayGroups = c('Housing', 'Park', 'Store', 'Restaurant', 'Church', 'Hotel', 'School', 'Hospital', 'Airport','Library'),  
-                    options = layersControlOptions(collapsed = TRUE)
-                  ) %>%
-                  hideGroup(c('Park', 'Store', 'Restaurant', 'Church', 'Hotel', 'School', 'Hospital', 'Airport','Library'))
-              })
-            }
-            else {
-              house = df_predictions[df_predictions$Neighborhood == input$neighborhood, ]
-              places = df_places[df_places$Neighborhood == input$neighborhood, ]
+          if (input$neighborhood == 'All Neighborhoods') {
+            output$map = renderLeaflet({
+              factpal = colorFactor(
+                c('orange', 'red', 'green'),
+                df_predictions$Value
+              )
               
-              undervalue = house[house$Value == 'undervalued', ]
-              fair = house[house$Value == 'fair price', ]
-              overvalue = house[house$Value == 'overvalued', ]
-             
-               output$map = renderLeaflet({
-                factpal = colorFactor(
-                  c('orange', 'red', 'green'),
-                  df_predictions$Value)
-                m = leaflet() %>% addTiles() 
-                if ( dim(undervalue)[1] != 0) {
-                  m = m %>% 
+              undervalue = df_predictions[df_predictions$Value == 'undervalued', ]
+              fair = df_predictions[df_predictions$Value == 'fair price', ]
+              overvalue = df_predictions[df_predictions$Value == 'overvalued', ]
+              
+              leaflet() %>%
+                addTiles() %>% 
+                addProviderTiles('CartoDB') %>%
+                addProviderTiles('Stamen.TonerLines') %>% 
+                addMarkers(data = undervalue, lng = ~Longitude, lat = ~Latitude,
+                           icon = markers['Undervalued'], layerId = ~PID, label = glue(
+                             "<b>Sale Price: $ </b>{undervalue$SalePrice}</br>",
+                             "<b>Address: </b> {undervalue$Prop_Addr}<br/>",
+                             "<b>Neighborhood: </b> {undervalue$Neighborhood}<br/>",
+                             "<b>Gross Living Area: sq. ft. </b> {undervalue$GrLivArea}<br/>") %>% lapply(htmltools::HTML),
+                           group = 'Housing') %>%
+                addMarkers(data = fair, lng = ~Longitude, lat = ~Latitude,
+                           icon = markers['Fair'], layerId = ~PID, label = glue(
+                             "<b>Sale Price: $ </b>{fair$SalePrice}</br>",
+                             "<b>Address: </b> {fair$Prop_Addr}<br/>",
+                             "<b>Neighborhood: </b> {fair$Neighborhood}<br/>",
+                             "<b>Gross Living Area: sq. ft. </b> {fair$GrLivArea}<br/>") %>% lapply(htmltools::HTML),
+                           group = 'Housing') %>%
+                addMarkers(data = overvalue, lng = ~Longitude, lat = ~Latitude,
+                           icon = markers['Overvalued'], layerId = ~PID, label = glue(
+                             "<b>Sale Price: $ </b>{overvalue$SalePrice}</br>",
+                             "<b>Address: </b> {overvalue$Prop_Addr}<br/>",
+                             "<b>Neighborhood: </b> {overvalue$Neighborhood}<br/>",
+                             "<b>Gross Living Area: sq. ft. </b> {overvalue$GrLivArea}<br/>") %>% lapply(htmltools::HTML),
+                           group = 'Housing') %>%
+                addLegend(
+                  position = "topleft",
+                  pal = factpal,
+                  values = df_predictions$Value
+                ) %>%
+                addMarkers(data = df_places[df_places$Type == 'Park', ], icon = logos['Park'], lng = ~Longitude, 
+                           lat = ~Latitude, group = 'Park') %>%
+                
+                addMarkers(data = df_places[df_places$Type == 'Store', ], icon = logos['Store'], lng = ~Longitude,
+                           lat = ~Latitude, group = 'Store') %>%
+                
+                addMarkers(data = df_places[df_places$Type == 'Restaurant', ], icon = logos['Restaurant'], lng = ~Longitude,
+                           lat = ~Latitude, group = 'Restaurant') %>%
+                
+                addMarkers(data = df_places[df_places$Type == 'Church', ], icon = logos['Church'], lng = ~Longitude,
+                           lat = ~Latitude, group = 'Church') %>%
+                
+                addMarkers(data = df_places[df_places$Type == 'Hotel', ], icon = logos['Hotel'], lng = ~Longitude,
+                           lat = ~Latitude, group = 'Hotel') %>%
+                
+                addMarkers(data = df_places[df_places$Type == 'School', ], icon = logos['School'], lng = ~Longitude,
+                           lat = ~Latitude, group = 'School') %>%
+                
+                addMarkers(data = df_places[df_places$Type == 'Hospital', ], icon = logos['Hospital'], lng = ~Longitude,
+                           lat = ~Latitude, group = 'Hospital') %>%
+                
+                addMarkers(data = df_places[df_places$Type == 'Airport', ], icon = logos['Airport'], lng = ~Longitude,
+                           lat = ~Latitude, group = 'Airport') %>%
+                
+                addMarkers(data = df_places[df_places$Type == 'Library', ], icon = logos['Library'], lng = ~Longitude,
+                           lat = ~Latitude, group = 'Library') %>%
+                addProviderTiles('CartoDB.Positron') %>% 
+                
+                addLayersControl(
+                  overlayGroups = c('Housing', 'Park', 'Store', 'Restaurant', 'Church', 'Hotel', 'School', 'Hospital', 'Airport','Library'),  
+                  options = layersControlOptions(collapsed = TRUE)
+                ) %>%
+                hideGroup(c('Park', 'Store', 'Restaurant', 'Church', 'Hotel', 'School', 'Hospital', 'Airport','Library'))
+            })
+          }
+          else {
+            house = df_predictions[df_predictions$Neighborhood == input$neighborhood, ]
+            places = df_places[df_places$Neighborhood == input$neighborhood, ]
+            
+            undervalue = house[house$Value == 'undervalued', ]
+            fair = house[house$Value == 'fair price', ]
+            overvalue = house[house$Value == 'overvalued', ]
+            
+            output$map = renderLeaflet({
+              factpal = colorFactor(
+                c('orange', 'red', 'green'),
+                df_predictions$Value)
+              m = leaflet() %>% addTiles() 
+              if ( dim(undervalue)[1] != 0) {
+                m = m %>% 
                   addMarkers(data = undervalue, lng = ~Longitude, lat = ~Latitude,
                              icon = markers['Undervalued'], layerId = ~PID, label = glue(
                                "<b>Sale Price: $ </b> {undervalue$SalePrice}</br>",
@@ -190,9 +190,9 @@ function(input, output, session) {
                                "<b>Neighborhood: </b> {undervalue$Neighborhood}<br/>",
                                "<b>Gross Living Area: sq. ft. </b> {undervalue$GrLivArea}<br/>") %>% lapply(htmltools::HTML),
                              group = 'Housing')
-                }
-                if (dim(fair)[1] != 0) {
-                  m = m %>%
+              }
+              if (dim(fair)[1] != 0) {
+                m = m %>%
                   addMarkers(data = fair, lng = ~Longitude, lat = ~Latitude,
                              icon = markers['Fair'], layerId = ~PID, label = glue(
                                "<b>Sale Price: $ </b>{fair$SalePrice}</br>",
@@ -200,9 +200,9 @@ function(input, output, session) {
                                "<b>Neighborhood: </b> {fair$Neighborhood}<br/>",
                                "<b>Gross Living Area: sq. ft. </b> {fair$GrLivArea}<br/>") %>% lapply(htmltools::HTML),
                              group = 'Housing')
-                }
-                if (dim(overvalue)[1] != 0) {
-                  m = m %>%
+              }
+              if (dim(overvalue)[1] != 0) {
+                m = m %>%
                   addMarkers(data = overvalue, lng = ~Longitude, lat = ~Latitude,
                              icon = markers['Overvalued'], layerId = ~PID, label = glue(
                                "<b>Sale Price: $ </b>{overvalue$SalePrice}</br>",
@@ -210,83 +210,83 @@ function(input, output, session) {
                                "<b>Neighborhood: </b> {overvalue$Neighborhood}<br/>",
                                "<b>Gross Living Area: sq. ft. </b> {overvalue$GrLivArea}<br/>") %>% lapply(htmltools::HTML),
                              group = 'Housing') 
-                }
+              }
+              
+              m %>% addLegend(
+                position = "topleft",
+                pal =  factpal,
+                values = house$Value
+              ) %>%
+                addMarkers(data = places[places$Type == 'Park', ], icon = logos['Park'], lng = ~Longitude, 
+                           lat = ~Latitude, group = 'Park') %>%
                 
-                  m %>% addLegend(
-                    position = "topleft",
-                    pal =  factpal,
-                    values = house$Value
-                  ) %>%
-                  addMarkers(data = places[places$Type == 'Park', ], icon = logos['Park'], lng = ~Longitude, 
-                                    lat = ~Latitude, group = 'Park') %>%
-                  
-                  addMarkers(data = places[places$Type == 'Store', ], icon = logos['Store'], lng = ~Longitude,
-                                    lat = ~Latitude, group = 'Store') %>%
-                  
-                  addMarkers(data = places[places$Type == 'Restaurant', ], icon = logos['Restaurant'], lng = ~Longitude,
-                                    lat = ~Latitude, group = 'Restaurant') %>%
-                  
-                  addMarkers(data = places[places$Type == 'Church', ], icon = logos['Church'], lng = ~Longitude,
-                                    lat = ~Latitude, group = 'Church') %>%
-                  
-                  addMarkers(data = places[places$Type == 'Hotel', ], icon = logos['Hotel'], lng = ~Longitude,
-                                    lat = ~Latitude, group = 'Hotel') %>%
-                  
-                  addMarkers(data = places[places$Type == 'School', ], icon = logos['School'], lng = ~Longitude,
-                                    lat = ~Latitude, group = 'School') %>%
-                  
-                  addMarkers(data = places[places$Type == 'Hospital', ], icon = logos['Hospital'], lng = ~Longitude,
-                                    lat = ~Latitude, group = 'Hospital') %>%
-                  
-                  addMarkers(data = places[places$Type == 'Airport', ], icon = logos['Airport'], lng = ~Longitude,
-                                    lat = ~Latitude, group = 'Airport') %>%
-                  
-                  addMarkers(data = places[places$Type == 'Library', ], icon = logos['Library'], lng = ~Longitude,
-                                    lat = ~Latitude, group = 'Library') %>%
-                  addProviderTiles('CartoDB.Positron') %>% 
-                  
-                  addLayersControl(
-                    overlayGroups = c('Housing', 'Park', 'Store', 'Restaurant', 'Church', 'Hotel', 'School', 'Hospital', 'Airport','Library'),  
-                    options = layersControlOptions(collapsed = TRUE)
-                  ) %>%
-                  hideGroup(c('Park', 'Store', 'Restaurant', 'Church', 'Hotel', 'School', 'Hospital', 'Airport','Library'))
-              })
-            }
+                addMarkers(data = places[places$Type == 'Store', ], icon = logos['Store'], lng = ~Longitude,
+                           lat = ~Latitude, group = 'Store') %>%
+                
+                addMarkers(data = places[places$Type == 'Restaurant', ], icon = logos['Restaurant'], lng = ~Longitude,
+                           lat = ~Latitude, group = 'Restaurant') %>%
+                
+                addMarkers(data = places[places$Type == 'Church', ], icon = logos['Church'], lng = ~Longitude,
+                           lat = ~Latitude, group = 'Church') %>%
+                
+                addMarkers(data = places[places$Type == 'Hotel', ], icon = logos['Hotel'], lng = ~Longitude,
+                           lat = ~Latitude, group = 'Hotel') %>%
+                
+                addMarkers(data = places[places$Type == 'School', ], icon = logos['School'], lng = ~Longitude,
+                           lat = ~Latitude, group = 'School') %>%
+                
+                addMarkers(data = places[places$Type == 'Hospital', ], icon = logos['Hospital'], lng = ~Longitude,
+                           lat = ~Latitude, group = 'Hospital') %>%
+                
+                addMarkers(data = places[places$Type == 'Airport', ], icon = logos['Airport'], lng = ~Longitude,
+                           lat = ~Latitude, group = 'Airport') %>%
+                
+                addMarkers(data = places[places$Type == 'Library', ], icon = logos['Library'], lng = ~Longitude,
+                           lat = ~Latitude, group = 'Library') %>%
+                addProviderTiles('CartoDB.Positron') %>% 
+                
+                addLayersControl(
+                  overlayGroups = c('Housing', 'Park', 'Store', 'Restaurant', 'Church', 'Hotel', 'School', 'Hospital', 'Airport','Library'),  
+                  options = layersControlOptions(collapsed = TRUE)
+                ) %>%
+                hideGroup(c('Park', 'Store', 'Restaurant', 'Church', 'Hotel', 'School', 'Hospital', 'Airport','Library'))
+            })
+          }
+        })
+      })
+      
+      # compare-map1
+      
+      session$onFlushed(once=T, function(){
+        observe({
+          output$map1 = renderLeaflet({
+            leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
+              addTiles() %>%
+              addMarkers(data = df_property(), lng = ~Longitude,
+                         lat = ~Latitude)
           })
         })
-        
-        # compare-map1
-        
-        session$onFlushed(once=T, function(){
-          observe({
-              output$map1 = renderLeaflet({
-                leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
-                  addTiles() %>%
-                  addMarkers(data = df_property(), lng = ~Longitude,
-                             lat = ~Latitude)
-                })
-              })
-            })
-        
-        # compare-map2
-        session$onFlushed(once=T, function(){
-          observe({
-            output$map2 = renderLeaflet({
-              leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
-                addTiles() %>%
-                addMarkers(data = df_property2(), lng = ~Longitude,
-                           lat = ~Latitude)
-            })
+      })
+      
+      # compare-map2
+      session$onFlushed(once=T, function(){
+        observe({
+          output$map2 = renderLeaflet({
+            leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
+              addTiles() %>%
+              addMarkers(data = df_property2(), lng = ~Longitude,
+                         lat = ~Latitude)
           })
         })
-        
+      })
+      
     })
-
-
     
-# ---------------------------
-# Vertical Panel: Timeseries
-# ---------------------------
+    
+    
+    # ---------------------------
+    # Vertical Panel: Timeseries
+    # ---------------------------
     
     observeEvent(input$ts_ci, {
       
@@ -311,9 +311,9 @@ function(input, output, session) {
       })
     })
     
-# ---------------------
-# Homepage: Main Panel
-# ---------------------
+    # ---------------------
+    # Homepage: Main Panel
+    # ---------------------
     updatePickerInput(
       session,
       inputId = 'address',
@@ -330,55 +330,108 @@ function(input, output, session) {
     )
     
     observeEvent(input$address, {
-
+      
       # ----------------------
       # Main Panel: Info Boxes
       # ----------------------
       
       output$valuebox1 <- renderValueBox({
         # label = paste0(df_property()$crime_rate, ' / 10')
+        
+        num = 1
+        distance = round(comps()[num, ]$distance, 2)
+        address = comps()[num, ]$Prop_Addr
+        sqft = format(comps()[num, ]$GrLivArea, big.mark = ",")
+        price = format(comps()[num, ]$SalePrice, big.mark = ",")
+        beds = comps()[num, ]$BedroomAbvGr
+        baths = comps()[num, ]$FullBath + 0.5*comps()[num, ]$HalfBath
+        
         label = HTML(paste0(
-          '<b>Distance:</b> 0.7mi', '<br>',
-          '<b>Sale Price:</b> 129K', '<br>',
-          '<b>Bed / Bath:</b> 2BR / 2BA', '<br>'
-          ))
+          beds,' bds | ',baths,' ba | ',sqft,' sqft.'
+        ))
         
         valueBox(
-          subtitle = "",
-          value = tags$p(label, style = "font-size: 80%;"),
-          icon = icon('handcuffs'),
+          value = tags$p(
+            address, 
+            style = "margin-bottom: -28px; margin-left: 2px;
+              margin-top: -8px; margin-bottom: 0px;
+              font-size: 80%; font-style: italic"),
+          subtitle = tags$p(HTML(paste0(
+            '<b>$', price, '</b>')), 
+            style = "font-size: 200%; margin-bottom: -20px"
+          ),
+          icon = icon('1'), #handcuffs
           color = 'secondary',
-          footer = tags$p('Crime Rate', style='text-align: left;
+          footer = tags$p(label, style='text-align: left;
                           margin-left: 10px; margin-bottom: 0px')
-          )
+        )
+        
         
       })
       
       
       output$valuebox2 <- renderValueBox({
         
-        label = paste0(df_property()$school_quality, ' / 10')
+        # label = paste0(df_property()$school_quality, ' / 10')
+        
+        num = 2
+        distance = round(comps()[num, ]$distance, 2)
+        address = comps()[num, ]$Prop_Addr
+        sqft = format(comps()[num, ]$GrLivArea, big.mark = ",")
+        price = format(comps()[num, ]$SalePrice, big.mark = ",")
+        beds = comps()[num, ]$BedroomAbvGr
+        baths = comps()[num, ]$FullBath + 0.5*comps()[num, ]$HalfBath
+        
+        label = HTML(paste0(
+          beds,' bds | ',baths,' ba | ',sqft,' sqft.'
+        ))
         
         valueBox(
-          subtitle = "",
-          value = tags$p(label, style = "font-size: 200%;"),
-          icon = icon('graduation-cap'),
-          color = 'info',
-          footer = tags$p('School Quality', style='text-align: left; 
+          value = tags$p(
+            address, 
+            style = "margin-bottom: -28px; margin-left: 2px;
+              margin-top: -8px; margin-bottom: 0px;
+              font-size: 80%; font-style: italic"),
+          subtitle = tags$p(HTML(paste0(
+            '<b>$', price, '</b>')), 
+            style = "font-size: 200%; margin-bottom: -20px"
+          ),
+          icon = icon('2'), #graduation-cap
+          color = 'secondary', #info
+          footer = tags$p(label, style='text-align: left;
                           margin-left: 10px; margin-bottom: 0px')
         )
       })
       
       output$valuebox3 <- renderValueBox({
         
-        label = paste0(df_property()$nb_income, ' / 10')
+        # label = paste0(df_property()$nb_income, ' / 10')
+        
+        num = 3
+        distance = round(comps()[num, ]$distance, 2)
+        address = comps()[num, ]$Prop_Addr
+        sqft = format(comps()[num, ]$GrLivArea, big.mark = ",")
+        price = format(comps()[num, ]$SalePrice, big.mark = ",")
+        beds = comps()[num, ]$BedroomAbvGr
+        baths = comps()[num, ]$FullBath + 0.5*comps()[num, ]$HalfBath
+        
+        label = HTML(paste0(
+          beds,' bds | ',baths,' ba | ',sqft,' sqft.'
+        ))
         
         valueBox(
-          subtitle = "",
-          value = tags$p(label, style = "font-size: 200%;"),
-          icon = icon('sack-dollar'),
-          color = 'olive',
-          footer = tags$p('NB Income', style='text-align: left; 
+          value = tags$p(
+            address, 
+            style = "margin-bottom: -28px; margin-left: 2px;
+              margin-top: -8px; margin-bottom: 0px;
+              font-size: 80%; font-style: italic"),
+          subtitle = tags$p(HTML(paste0(
+            '<b>$', price, '</b>')), 
+            style = "font-size: 200%; margin-bottom: -20px"
+          ),
+          icon = icon('3'), #sack-dollar
+          color = 'secondary', #olive
+          footer = tags$p(label, style='text-align: left;
                           margin-left: 10px; margin-bottom: 0px')
         )
       })
@@ -387,42 +440,65 @@ function(input, output, session) {
         
         label = paste0(df_property()$nb_appreciation, ' / 10')
         
+        num = 4
+        distance = round(comps()[num, ]$distance, 2)
+        address = comps()[num, ]$Prop_Addr
+        sqft = format(comps()[num, ]$GrLivArea, big.mark = ",")
+        price = format(comps()[num, ]$SalePrice, big.mark = ",")
+        beds = comps()[num, ]$BedroomAbvGr
+        baths = comps()[num, ]$FullBath + 0.5*comps()[num, ]$HalfBath
+        
+        label = HTML(paste0(
+          beds,' bds | ',baths,' ba | ',sqft,' sqft.'
+        ))
+        
         valueBox(
-          subtitle = "",
-          value = tags$p(label, style = "font-size: 200%;"),
-          icon = icon('arrow-trend-up'),
-          color = 'warning',
-          footer = tags$p('NB Appreciation', style='text-align: left; 
+          value = tags$p(
+            address, 
+            style = "margin-bottom: -28px; margin-left: 2px;
+              margin-top: -8px; margin-bottom: 0px;
+              font-size: 80%; font-style: italic"),
+          subtitle = tags$p(HTML(paste0(
+            '<b>$', price, '</b>')), 
+            style = "font-size: 200%; margin-bottom: -20px"
+          ),
+          icon = icon('4'), #arrow-trend-up
+          color = 'secondary', #warning
+          footer = tags$p(label, style='text-align: left;
                           margin-left: 10px; margin-bottom: 0px')
         )
       })
       
       
-      output$appreciation <- renderValueBox({
+      output$appreciation <- renderInfoBox({
         
         label = paste0(df_property()$nb_income, ' / 10')
         
-        valueBox(
-          subtitle = "",
+        infoBox(
+          title = "Income",
           value = tags$p(label, style = "font-size: 200%;"),
-          icon = icon('sack-dollar'),
+          icon = icon("sack-dollar", class = "fa-2x"),
           color = 'olive',
-          footer = tags$p('Income', style='text-align: left; 
-                          margin-left: 10px; margin-bottom: 0px')
+          fill = TRUE,
+          # gradient = TRUE
+          # footer = tags$p('Income', style='text-align: left; 
+          #                 margin-left: 10px; margin-bottom: 0px')
         )
       })
       
-      output$income <- renderValueBox({
+      output$income <- renderInfoBox({
         
         label = paste0(df_property()$nb_appreciation, ' / 10')
         
-        valueBox(
-          subtitle = "",
+        infoBox(
+          title = "Appreciation",
           value = tags$p(label, style = "font-size: 200%;"),
-          icon = icon('arrow-trend-up'),
+          icon = icon("arrow-trend-up", class = "fa-2x"),
           color = 'warning',
-          footer = tags$p('Appreciation', style='text-align: left; 
-                          margin-left: 10px; margin-bottom: 0px')
+          fill = TRUE,
+          gradient = TRUE
+          # footer = tags$p('Appreciation', style='text-align: left; 
+          #                 margin-left: 10px; margin-bottom: 0px')
         )
       })
       
@@ -431,9 +507,12 @@ function(input, output, session) {
       # --------------------------------
       
       
-# --------------------------------
-# Vertical Panel: Parameter Tuning
-# --------------------------------
+      # --------------------------------
+      # Vertical Panel: Parameter Tuning
+      # --------------------------------
+      
+      
+    
       
       # ------------------------------
       # Parameter Tuning: Current Home
@@ -536,9 +615,9 @@ function(input, output, session) {
       })
       
       
-  # ------------------------------
-  # Parameter Tuning: What If...?
-  # ------------------------------
+      # ------------------------------
+      # Parameter Tuning: What If...?
+      # ------------------------------
       
       output$predicted_price = renderUI({
         
@@ -656,9 +735,9 @@ function(input, output, session) {
       # })
       
       
-# -------------------------------------
-# Vertical Panel: Visualize Prediction
-# -------------------------------------
+      # -------------------------------------
+      # Vertical Panel: Visualize Prediction
+      # -------------------------------------
       # -------------------------------------
       # Visualize Prediction: Predicted Price
       # -------------------------------------
@@ -673,7 +752,7 @@ function(input, output, session) {
           value = HTML(paste0('<b><h3>', price, '</b></h3>')),
           icon = icon('money-bill-transfer'),
           color = 'green'
-          )
+        )
       })
       
       # -------------------------------------
@@ -709,49 +788,49 @@ function(input, output, session) {
           theme_bw() +
           
           # ----------------------------
-          # Scatter plot: Original Price
-          # ----------------------------
-          geom_point(data = df_property(),
+        # Scatter plot: Original Price
+        # ----------------------------
+        geom_point(data = df_property(),
                    aes(x=GrLivArea, y = SalePrice, 
                        color = 'Original price'),
                    size = 3, shape = 7, alpha = 1, stroke = 1.25) + 
           geom_point(size = 0.5) +
           
           # -------------------------------
-          # Scatter plot: Before Renovation
-          # -------------------------------
-          geom_point(data = data.frame('GrLivArea' = df_features()$GrLivArea,
+        # Scatter plot: Before Renovation
+        # -------------------------------
+        geom_point(data = data.frame('GrLivArea' = df_features()$GrLivArea,
                                      'SalePrice' = orig_predict),
                    aes(x=GrLivArea, y = SalePrice, 
                        color = 'Before renovation'),
                    size = 3, shape = 7, alpha = 1, stroke = 1.25) +
           
           # ------------------------------
-          # Scatter plot: After Renovation
+        # Scatter plot: After Renovation
+        # ------------------------------
+        
+        geom_point(data = data.frame('GrLivArea' = sqft(),
+                                     'SalePrice' = predicted_price()),
+                   aes(x=GrLivArea, y = SalePrice, 
+                       color = 'After renovation'),
+                   size = 3, shape = 7, alpha = 1, stroke = 1.25) +
+          
           # ------------------------------
-          
-          geom_point(data = data.frame('GrLivArea' = sqft(),
-                                       'SalePrice' = predicted_price()),
-                     aes(x=GrLivArea, y = SalePrice, 
-                         color = 'After renovation'),
-                     size = 3, shape = 7, alpha = 1, stroke = 1.25) +
-          
-          # ------------------------------
-          # Scatter plot: Final Touchups
-          # ------------------------------
-          
-          
-          scale_y_continuous(breaks = c(1e5, 3e5, 5e5, 7e5),
-                             labels = c('100K', '300K', '500K', '700K')) +
+        # Scatter plot: Final Touchups
+        # ------------------------------
+        
+        
+        scale_y_continuous(breaks = c(1e5, 3e5, 5e5, 7e5),
+                           labels = c('100K', '300K', '500K', '700K')) +
           labs(x = 'Gross Living Area', y = 'Price', color = '')
         
-        })
-
+      })
       
       
-# -------------------
-# SIDEBAR : ABOUT ME
-# -------------------
+      
+      # -------------------
+      # SIDEBAR : ABOUT ME
+      # -------------------
       
       # Laurel He
       output$laurel_bio = renderUI({
@@ -798,9 +877,9 @@ function(input, output, session) {
     })
   })
   
-# ------------------
-# SIDEBAR : DATASET
-# ------------------
+  # ------------------
+  # SIDEBAR : DATASET
+  # ------------------
   
   output$df = renderDataTable(
     df_predictions %>%
@@ -808,10 +887,10 @@ function(input, output, session) {
     filter = 'top',
     options = list(scrollX = TRUE,
                    scrollY = TRUE))
-
-# -----------------------
-# ALL REACTIVE FUNCTIONS
-# -----------------------
+  
+  # -----------------------
+  # ALL REACTIVE FUNCTIONS
+  # -----------------------
   
   sqft = reactive({
     input$sqft_slider
@@ -850,16 +929,16 @@ function(input, output, session) {
   
   df_undervalued = reactive({
     (df_neighborhood() %>%
-      # head(25) %>%
-      select(Prop_Addr, Delta, Value, SalePrice) %>%
-      arrange(Delta) %>%
-      mutate(SalePrice = paste0(round(as.numeric(SalePrice / 1000)), 'K'),
-             Value = case_when(Value == 'undervalued' ~ 'undervalued by ',
-                               Value == 'overvalues' ~ 'overvalued by  ', 
-                               TRUE ~ 'fair price'),
-             Delta = ifelse(Value == 'fair price', '', 
-                            paste0(abs(round(as.numeric(Delta/1e3))), 'K'))))[-1:-3,]
-      
+       # head(25) %>%
+       select(Prop_Addr, Delta, Value, SalePrice) %>%
+       arrange(Delta) %>%
+       mutate(SalePrice = paste0(round(as.numeric(SalePrice / 1000)), 'K'),
+              Value = case_when(Value == 'undervalued' ~ 'undervalued by ',
+                                Value == 'overvalues' ~ 'overvalued by  ', 
+                                TRUE ~ 'fair price'),
+              Delta = ifelse(Value == 'fair price', '', 
+                             paste0(abs(round(as.numeric(Delta/1e3))), 'K'))))[-1:-3,]
+    
   })
   
   predicted_price_null = reactive({
@@ -887,8 +966,28 @@ function(input, output, session) {
       df_coefs$coefs
     
   })
-
-    
+  
+comps = reactive({
+    for (i in 1:nrow(df_predictions)) {
+      df_predictions$distance[i] = haversine_distance(
+        df_property()$Latitude, df_property()$Longitude,
+        df_predictions$Latitude[i], df_predictions$Longitude[i]
+      )
+    }
+  df_predictions %>%
+    filter(distance != 0,
+           between(SalePrice, -0.9*df_property()$SalePrice, 1.1*df_property()$SalePrice),
+           between(GrLivArea, -0.9*df_property()$GrLivArea, 1.1*df_property()$GrLivArea),
+           between(LotArea, -0.9*df_property()$LotArea, 1.1*df_property()$LotArea),
+           between(OverallQual, -0.9*df_property()$OverallQual, 1.1*df_property()$OverallQual),
+           between(OverallCond, -0.9*df_property()$OverallCond, 1.1*df_property()$OverallCond),
+    ) %>%
+    arrange(distance) %>%
+    select(distance, SalePrice, Prop_Addr, GrLivArea,
+           BedroomAbvGr, FullBath, HalfBath) %>%
+    distinct() %>%
+    head(4)
+  })
 }
 
 
