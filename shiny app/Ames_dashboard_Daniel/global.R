@@ -22,41 +22,17 @@ df_places = read.csv('./Ames_places.csv')
 
 ### header
 rightUi = tags$li(class = "dropdown",
-                  
-                  tags$li(
-                    class = "dropdown", 
-                    # fluidRow(
                     actionBttn(
-                      inputId = "Id111",
+                      inputId = "live",
                       label = icon('house'),
-                      style = "minimal",
+                      style = "stretch",
                       color = "success"
                     ),
+                  
                     actionBttn(
-                      inputId = "Id111",
+                      inputId = "flip",
                       label = icon('hammer'),
                       style = "stretch",
-                      color = "primary"
+                      color = "default"
                     )
-                        # switchInput(
-                        #   inputId = "Id018",
-                        #   label = "<i class=\"fa fa-thumbs-up\"></i>"
-                        # )
-                      # )
-                    # )
                   )
-                      # style= "width: 60%; margin-left: auto; margin-right: 0px; 
-                      # margin-top:-20px; margin-bottom:-20px;")),
-                  
-                  # tags$li(class = "dropdown", div(
-                  #   # selectInput(
-                  #   #   inputId = 'address',
-                  #   #   label = '',
-                  #   #   choices = df_predictions$Prop_Addr,
-                  #   # ),
-                  #   style= "width: 90%; margin-left: 10px; margin-right: -80px; 
-                  #     margin-top:-20px; margin-bottom:-20px;"))
-                  
-                  
-                  
-)

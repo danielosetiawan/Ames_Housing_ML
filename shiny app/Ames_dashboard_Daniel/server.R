@@ -4,7 +4,10 @@
 
 # ----------------------------------------------------------------
 
+
+
 function(input, output, session) {
+  
   
   observeEvent(input$neighborhood, {
 
@@ -279,6 +282,8 @@ function(input, output, session) {
         
     })
 
+
+    
 # ---------------------------
 # Vertical Panel: Timeseries
 # ---------------------------
@@ -330,22 +335,27 @@ function(input, output, session) {
       # Main Panel: Info Boxes
       # ----------------------
       
-      output$crime_rate <- renderValueBox({
-        label = paste0(df_property()$crime_rate, ' / 10')
+      output$valuebox1 <- renderValueBox({
+        # label = paste0(df_property()$crime_rate, ' / 10')
+        label = HTML(paste0(
+          '<b>Distance:</b> 0.7mi', '<br>',
+          '<b>Sale Price:</b> 129K', '<br>',
+          '<b>Bed / Bath:</b> 2BR / 2BA', '<br>'
+          ))
         
         valueBox(
           subtitle = "",
-          value = tags$p(label, style = "font-size: 200%;"),
+          value = tags$p(label, style = "font-size: 80%;"),
           icon = icon('handcuffs'),
           color = 'secondary',
-          footer = tags$p('Crime Rate', style='text-align: left; 
+          footer = tags$p('Crime Rate', style='text-align: left;
                           margin-left: 10px; margin-bottom: 0px')
           )
         
       })
       
       
-      output$school_quality <- renderValueBox({
+      output$valuebox2 <- renderValueBox({
         
         label = paste0(df_property()$school_quality, ' / 10')
         
@@ -359,7 +369,7 @@ function(input, output, session) {
         )
       })
       
-      output$income <- renderValueBox({
+      output$valuebox3 <- renderValueBox({
         
         label = paste0(df_property()$nb_income, ' / 10')
         
@@ -373,7 +383,7 @@ function(input, output, session) {
         )
       })
       
-      output$appreciation <- renderValueBox({
+      output$valuebox4 <- renderValueBox({
         
         label = paste0(df_property()$nb_appreciation, ' / 10')
         
@@ -387,6 +397,40 @@ function(input, output, session) {
         )
       })
       
+      
+      output$appreciation <- renderValueBox({
+        
+        label = paste0(df_property()$nb_income, ' / 10')
+        
+        valueBox(
+          subtitle = "",
+          value = tags$p(label, style = "font-size: 200%;"),
+          icon = icon('sack-dollar'),
+          color = 'olive',
+          footer = tags$p('Income', style='text-align: left; 
+                          margin-left: 10px; margin-bottom: 0px')
+        )
+      })
+      
+      output$income <- renderValueBox({
+        
+        label = paste0(df_property()$nb_appreciation, ' / 10')
+        
+        valueBox(
+          subtitle = "",
+          value = tags$p(label, style = "font-size: 200%;"),
+          icon = icon('arrow-trend-up'),
+          color = 'warning',
+          footer = tags$p('Appreciation', style='text-align: left; 
+                          margin-left: 10px; margin-bottom: 0px')
+        )
+      })
+      
+      # --------------------------------
+      # Selected Property Parameters
+      # --------------------------------
+      
+      
 # --------------------------------
 # Vertical Panel: Parameter Tuning
 # --------------------------------
@@ -395,13 +439,58 @@ function(input, output, session) {
       # Parameter Tuning: Current Home
       # ------------------------------
       
-      output$current_home = renderUI({
+      output$house_labels = renderUI({
         
         sale_price = paste0(round(df_property()$SalePrice / 1000), 'K')
         predicted_price = paste0(round(df_property()$Predicted / 1000), 'K')
         accommodations = paste0(
           df_property()$BedroomAbvGr, 'BR / ', df_property()$FullBath + 
             df_property()$HalfBath / 2, 'BA')
+        
+        if (df_property()$Delta/1e3 <= -5) {
+          value = 'UNDERVALUED'
+          color = 'green'
+        } else if (df_property()$Delta/1e3 >= 5) {
+          value = 'OVERVALUED'
+          color = 'red'
+        } else {
+          value = 'FAIR PRICE'
+          color = 'orange'
+        }
+        
+        tags$p(
+          style='font-size: 95%; margin-top: -3.5px; margin-bottom: 0px;
+            margin-left: -15px; margin-right: -20px; text-align: right',
+          # style = 'text-align: left; font-size: 90%; margin-bottom: 0px', 
+          HTML(paste0(#'<b><span style="color:', color, '">', value, '</span></b><br><br>',
+            '<i>Price <br>',
+            'Square Feet <br>',
+            'Rooms <br>',
+            'Built <br>',
+            'Lot SF <br>',
+            'Quality <br>',
+            'Condition <br>',
+            'Kitchen <br>',
+            'Garage <br>',
+            'Basement </i><br>'
+          )))
+        
+      })
+      
+      
+      output$house_params = renderUI({
+        
+        sale_price = paste0(round(df_property()$SalePrice / 1000), 'K')
+        predicted_price = paste0(round(df_property()$Predicted / 1000), 'K')
+        accommodations = paste0(
+          df_property()$BedroomAbvGr, 'BR / ', df_property()$FullBath + 
+            df_property()$HalfBath / 2, 'BA')
+        lot_area = paste0(round(df_property()$LotArea / 1000, 3), 'K')
+        garage = ifelse(df_property()$GarageQual == '-', 
+                        paste0(round(df_property()$GarageQual, '/10'), 'K'), 'None')
+        basement = ifelse(df_property()$BsmtQual == '-', 
+                          paste0(round(df_property()$BsmtQual, '/10'), 'K'), 'None')
+        
         
         
         if (df_property()$Delta/1e3 <= -5) {
@@ -415,22 +504,34 @@ function(input, output, session) {
           color = 'orange'
         }
         
-        HTML(
-          paste0('<b><span style="color:', color, '">', value, '</span></b><br><br>',
-                 'Sale Price: <b>', sale_price, '</b><br>',
-                 'Bed / Bath: <b>', accommodations, '</b><br>',
-                 'Year Built: <b>', df_property()$YearBuilt, '</b><br>',
-                 'Year Remodeled: <b>', df_property()$YearRemodAdd, '</b><br>',
-                 'Gross Living Area: <b>', df_property()$GrLivArea, '</b><br>',
-                 '1st floor SF: <b>', df_property()$X1stFlrSF, '</b><br>',
-                 '2nd floor SF: <b>', df_property()$X2ndFlrSF, '</b><br>',
-                 'Total Basement SF: <b>', df_property()$TotalBsmtSF, '</b><br>',
-                 'Overall Quality: <b>', df_property()$OverallQual, '/10</b><br>',
-                 'Overall Condition: <b>', df_property()$OverallCond, '/10</b><br>',
-                 'Kitchen Quality: <b>', df_property()$KitchenQual, '/10</b><br>',
-                 'Garage Quality: <b>', df_property()$GarageQual, '/10</b><br>',
-                 'Basement Quality: <b>', df_property()$BsmtQual, '/10</b><br>'
-          ))
+        tags$p(
+          style='font-size: 95%; margin-top: -3.5px; margin-bottom: 0px;
+            margin-left: -15px; margin-right: -10px; text-align: left',
+          # style = 'text-align: left; font-size: 90%; margin-bottom: 0px', 
+          HTML(paste0('<b>', sale_price, '<br>',
+                      df_property()$GrLivArea, '<br>',
+                      accommodations, '<br>',
+                      df_property()$YearBuilt, '<br>',
+                      lot_area, '<br>',
+                      df_property()$OverallQual, '/10<br>',
+                      df_property()$OverallCond, '/10<br>',
+                      df_property()$KitchenQual, '/10<br>',
+                      garage, '<br>',
+                      basement, '</b><br>'
+          )))
+        
+      })
+      
+      output$property_value <- renderUI({
+        # price = paste0(round(predicted_price() / 1000), 'K')
+        
+        tagList('Property', dashboardBadge(
+          paste0('Undervalued'), 
+          color = "secondary", rounded = TRUE))
+        
+        'Property'
+        
+        # tagList('What if...')
         
       })
       
@@ -498,61 +599,61 @@ function(input, output, session) {
       # What If...? Overall Quality
       # ----------------------------
       
-      output$quality = renderUI({
-        knobInput(
-          inputId = 'quality', 
-          label='Quality', 
-          height = size, width = size,
-          min = 0, max = 10, 
-          value = df_features()$OverallCond
-        )
-      })
+      # output$quality = renderUI({
+      #   knobInput(
+      #     inputId = 'quality', 
+      #     label='Quality', 
+      #     height = size, width = size,
+      #     min = 0, max = 10, 
+      #     value = df_features()$OverallCond
+      #   )
+      # })
       
       # ------------------------------
       # What If...? Overall Condition
       # ------------------------------
       
-      output$condition = renderUI({
-        knobInput(
-          inputId = 'condition', 
-          label='Condition', 
-          height = size, width = size,
-          min = 0, max = 10, 
-          value = df_features()$OverallQual,
-          # fgColor = '#FFA500'
-        )
-      })
+      # output$condition = renderUI({
+      #   knobInput(
+      #     inputId = 'condition', 
+      #     label='Condition', 
+      #     height = size, width = size,
+      #     min = 0, max = 10, 
+      #     value = df_features()$OverallQual,
+      #     # fgColor = '#FFA500'
+      #   )
+      # })
       
       # ------------------------------
       # What If...? Basement Quality
       # ------------------------------
       
-      output$basement = renderUI({
-        knobInput(
-          inputId = 'basement', 
-          label='Basement', 
-          height = size, width = size,
-          min = 0, max = 10, 
-          value = df_features()$BsmtQual,
-          # fgColor = '#FFA500'
-        )
-      })
+      # output$basement = renderUI({
+      #   knobInput(
+      #     inputId = 'basement', 
+      #     label='Basement', 
+      #     height = size, width = size,
+      #     min = 0, max = 10, 
+      #     value = df_features()$BsmtQual,
+      #     # fgColor = '#FFA500'
+      #   )
+      # })
       
       # ------------------------------
       # What If...? Kitchen Quality
       # ------------------------------
       
       
-      output$kitchen = renderUI({
-        knobInput(
-          inputId = 'kitchen', 
-          label='Kitchen', 
-          height = size, width = size,
-          min = 0, max = 10, 
-          value = df_features()$KitchenQual,
-          # fgColor = '#FFA500'
-        )
-      })
+      # output$kitchen = renderUI({
+      #   knobInput(
+      #     inputId = 'kitchen', 
+      #     label='Kitchen', 
+      #     height = size, width = size,
+      #     min = 0, max = 10, 
+      #     value = df_features()$KitchenQual,
+      #     # fgColor = '#FFA500'
+      #   )
+      # })
       
       
 # -------------------------------------

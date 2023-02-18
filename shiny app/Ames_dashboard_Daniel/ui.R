@@ -22,6 +22,7 @@ dashboardPage(
   dashboardHeader(
     rightUi = rightUi
     
+    
     ),
   dashboardSidebar(
     collapsed = TRUE,
@@ -56,14 +57,11 @@ dashboardPage(
       # Homepage: Main Panel
       # ------------------------------
           
-      # tabItem(
-      #   tabName = "valueboxes",
-      #   h4("Value Boxes"),
         fluidRow(
-          valueBoxOutput('crime_rate', width=3),
-          valueBoxOutput('school_quality', width=3),
-          valueBoxOutput('appreciation', width=3),
-          valueBoxOutput('income', width=3),
+          valueBoxOutput('valuebox1', width=3),
+          valueBoxOutput('valuebox2', width=3),
+          valueBoxOutput('valuebox3', width=3),
+          valueBoxOutput('valuebox4', width=3),
         ),
       
         
@@ -71,7 +69,7 @@ dashboardPage(
         id = "tabcard",
         side='left',
         title = "",
-        selected = 'Compare',
+        # selected = 'Compare',
         width = 12,
         tabPanel(
           title = 'Search',
@@ -85,6 +83,7 @@ dashboardPage(
               column(
                 width = 6,
                   fluidRow(
+                    style='margin-top: -35px',
                   column(
                     width = 6,
                     pickerInput(
@@ -93,22 +92,22 @@ dashboardPage(
                       choices = c('All Neighborhoods', 
                                   unique(df_predictions$Neighborhood)),
                       selected = 'Neighborhood'
-                    ), 
-                  boxPad(
-                    color = "info",
-                    descriptionBlock(
-                      text = "Ames is home to a number of high-tech companies, 
-                      making it a hub for innovation and cutting-edge technology. ", 
-                      rightBorder = FALSE,
-                      marginBottom = TRUE
+                    ),
+                    valueBoxOutput(
+                      'appreciation', 
+                      width = NULL
+                    ),
+                    valueBoxOutput(
+                      'income', 
+                      width = NULL
                     )
-                  )
+                    
                   ),
                   column(
                     width = 6,
                     pickerInput(
                       inputId = 'address',
-                      label = 'Property',
+                      label = uiOutput(outputId = 'property_value'),
                       choices = df_predictions$Prop_Addr,
                       options = pickerOptions(
                         `live-search` = TRUE,
@@ -116,14 +115,18 @@ dashboardPage(
                         dropupAuto = FALSE)
                     ),
                     boxPad(
-                      color = "info",
-                      descriptionBlock(
-                        text = "Ames is home to a number of high-tech companies, 
-                      making it a hub for innovation and cutting-edge technology. ", 
-                        rightBorder = FALSE,
-                        marginBottom = TRUE
-                      )
-                    )
+                      color = 'lightblue',
+                      # title=tagList('Current Home', icon('house')),
+                      status = 'primary',
+                      solidHeader = TRUE,
+                      fluidRow(
+                      column(width = 6,
+                       uiOutput(outputId = 'house_params')),
+                      column(width=6,
+                       uiOutput(outputId = 'house_labels'))
+                     )
+)
+                    
                   )
                 )
               )
@@ -184,7 +187,7 @@ dashboardPage(
                 )
         ),
         tabPanel(
-          title = 'Flip',
+          title = 'When to buy',
           "Content 3"
         )
       ),  
@@ -192,9 +195,6 @@ dashboardPage(
       # ------------------------------
       # Homepage: Tab Panels
       # ------------------------------
-      
-      
-      
             verticalTabsetPanel(
               menuSide = 'right',
             
@@ -243,13 +243,14 @@ dashboardPage(
                 column(
                   width = 5,
                   style='padding:-2px',
-                  box(
-                    width = NULL,
-                    title=tagList('Current Home', icon('house')),
-                    status = 'primary',
-                    solidHeader = TRUE,
-                    uiOutput(outputId = 'current_home')
-                  )),
+                  # box(
+                  #   width = NULL,
+                  #   title=tagList('Current Home', icon('house')),
+                  #   status = 'primary',
+                  #   solidHeader = TRUE,
+                  #   uiOutput(outputId = 'current_home')
+                  # )
+                  ),
                 
                 # ------------------------------
                 # Parameter Tuning: What If...?
@@ -281,20 +282,20 @@ dashboardPage(
                         column(
                           width = 4,
                           align = 'center',
-                          uiOutput(outputId = 'quality'),
-                          uiOutput(outputId = 'kitchen'),
+                          # uiOutput(outputId = 'quality'),
+                          # uiOutput(outputId = 'kitchen'),
                         ),
                         column(
                           width = 4,
                           align = 'center',
-                          uiOutput(outputId = 'condition'),
-                          uiOutput(outputId = 'basement'),
+                          # uiOutput(outputId = 'condition'),
+                          # uiOutput(outputId = 'basement'),
                         ),
                         column(
                         width = 4,
                         align = 'center',
-                        uiOutput(outputId = 'bedrooms'),
-                        uiOutput(outputId = 'bathrooms'),
+                        # uiOutput(outputId = 'bedrooms'),
+                        # uiOutput(outputId = 'bathrooms'),
 
                         )
                       )
@@ -440,22 +441,43 @@ dashboardPage(
 # RIGHT CONTROL BAR
 # ------------------------------
     )
-  )
-# dashboardControlbar(
-#   id = "controlbar",
-#   skin = "light",
-#   # pinned = TRUE,
-#   collapsed = TRUE,
-#   overlay = FALSE,
-#   # controlbarMenu(
+  ),
+dashboardControlbar(
+  id = "controlbar",
+  skin = "light",
+  # pinned = TRUE,
+  # collapsed = FALSE,
+  overlay = FALSE,
+  controlbarMenu(
+    # sortable(),
+    # bucket_list(
+    #   header = "Drag the items in any desired bucket",
+    #   group_name = "bucket_list_group",
+    #   orientation = "horizontal",
+    #   add_rank_list(
+    #     text = "Drag from here",
+    #     labels = list(
+    #       "one",
+    #       "two",
+    #       "three",
+    #       htmltools::tags$div(
+    #         htmltools::em("Complex"), " html tag without a name"
+    #       ),
+    #       "five" = htmltools::tags$div(
+    #         htmltools::em("Complex"), " html tag with name: 'five'"
+    #       )
+    #     ),
+    #     input_id = "rank_list_1"
+    #   ))
+    ))
 #     # id = "controlbarMenu",
 #     # type = "pills",
 #     # controlbarItem(
 #     # column(width = 10, offset=1,
 #     #   # selectInput(
-#     #   #   inputId = 'neighborhood', 
+#     #   #   inputId = 'neighborhood',
 #     #   #   label = '',
-#     #   #   choices = c('All Neighborhoods', 
+#     #   #   choices = c('All Neighborhoods',
 #     #   #               unique(df_predictions$Neighborhood)),
 #     #   #   selected = 'Neighborhood'
 #     #   #   

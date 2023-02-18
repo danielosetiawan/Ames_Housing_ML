@@ -8,12 +8,24 @@ output: html_notebook
 ```{r}
 df_predictions = read.csv("./home_flipping.csv")
 undervalued25 = read.csv('./undervalued_homes.csv')
-df_coefs = read_csv('./final_predictions.csv')
+df_coefs = read.csv('./final_predictions.csv')
 df_feats = read.csv('./final_features.csv')
 df_places = read.csv('./Ames_places.csv')
-```
-```{r}
 
+df = read.csv("../../data/cleaned_housing.csv")
+locs = read.csv('../../data/Ames_loc.csv')
+library(dplyr)
+library(readr)
+```
+
+
+
+```{r}
+df %>%
+  merge(locs, on=PID) %>%
+  summarize(PID, GarageArea, LotArea) %>%
+  merge(df_predictions) %>%
+  write_csv('./home_flipping.csv')
 ```
 
 
@@ -54,8 +66,8 @@ for (i in 1:nrow(df_predictions)) {
 }
 ```
 ```{r}
-df_predictions %>%
-  filter(Prop_Addr == address)
+df_predictions# %>%
+  # filter(Prop_Addr == address)
 ```
 
 ```{r}

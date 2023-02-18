@@ -122,7 +122,6 @@ dashboardPage(
         ),
         menuItem(
           "Sortable cards",
-          tabName = "sortablecards",
           icon = icon("object-ungroup")
         ),
         menuItem(
