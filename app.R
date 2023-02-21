@@ -1,37 +1,43 @@
 if (interactive()) {
   
-  library(shiny)
-  library(shinyWidgets)
+  data(exTaxonList)
+  data(exPftList)
   
   ui <- fluidPage(
-    tags$h2("Awesome action button"),
-    tags$br(),
-    actionBttn(
-      inputId = "bttn1",
-      label = "Go!",
-      color = "primary",
-      style = "bordered"
-    ),
-    tags$br(),
-    verbatimTextOutput(outputId = "res_bttn1"),
-    tags$br(),
-    actionBttn(
-      inputId = "bttn2",
-      label = "Go!",
-      color = "success",
-      style = "material-flat",
-      icon = icon("sliders"),
-      block = TRUE
-    ),
-    tags$br(),
-    verbatimTextOutput(outputId = "res_bttn2")
+    
+    radioMatrixInput(inputId = "rmi01", rowIDs = head(exTaxonList$Var), 
+                     rowLLabels = head(
+                       as.matrix(subset(exTaxonList, select = "VarName"))
+                     ), 
+                     choices = exPftList$ID, 
+                     selected = head(exTaxonList$DefPFT)), 
+    verbatimTextOutput('debug01')
+  )
+  
+  server <- function(input, output, session) { 
+    output$debug01 <- renderPrint({input$rmi01})
+  }
+  
+  shinyApp(ui, server)
+  
+}
+
+if (interactive()) {
+  
+  ui <- fluidPage(
+    
+    radioMatrixInput(inputId = "rmi02", rowIDs = c("Performance", "Statement A"),
+                     rowLLabels = c("Poor", "Agree"), 
+                     rowRLabels = c("Excellent", "Disagree"),
+                     choices = 1:5,
+                     selected = rep(3, 2),
+                     labelsWidth = list("100px", "100px")),
+    verbatimTextOutput('debug02')
   )
   
   server <- function(input, output, session) {
-    output$res_bttn1 <- renderPrint(input$bttn1)
-    output$res_bttn2 <- renderPrint(input$bttn2)
+    output$debug02 <- renderPrint({input$rmi02})
   }
   
-  shinyApp(ui = ui, server = server)
-  
+  shinyApp(ui, server)
 }
