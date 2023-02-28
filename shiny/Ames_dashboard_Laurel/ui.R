@@ -1,338 +1,460 @@
 library(shiny)
 library(shinydashboard)
 library(shinydashboardPlus)
+library(bs4Dash)
+library(bslib)
+library(thematic)
+library(waiter)
+
+
+thematic_shiny()
 
 # # Define UI for application
 spinner = 'double-bounce'
-theme = 'Minty'
+# theme = 'Minty'
 
 dashboardPage(
+  preloader = list(html = tagList(spin_1(), "Loading ..."), 
+                   color = "#343a40"),
+  dark = TRUE,
+  fullscreen = TRUE,
+  scrollToTop = TRUE,
+  
   dashboardHeader(
+    'Dashboard: Ames, IA'
+  ),
+  dashboardSidebar(
     disable = TRUE
     ),
-  dashboardSidebar(
-    collapsed = TRUE,
-    sidebarMenu(
-      menuItem('Homepage', tabName = 'dashboard', icon = icon('house')),
-      menuItem('Dataset', tabName = 'dataset', icon = icon('database')),
-      menuItem("About", tabName = 'about', icon = icon('user'))
-    )
-  ),
   dashboardBody(
-    tabItems(
-
 # ------------------------------
 # Menu Item: Homepage
 # ------------------------------
       
-      tabItem(
-        tabName = 'dashboard',
         fluidPage(
-          theme = theme,
+          # theme = theme,
           
       # ------------------------------
       # Homepage: Main Panel
       # ------------------------------
           
-          fluidRow(
-            box(
-              title = tagList('Location', 
-                icon('location-dot')),
-              status='success',
-              collapsible=TRUE,
-              width = 4,
-              height = 200, 
-              
-              # ------------------------------
-              # Main Panel: Property Selection
-              # ------------------------------
-              selectInput(
-                inputId = 'neighborhood', 
-                label = 'Neighborhood',
-                choices = c('All Neighborhoods', 
-                            unique(df_predictions$Neighborhood)),
-                selected = 'Neighborhood'
-              ),
-              pickerInput(
-                inputId = 'address',
-                label = 'Property',
-                choices = df_predictions$Prop_Addr,
-                options = pickerOptions(
-                  virtualScroll = TRUE,
-                  dropupAuto = FALSE,
-                  width = '100%'
+        fluidRow(
+          valueBoxOutput('valuebox1', width=3),
+          valueBoxOutput('valuebox2', width=3),
+          valueBoxOutput('valuebox3', width=3),
+          valueBoxOutput('valuebox4', width=3),
+        ),
+      
+        
+      bs4TabCard(
+        id = "tabcard",
+        side='left',
+        title = "",
+        selected = 'Compare',
+        collapsible = FALSE,
+        width = 12,
+        tabPanel(
+          title = 'Search',
+            width = 12,
+          
+            fluidRow(
+              column(
+                width = 6,
+                leafletOutput('map', height=278)
+                ),
+              column(
+                width = 6,
+                  fluidRow(
+                    style='margin-top: -20px',
+                  column(
+                    width = 6,
+                    tags$p('Neighborhood', style='font-size: 80%; 
+                           font-style: italic; margin-left: 0px; margin-top: 0px;
+                           margin-bottom: -20px'),
+                    pickerInput(
+                      inputId = 'neighborhood', 
+                      label = tags$p('', style='margin-top: -80px'),
+                      choices = c('All Neighborhoods', 
+                                  unique(df_predictions$Neighborhood)),
+                      selected = 'Neighborhood'
+                    ),
+                    fluidRow(
+                      tags$head(
+                        tags$style(
+                          ".fa { color: black}; .fa-3x {font-size: 300%}"
+                        )
+                      ),
+                    column(
+                      width = 6,
+                    
+                    infoBoxOutput(
+                      'income', 
+                      width = NULL
+                      )
+                    ),
+                    column(
+                      width = 6,
+                      infoBoxOutput(
+                        'appreciation', 
+                        width = NULL
+                      )
+                    ),
+                    column(
+                      width = 12,
+                    
+                    infoBoxOutput(
+                      'nb_info', 
+                      width = NULL
+                    ))
+                    ),
+                    
+
+                    
+                    
+                  ),
+                  column(
+                    width = 6,
+                    style = 'margin-top: -2px',
+                    fluidRow(
+                    column(
+                      width = 6,
+                      tags$p('Property:', style='font-size: 80%; 
+                             font-style: italic; margin-left: 0px; margin-top: 0px;
+                             margin-bottom: -25px')
+                    ),
+                    column(
+                      width = 6,
+                      style = 'text-align: right',
+                      uiOutput('property_label')
+                    )
+                    ),
+                    pickerInput(
+                      inputId = 'address',
+                      label = tags$p('', style='margin-top: -95px; 
+                                     margin-bottom: 5px'),
+                      choices = df_predictions$Prop_Addr,
+                      options = pickerOptions(
+                        `live-search` = TRUE,
+                        virtualScroll = TRUE,
+                        dropupAuto = FALSE)
+                    ),
+                    valueBoxOutput('property', width=NULL),
+                    
+                  )
                 )
               )
-            ),
+            )
+          ),
+        tabPanel(
+          title = 'Compare',
+            fluidRow(
+              column(5,
+                     pickerInput(
+                       inputId = 'compare_1',
+                       label = 'Property #1',
+                       choices = df_predictions$Prop_Addr,
+                       options = pickerOptions(
+                         `live-search` = TRUE,
+                         virtualScroll = TRUE,
+                         dropupAuto = FALSE)
+                     ),
+                     leafletOutput('map1', height=288),
+              ),
+              column(2,
+                     style = "text-align:center;",
+                     checkboxGroupButtons(
+                       inputId = "check_box",
+                       label = "",
+                       
+                       choices = list("Shops" = 1, 
+                                   "Restaurants" = 2, 
+                                   "Parks" = 3),
+                       direction = 'vertical',
+                       checkIcon = list(
+                         yes = icon("ok", 
+                                    lib = "glyphicon"))
+                     )
+              ),
+              column(5,
+                     pickerInput(
+                       inputId = 'compare_2',
+                       label = 'Property #2',
+                       choices = df_predictions$Prop_Addr,
+                       selected = '3320 FOXLEY DR',
+                       options = pickerOptions(
+                         `live-search` = TRUE,
+                         virtualScroll = TRUE,
+                         dropupAuto = FALSE)
+                     ),
+                     leafletOutput('map2', height=288)
+                )
+              
+            )
+        ),
+        
+        
+        # ------------------------------
+        # Forecast
+        # ------------------------------
+        tabPanel(
+          title = 'Forecast',
           
-            # ------------------------------
-            # Main Panel: Info Boxes
-            # ------------------------------
+          fluidRow(
+          column(
+            width = 3,
+            # offset = 7,
+            style = 'margin-top: 0px; margin-left: 10px;',
+            materialSwitch(
+              status = 'success',
+              inputId = 'ts_ci',
+              label = tags$p(HTML('Show confidence<br>intervals'),
+                             style='font-size: 15px; margin-left: 45px;
+                             margin-right: -15px; margin-top: -35px;'),
+              value = TRUE,
+              right = TRUE
+            )
+          ),
+          column(
+            width = 3,
+            # offset = 1,
+            style = 'margin-top: -30px; margin-left: 10px;',
+          pickerInput(
+            inputId = 'neighborhood_timeseries', 
+            label = '',
+            choices = c('All Neighborhoods', 
+                        unique(df_predictions$Neighborhood)),
+            selected = 'Neighborhood'
+            )
+          )
+          ),
+          
+          column(
+            width = 12,
+          style = 'margin-top: -40px;',
+          uiOutput(outputId = "sarima")
+          ),
+        ),
+        tabPanel(
+          title = 'Flip',
+          box(
+            solidHeader = FALSE,
+            collapsible = FALSE,
+            title = uiOutput('current_price'),
+            background = NULL,
+            width = 12,
+            # status = "danger",
+            uiOutput('predicted_price'),
             
+            tags$p('', style='margin-top:-30px; 
+                   font-size: 12px; margin-bottom: -100px; margin-top: -10px;'
+                   ),
+            footer = fluidRow(
+              column(
+                width = 6,
+                boxPad(
+                  color = 'info',
+                  gradient = TRUE,
+                  # width = 12,
+                  # id = 'flip2',
+                  tags$b('How did we come to our conclusion?'),
+                  tags$br(),tags$br(),
+                  uiOutput('conclusion'),
+                  # front = plotOutput('scatplot', height = 250, inline=TRUE),
+                  # plotOutput('scatplot', height = 250, inline=TRUE),
+                )
+              ),
+              
+              column(
+                width = 6,
+                style='margin-top: -25px',
+                fluidRow(
               column(
                 width = 4,
-                style='padding:3px',
-                  valueBoxOutput(width=NULL, 'crime_rate'),
-                  valueBoxOutput(width=NULL, 'school_quality')
+                offset = 2,
+                style = 'margin-top: -70px;margin-bottom: 0px;',
+                tags$p('Neighborhood', style='margin-top: 5px; margin-bottom: -20px;
+                  font-style: italic;font-size: 10px;'),
+                pickerInput(
+                  inputId = 'neighborhood_flip', 
+                  label = '',
+                  choices = c('All Neighborhoods', 
+                              unique(df_predictions$Neighborhood)),
+                  selected = 'Neighborhood'
+                )
               ),
               column(
-                width = 4, 
-                style='padding:3px',
-                    valueBoxOutput(width=NULL, 'income'),
-                    valueBoxOutput(width=NULL, 'appreciation'),
-                  
-              )
-            ),
-            
-      # ------------------------------
-      # Homepage: Vertical Panels
-      # ------------------------------
-
-            verticalTabsetPanel(
-              # style = 'padding: 1em',
-              menuSide = 'right',
-            
-          # ------------------------------
-          # Vertical Panel: Ames Housing
-          # ------------------------------
-            
-            verticalTabPanel(
-              title = 'Ames Housing Map', box_height = 5,
-              icon = icon("house", class = "fa-2x"),
-              leafletOutput("map")
-            ),
-            
-          # ------------------------------
-          # Vertical Panel: Time Analysis
-          # ------------------------------
-
-            verticalTabPanel(
-              title = 'Time Forecasting', box_height = 5,
-              icon = icon("line-chart", class = "fa-2x"),
-              materialSwitch(
-                status = 'success',
-                inputId = 'ts_ci', 
-                label = 'Show confidence intervals', 
-                value = TRUE, right = TRUE
-              ),
-              addSpinner(
-                uiOutput(outputId = "sarima", height = "100%"),
-                spin = spinner
-              )
-            ),
-            
-          # --------------------------------
-          # Vertical Panel: Parameter Tuning
-          # --------------------------------
-            
-            verticalTabPanel(
-              title = 'Parameter Tuning', box_height = 5,
-              icon = icon('gears', class = "fa-2x"),
-              
-              # ------------------------------
-              # Parameter Tuning: Current Home
-              # ------------------------------
-              fluidPage(
-              fluidRow(
-                column(
-                  width = 5,
-                  style='padding:-2px',
-                  box(
-                    width = NULL,
-                    title=tagList('Current Home', icon('house')),
-                    status = 'primary',
-                    solidHeader = TRUE,
-                    uiOutput(outputId = 'current_home')
-                  )),
-                
-                # ------------------------------
-                # Parameter Tuning: What If...?
-                # ------------------------------
-                fluidPage(
-                column(
-                    width = 7,
-                    box(
-                      width = NULL, 
-                      title = uiOutput('predicted_price'),
-                      status = 'primary', 
-                      solidHeader = TRUE,
-                      # collapsible = TRUE,
-                      
-                      
-                      # ----------------------------------
-                      # Parameter Tuning: Sq. Ft. Slider
-                      # ----------------------------------
-                      
-                      chooseSliderSkin('Flat', color = "#112446"),
-                      sliderInput(
-                        inputId = 'sqft_slider',
-                        label = 'Gross Living Area (1st floor + 2nd floor)',
-                        min = 1, max = 3000,
-                        value = 1, step = 10,
-                        animate =
-                          animationOptions(interval = 550, loop = TRUE)
-                        ),
-                        column(
-                          width = 4,
-                          align = 'center',
-                          uiOutput(outputId = 'quality'),
-                          uiOutput(outputId = 'kitchen'),
-                        ),
-                        column(
-                          width = 4,
-                          align = 'center',
-                          uiOutput(outputId = 'condition'),
-                          uiOutput(outputId = 'basement'),
-                        ),
-                        column(
-                        width = 4,
-                        align = 'center',
-                        uiOutput(outputId = 'bedrooms'),
-                        uiOutput(outputId = 'bathrooms'),
-
-                        )
-                      )
-                    )
-                  )
-                )
-              )
-            ),
-              
-          # ------------------------------
-          # Vertical Panel: Visualization
-          # ------------------------------
-
-            verticalTabPanel(
-              box_height = 5,
-              title = 'Visualize Prediction', 
-              icon = icon("magnifying-glass", class = "fa-2x"),
-              fluidPage(
-                fluidRow(
-                  column(
-                    offset = 1,
-                    width = 12,
-                valueBoxOutput(
-                  outputId = 'predicted'),
-                valueBoxOutput(
-                  outputId = 'addedarea')
+                width = 6,
+                style = 'margin-top: -70px;margin-bottom: 0px;',
+                tags$p('Property (ranked by most undervalued)', style='margin-top: 5px; margin-bottom: -20px;
+                  font-style: italic;font-size: 10px;'),
+                pickerInput(
+                  inputId = 'address_flip', 
+                  label = '',
+                  choices = df_predictions$Prop_Addr
                 ),
-                plotOutput('scatplot', height = 250)
+              )
+              ),
+
+                boxPad(
+                  chooseSliderSkin('Flat', color = "#112446"),
+                  column(
+                    offset = 6,
+                    width = 6,
+                  tags$p('Gross Square Footage', style='margin-bottom: -40px; font-style: italic;font-size: 12px; font-weight: bold')
+                         ),
+                  sliderInput(
+                    inputId = 'sqft_slider',
+                    label = '',
+                    min = 1, max = 3000,
+                    value = 1, step = 10,
+                    animate =
+                      animationOptions(interval = 550, loop = TRUE)
+                  ),
+                  fluidRow(
+                column(
+                  width = 9,
+                  fluidRow(
+                  column(
+                    width = 4, 
+                    align = 'center',
+                    style = 'margin-right: -10px; margin-left: -20px; margin-top: -30px;',
+                  uiOutput(outputId = 'bedrooms'),
+                  tags$p('BEDS', style='font-size: 12px; margin-top: -20px; margin-bottom: -10px;'),
+                  uiOutput(outputId = 'kitchen'),
+                  tags$p('KITCHEN', style='font-size: 12px; margin-top: -20px;')
+                  ),
+                  column(
+                    width = 4,
+                    align = 'center',
+                    style = 'margin-right: -10px;margin-top: -30px;',
+                  uiOutput(outputId = 'bathrooms'),
+                  tags$p('BATHS', style='font-size: 12px; margin-top: -20px; margin-bottom: -10px;'),
+                  uiOutput(outputId = 'basement'),
+                  tags$p('BASEMENT', style='font-size: 12px; margin-top: -20px;')
+                  ),
+                  column(
+                    width = 4,
+                    align = 'center',
+                    style = 'margin-right: -10px;margin-top: -30px;',
+                  uiOutput(outputId = 'quality'),
+                  tags$p('QUALITY', style='font-size: 12px; margin-top: -20px; margin-bottom: -10px'),
+                  uiOutput(outputId = 'garage'),
+                  tags$p('GARAGE', style='font-size: 12px; margin-top: -20px;')
+                  ),
+                  )
+                    
+                  ),
+                
+                column(
+                  width = 3,
+                  style='margin-top: -25px; margin-left: -25px;',
+                  uiOutput('months', inline=TRUE),
+                  tags$p('SELL MONTH', style='margin-bottom: -40px; 
+                         font-size: 12px'),
+                
+                  )
+                  ),
+                  
+                  rightBorder = FALSE,
+                  marginBottom = FALSE
                 )
               )
-            )
-          )
-        )
-      ),
-      
-# ------------------------------
-# Menu Item: Dataset
-# ------------------------------
-
-      tabItem(
-        tabName = 'dataset',
-        fluidPage(
-          theme = theme,
-          dataTableOutput(
-            outputId = 'df', 
-            height = "100%")
-        )
-      ),
-
-# ------------------------------
-# Menu Item: About Me
-# ------------------------------
-
-      tabItem(
-        tabName = 'about',
-        theme = theme,
-        fluidPage(
-          fluidRow(
-        # ------------------------------
-        # About Me: Laurel He
-        # ------------------------------
-        
-            column(
-              width = 4,
-              fluidRow(
-                box(
-                  title = div(
-                    a(href = 'https://github.com/LaurelHe1',
-                      icon('github')),
-                    a(href = 'https://www.linkedin.com/in/cheng-laurel-he-b04a59104/',
-                      icon('linkedin'))),
-                  width = 12,
-                  status = 'primary',
-                  boxProfile(
-                    image = './img/about_me/laurel.jpg',
-                    title = 'Laurel He',
-                    subtitle = 'Data Science Fellow',
-                    bordered = TRUE,
-                    uiOutput(align = 'center',
-                             outputId = 'laurel_bio')
+            ))
+          ),
+          tabPanel(
+            title = 'Data',
+            dataTableOutput(
+              outputId = 'df',
+              height = "100%")
+          ),
+          tabPanel(
+            title = 'About',
+            fluidRow(
+              # ------------------------------
+              # About Me: Laurel He
+              # ------------------------------
+              
+              column(
+                width = 4,
+                fluidRow(
+                  box(
+                    title = div(
+                      a(href = 'https://github.com/LaurelHe1',
+                        icon('github')),
+                      a(href = 'https://www.linkedin.com/in/cheng-laurel-he-b04a59104/',
+                        icon('linkedin'))),
+                    width = 12,
+                    status = 'primary',
+                    boxProfile(
+                      image = './img/about_me/laurel.jpg',
+                      title = 'Laurel He',
+                      subtitle = 'Data Science Fellow',
+                      bordered = TRUE,
+                      uiOutput(align = 'center',
+                               outputId = 'laurel_bio')
                     )
                   )
                 )
               ),
-        
-        # ------------------------------
-        # About Me: Daniel Setiawan
-        # ------------------------------
-            
-            column(
-              width = 4,
-              fluidRow(
-                box(
-                  title = div(
-                    a(href = 'https://github.com/set-one',
-                      icon('github')),
-                    a(href = 'https://www.linkedin.com/in/danielosetiawan/',
-                      icon('linkedin'))),
-                  width = 12,
-                  status = 'success',
-                  boxProfile(
-                    image = './img/about_me/daniel_s.jpeg',
-                    title = 'Daniel Setiawan',
-                    subtitle = 'Data Science Fellow',
-                    bordered = TRUE,
-                    uiOutput(align = 'center',
-                             outputId = 'daniels_bio')
+              
+              # ------------------------------
+              # About Me: Daniel Setiawan
+              # ------------------------------
+              
+              column(
+                width = 4,
+                fluidRow(
+                  box(
+                    title = div(
+                      a(href = 'https://github.com/set-one',
+                        icon('github')),
+                      a(href = 'https://www.linkedin.com/in/danielosetiawan/',
+                        icon('linkedin'))),
+                    width = 12,
+                    status = 'success',
+                    boxProfile(
+                      image = './img/about_me/daniel_s.jpeg',
+                      title = 'Daniel Setiawan',
+                      subtitle = 'Data Science Fellow',
+                      bordered = TRUE,
+                      uiOutput(align = 'center',
+                               outputId = 'daniels_bio')
+                    )
                   )
                 )
-              )
-            ),
-        
-        # ------------------------------
-        # About Me: Daniel Erickson
-        # ------------------------------
-        
-            column(
-              width = 4,
-              fluidRow(
-                box(
-                  title = div(
-                    a(href = 'https://github.com/acsuf',
-                      icon('github')),
-                    a(href = 'https://www.linkedin.com/in/daniel-erickson-779943262/',
-                      icon('linkedin'))),
-                  width = 12,
-                  status = 'warning',
-                  boxProfile(
-                    image = './img/about_me/daniel_e.jpg',
-                    title = 'Daniel Erickson',
-                    subtitle = 'Data Science Fellow',
-                    bordered = TRUE,
-                    uiOutput(align = 'center',
-                             outputId = 'daniele_bio')
+              ),
+              
+              # ------------------------------
+              # About Me: Daniel Erickson
+              # ------------------------------
+              
+              column(
+                width = 4,
+                fluidRow(
+                  box(
+                    title = div(
+                      a(href = 'https://github.com/acsuf',
+                        icon('github')),
+                      a(href = 'https://www.linkedin.com/in/daniel-erickson-779943262/',
+                        icon('linkedin'))),
+                    width = 12,
+                    status = 'warning',
+                    boxProfile(
+                      image = './img/about_me/daniel_e.jpg',
+                      title = 'Daniel Erickson',
+                      subtitle = 'Data Science Fellow',
+                      bordered = TRUE,
+                      uiOutput(align = 'center',
+                               outputId = 'daniele_bio')
+                    )
                   )
                 )
               )
             )
           )
-        )
+        
       )
-# ------------------------------
-# END
-# ------------------------------
-    )
-  )
+
+        )
+      ),
 )
