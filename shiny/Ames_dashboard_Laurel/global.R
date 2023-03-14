@@ -21,6 +21,7 @@ df_coefs = read_csv('./final_predictions.csv')
 df_feats = read.csv('./final_features.csv')
 df_places = read.csv('./Ames_places.csv')
 df_demo = read.csv('./Ames_Demographics.csv')
+df_summary = read.csv('./lasso_coeff.csv')
 # source('reactive_functions.R')
 
 ### header

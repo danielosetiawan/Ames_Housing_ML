@@ -50,7 +50,7 @@ dashboardPage(
         id = "tabcard",
         side='left',
         title = "",
-        selected = 'Compare',
+        selected = 'Search',
         collapsible = FALSE,
         width = 12,
         tabPanel(
@@ -60,7 +60,7 @@ dashboardPage(
             fluidRow(
               column(
                 width = 6,
-                leafletOutput('map', height=278)
+                leafletOutput('map', height=400) #278
                 ),
               column(
                 width = 6,
@@ -158,7 +158,7 @@ dashboardPage(
                          virtualScroll = TRUE,
                          dropupAuto = FALSE)
                      ),
-                     leafletOutput('map1', height=288),
+                     leafletOutput('map1', height=300), #288
               ),
               column(2,
                      style = "text-align:center;",
@@ -186,7 +186,7 @@ dashboardPage(
                          virtualScroll = TRUE,
                          dropupAuto = FALSE)
                      ),
-                     leafletOutput('map2', height=288)
+                     leafletOutput('map2', height=300) #288
                 )
               
             )
@@ -196,44 +196,59 @@ dashboardPage(
         # ------------------------------
         # Forecast
         # ------------------------------
+        
+        # fluidPage(
+        #   fluidRow(
+        #     column(12,
+        #            "Fluid 12",
+        #            fluidRow(
+        #              column(6,
+        #                     "Fluid 6",
+        #                     fluidRow(
+        #                       column(6,
+        #                              "Fluid 6"),
+        #                       column(6,
+        #                              "Fluid 6")
+        #                     )
+        #              ),
+        #              column(width = 6,
+        #                     "Fluid 6")
+        #            )
+        #     )
+        #   )
+        # )
+        
+        
         tabPanel(
           title = 'Forecast',
-          
           fluidRow(
-          column(
-            width = 3,
-            # offset = 7,
-            style = 'margin-top: 0px; margin-left: 10px;',
-            materialSwitch(
-              status = 'success',
-              inputId = 'ts_ci',
-              label = tags$p(HTML('Show confidence<br>intervals'),
-                             style='font-size: 15px; margin-left: 45px;
-                             margin-right: -15px; margin-top: -35px;'),
-              value = TRUE,
-              right = TRUE
-            )
-          ),
-          column(
-            width = 3,
-            # offset = 1,
-            style = 'margin-top: -30px; margin-left: 10px;',
-          pickerInput(
-            inputId = 'neighborhood_timeseries', 
-            label = '',
-            choices = c('All Neighborhoods', 
-                        unique(df_predictions$Neighborhood)),
-            selected = 'Neighborhood'
-            )
+            column(8,
+                   uiOutput(outputId = "sarima"),
+                   ),
+            column(2, 
+                   materialSwitch(
+                         status = 'success',
+                         inputId = 'ts_ci',
+                         label = "Confidence Interval",
+                         value = TRUE,
+                         right = TRUE
+                             ),
+                   ),
+            column(2, 
+                   style = 'margin-top: -30px',
+                   pickerInput(
+                     inputId = 'neighborhood_timeseries',
+                     label = '',
+                     choices = c('All Neighborhoods',
+                                 unique(df_predictions$Neighborhood)),
+                     selected = 'Neighborhood'
+                   )
+                   )
           )
-          ),
-          
-          column(
-            width = 12,
-          style = 'margin-top: -40px;',
-          uiOutput(outputId = "sarima")
-          ),
+
         ),
+          
+
         tabPanel(
           title = 'Flip',
           box(
@@ -259,6 +274,7 @@ dashboardPage(
                   tags$b('How did we come to our conclusion?'),
                   tags$br(),tags$br(),
                   uiOutput('conclusion'),
+                  div(tableOutput("table"), style = "font-size: 75%; width: 75%"),
                   # front = plotOutput('scatplot', height = 250, inline=TRUE),
                   # plotOutput('scatplot', height = 250, inline=TRUE),
                 )
@@ -375,7 +391,7 @@ dashboardPage(
               # ------------------------------
               
               column(
-                width = 4,
+                width = 6,
                 fluidRow(
                   box(
                     title = div(
@@ -402,7 +418,7 @@ dashboardPage(
               # ------------------------------
               
               column(
-                width = 4,
+                width = 6,
                 fluidRow(
                   box(
                     title = div(
@@ -428,28 +444,28 @@ dashboardPage(
               # About Me: Daniel Erickson
               # ------------------------------
               
-              column(
-                width = 4,
-                fluidRow(
-                  box(
-                    title = div(
-                      a(href = 'https://github.com/acsuf',
-                        icon('github')),
-                      a(href = 'https://www.linkedin.com/in/daniel-erickson-779943262/',
-                        icon('linkedin'))),
-                    width = 12,
-                    status = 'warning',
-                    boxProfile(
-                      image = './img/about_me/daniel_e.jpg',
-                      title = 'Daniel Erickson',
-                      subtitle = 'Data Science Fellow',
-                      bordered = TRUE,
-                      uiOutput(align = 'center',
-                               outputId = 'daniele_bio')
-                    )
-                  )
-                )
-              )
+              # column(
+              #   width = 4,
+              #   fluidRow(
+              #     box(
+              #       title = div(
+              #         a(href = 'https://github.com/acsuf',
+              #           icon('github')),
+              #         a(href = 'https://www.linkedin.com/in/daniel-erickson-779943262/',
+              #           icon('linkedin'))),
+              #       width = 12,
+              #       status = 'warning',
+              #       boxProfile(
+              #         image = './img/about_me/daniel_e.jpg',
+              #         title = 'Daniel Erickson',
+              #         subtitle = 'Data Science Fellow',
+              #         bordered = TRUE,
+              #         uiOutput(align = 'center',
+              #                  outputId = 'daniele_bio')
+              #       )
+              #     )
+              #   )
+              # )
             )
           )
         

@@ -354,7 +354,7 @@ function(input, output, session) {
       }
       
       output$sarima = renderUI({
-        HTML(paste0('<img width = "100%", height = "100%",
+        HTML(paste0('<img width = "100%", height = "150%",
                     src= "', sarima_model, '"/>'))
         
       })
@@ -627,8 +627,8 @@ function(input, output, session) {
           )
           
         } else {
-          label = HTML('IDK WHAT<br>TO PUT HERE')
-          info = 'welp...'
+          label = HTML('Read our <br> Blog Story')
+          info = 'Blog link here'
           
           valueBox(
             subtitle = tags$p(
@@ -637,11 +637,11 @@ function(input, output, session) {
               margin-top: 0px; margin-bottom: -15px; line-height: 1; font-weight: bold;
               font-size: 150%"),
             value = tags$p(
-              'PLS HALP', 
+              'Detail summary', 
               style = "margin-bottom: -28px; margin-left: 2px;
               margin-top: -8px; margin-bottom: 0px;color: black; 
               font-size: 80%; font-style: italic"),
-            icon = icon('face-sad-tear'), 
+            icon = icon('book'), 
             color = 'lightblue',
             footer = tags$p(info, style='text-align: left; font-size: 80%;
                           color: black; margin-left: 10px; margin-bottom: 0px')
@@ -1259,10 +1259,12 @@ function(input, output, session) {
       
       output$conclusion = renderUI({
         text = 'Our model has been trained using Lasso Regression with a 92% train
-        score. While this model did not grant us the highest accuracy (as opposed to SVR/RF at 95%), this
-        model was the most interpretable and most easily transferable from Python to R.'
-        
+        score. While this model did not yield the highest accuracy (as opposed to SVR/RF at 95%), it
+        was the most interpretable and easily transferable from Python to R.'
         tags$p(text, style='font-size: 12px;')
+      })
+      output$table = renderTable({
+        df_summary
       })
       
       output$predicted_price = renderUI({
@@ -1528,7 +1530,7 @@ function(input, output, session) {
         HTML("<font size='-1'>  My undergrad was in 
        Geosystems Engineering and Hydrogeology at the University of Texas, 
        Austin. I got my Master’s in Atmosphere and Energy, Civil Engineering at 
-       Stanford. I’m passionate about nature, 
+       Stanford University. I’m passionate about nature, 
        environmental protection and renewable energy. I’m excited about how 
        machine learning and data analytics are giving us better tools to 
        understand and fight climate change, and I’m looking forward to kickstart 
