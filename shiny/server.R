@@ -632,7 +632,7 @@ function(input, output, session) {
             '<i>Appreciation</i> : <b>', df_property1()$nb_appreciation, ' / 10</b><br>',
             '<i>School Quality</i> : <b>', df_property1()$school_quality, ' / 10</b><br>',
             '<i>Population</i> : <b>', places$Population, ' </b><br>'))
-          info = HTML(paste0('Neighborhood Info', ''))
+          info = HTML(paste0('Neighborhood Info: ', NB))
           
           valueBox(
             subtitle = tags$p(
@@ -806,7 +806,7 @@ function(input, output, session) {
             '<i>Black</i> : <b>', places$Black, ' </b><br>',
             '<i>Hispanic</i> : <b>', places$Hispanic, ' </b><br>',
             '<i>Multi-Racial</i> : <b>', places$MultiRacial, ' </b><br>'))
-          info = HTML(paste0('Neighborhood Demographics', ''))
+          info = HTML(paste0('Neighborhood Demographics: ', NB))
           
           valueBox(
             subtitle = tags$p(
@@ -975,7 +975,7 @@ function(input, output, session) {
             '<i>Black</i> : <b>', places$Black, ' </b><br>',
             '<i>Hispanic</i> : <b>', places$Hispanic, ' </b><br>',
             '<i>Multi-Racial</i> : <b>', places$MultiRacial, ' </b><br>'))
-          info = HTML(paste0('Neighborhood Demographics', ''))
+          info = HTML(paste0('Neighborhood Demographics: ', NB))
           
           valueBox(
             subtitle = tags$p(
@@ -1144,7 +1144,7 @@ function(input, output, session) {
             '<i>Appreciation</i> : <b>', df_property2()$nb_appreciation, ' / 10</b><br>',
             '<i>School Quality</i> : <b>', df_property2 ()$school_quality, ' / 10</b><br>',
             '<i>Population</i> : <b>', places$Population, ' </b><br>'))
-          info = HTML(paste0('Neighborhood Info', ''))
+          info = HTML(paste0('Neighborhood Info: ', NB))
           
           valueBox(
             subtitle = tags$p(
