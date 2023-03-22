@@ -281,7 +281,11 @@ function(input, output, session) {
               m = m %>% addMarkers(data = places[places$Type == 'Park', ], icon = logos['Park'], lng = ~Longitude, 
                          lat = ~Latitude, group = 'Park') 
             }
-            m %>% addProviderTiles('CartoDB.Positron') 
+            if (4 %in% input$check_box) {
+              m = m %>% addMarkers(data = places[places$Type == 'Church', ], icon = logos['Church'], lng = ~Longitude, 
+                                   lat = ~Latitude, group = 'Church') 
+            }
+            m %>% addProviderTiles(providers$Thunderforest.OpenCycleMap)
               # 
               # addLayersControl(
               #   overlayGroups = c('Park', 'Store', 'Restaurant', 'Church', 'Hotel', 'School', 'Hospital', 'Airport','Library'),  
@@ -316,7 +320,11 @@ function(input, output, session) {
                  m = m %>% addMarkers(data = places[places$Type == 'Park', ], icon = logos['Park'], lng = ~Longitude, 
                                       lat = ~Latitude, group = 'Park') 
                }
-               m %>% addProviderTiles('CartoDB.Positron') 
+               if (4 %in% input$check_box) {
+                 m = m %>% addMarkers(data = places[places$Type == 'Church', ], icon = logos['Church'], lng = ~Longitude, 
+                                      lat = ~Latitude, group = 'Church') 
+               }
+               m %>% addProviderTiles(providers$Thunderforest.OpenCycleMap)
                # 
                # addLayersControl(
                #   overlayGroups = c('Park', 'Store', 'Restaurant', 'Church', 'Hotel', 'School', 'Hospital', 'Airport','Library'),  
@@ -375,44 +383,51 @@ function(input, output, session) {
       })
       
       output$info = renderUI({
-        
         info = case_when(
-          df_property()$Neighborhood == 'All Neighborhoods' ~ all_nb,
-          df_property()$Neighborhood == 'IDOTRR' ~ IDOTTR, 
-          df_property()$Neighborhood == 'NAmes' ~ NAmes,
-          df_property()$Neighborhood == 'Gilbert' ~ Gilbert,
-          df_property()$Neighborhood == 'StoneBr' ~ StoneBr,
-          df_property()$Neighborhood == 'NWAmes' ~ NWAmes, 
-          df_property()$Neighborhood == 'Somerst' ~ Somerst,
-          df_property()$Neighborhood == 'BrDale' ~ BrDale,
-          df_property()$Neighborhood == 'NPkVill' ~ NPkVill,
-          df_property()$Neighborhood == 'NridgHt' ~ NridgHt,
-          df_property()$Neighborhood == 'Blmngtn' ~ Blmngtn,
-          df_property()$Neighborhood == 'NoRidge' ~ NoRidge,
-          df_property()$Neighborhood == 'SawyerW' ~ SawyerW,
-          df_property()$Neighborhood == 'Sawyer' ~ Sawyer,
-          df_property()$Neighborhood == 'Veenker' ~ Veenker,
-          df_property()$Neighborhood == 'Greens' ~ Greens,
-          df_property()$Neighborhood == 'BrkSide' ~ BrkSide,
-          df_property()$Neighborhood == 'OldTown' ~ OldTown,
-          df_property()$Neighborhood == 'ClearCr' ~ ClearCr,
-          df_property()$Neighborhood == 'Edwards' ~ Edwards,
-          df_property()$Neighborhood == 'SWISU' ~ SWISU,
-          df_property()$Neighborhood == 'CollgCr' ~ CollgCr,
-          df_property()$Neighborhood == 'Crawfor' ~ Crawfor,
-          df_property()$Neighborhood == 'Mitchel' ~ Mitchel,
-          df_property()$Neighborhood == 'Timber' ~ Timber,
-          df_property()$Neighborhood == 'MeadowV' ~ MeadowV
+          input$neighborhood_timeseries == 'All Neighborhoods' ~ all_nb,
+          input$neighborhood_timeseries == 'IDOTRR' ~ IDOTTR, 
+          input$neighborhood_timeseries == 'NAmes' ~ NAmes,
+          input$neighborhood_timeseries == 'Gilbert' ~ Gilbert,
+          input$neighborhood_timeseries == 'StoneBr' ~ StoneBr,
+          input$neighborhood_timeseries == 'NWAmes' ~ NWAmes, 
+          input$neighborhood_timeseries == 'Somerst' ~ Somerst,
+          input$neighborhood_timeseries == 'BrDale' ~ BrDale,
+          input$neighborhood_timeseries == 'NPkVill' ~ NPkVill,
+          input$neighborhood_timeseries == 'NridgHt' ~ NridgHt,
+          input$neighborhood_timeseries == 'Blmngtn' ~ Blmngtn,
+          input$neighborhood_timeseries == 'NoRidge' ~ NoRidge,
+          input$neighborhood_timeseries == 'SawyerW' ~ SawyerW,
+          input$neighborhood_timeseries == 'Sawyer' ~ Sawyer,
+          input$neighborhood_timeseries == 'Veenker' ~ Veenker,
+          input$neighborhood_timeseries == 'Greens' ~ Greens,
+          input$neighborhood_timeseries == 'BrkSide' ~ BrkSide,
+          input$neighborhood_timeseries == 'OldTown' ~ OldTown,
+          input$neighborhood_timeseries == 'ClearCr' ~ ClearCr,
+          input$neighborhood_timeseries == 'Edwards' ~ Edwards,
+          input$neighborhood_timeseries == 'SWISU' ~ SWISU,
+          input$neighborhood_timeseries == 'CollgCr' ~ CollgCr,
+          input$neighborhood_timeseries == 'Crawfor' ~ Crawfor,
+          input$neighborhood_timeseries == 'Mitchel' ~ Mitchel,
+          input$neighborhood_timeseries == 'Timber' ~ Timber,
+          input$neighborhood_timeseries == 'MeadowV' ~ MeadowV
         )
-        
-        
+
         tags$p(HTML(paste0(
-            '<span style="font-size: 25px;"><b>', input$neighborhood_timeseries, '</b>', info, '</span>')),
+            '<span style="font-size: 15px;"><b>', input$neighborhood_timeseries, '</b>', info, '</span>',
+            tags$br(), tags$hr(),
+            "<font size='-1'> We analyzed sales price time series data to learn about the best time to sell and buy, and
+                  if a certain neighborhood housing price would fair well during a recession.
+                  Seasonality directly impacts supply and demand: we found that summer seasons see an influx of demand, increasing
+                  costs. After decomposing trend and seasonality from sales price time series, we see that the best month to buy is March,
+                  where the best month to sell is January. Ames as a neighborhood faired especially well during the 2008 recession, and among
+                  those NWAmes, Mitchel, Collge Creek, Gilbert and Timber are more recession proof than others. By adjusting for differencing,
+                  seasonality and trend can help forecast future prices and predict optimal timing to buy and sell more efficiently. </font>"),
+            ),
             style = 'margin-top: 5px; font-weight: normal; line-height: 1;
               color: white; text-align: center; margin-bottom: 5px'
           )
       })
-      
+
     })
     })
     
@@ -711,8 +726,8 @@ function(input, output, session) {
           
         } else {
           label = HTML('Read our <br> Blog Story')
-          info = 'Blog link here'
-          
+          link = 'https://nycdatascience.com/blog/student-works/machine-learning/maximizing-home-flipping-profits-using-ml-techniques/'
+          info = tags$a('Blog link here', href = link)
           valueBox(
             subtitle = tags$p(
               label, 
@@ -725,7 +740,7 @@ function(input, output, session) {
               margin-top: -8px; margin-bottom: 0px;color: black; 
               font-size: 80%; font-style: italic"),
             icon = icon('book'), 
-            color = 'lightblue',
+            color = 'warning',
             footer = tags$p(info, style='text-align: left; font-size: 80%;
                           color: black; margin-left: 10px; margin-bottom: 0px')
           )
@@ -1383,6 +1398,27 @@ function(input, output, session) {
         df_summary
       })
       
+      output$rank_bar = renderPlot({
+        ggplot(df_summary, aes(x = reorder(Feature, Importance), y = Importance)) + 
+          geom_col(fill = 'royalblue4', width = 0.8) +
+          geom_text(aes(label = Importance), vjust = 0.5, hjust = 1.2, color = "white", size = 2) +
+          # scale_y_continuous(expand = c(0, 0)) +
+          coord_flip() +
+          # labs(title = "Rank of the most important features"
+          #      #subtitle = ""
+          #      ) +
+          theme(
+            #plot.title = element_text(size=12), #, margin = margin(5, 0, 0, 0)
+            #plot.subtitle = element_text(size = 12, margin = margin(10, 0, 10, 0), color = "gray"),
+            panel.background = element_rect(fill = NA),
+            panel.grid.major = element_blank(),
+            axis.ticks = element_blank(),
+            axis.title = element_blank(),
+            axis.text.x = element_blank(),
+            axis.text.y = element_text(size=10, face='bold', color = "white"), #, margin = margin(0, 2, 0, 0)
+          )
+      }, height = 280, width = 280)
+      
       output$predicted_price = renderUI({
         
         title = tagList(icon('sign-hanging'), 'Our Estimation: ')
@@ -1640,6 +1676,22 @@ function(input, output, session) {
       # SIDEBAR : ABOUT ME
       # -------------------
       
+      # About Project
+      output$about_project = renderUI({
+        
+        HTML("<font size='-1'>  Our Ames housing project aims to better understand what factors play in
+        deciding the final property sales price. If we could predict sales price accurately from these
+        features, we could, for example, maximize profits in the Ames housing market or in projects like 
+        homeflipping. We used ridge regression to select the deciding property features with regularization, 
+        and came up with an interpretable model to predict property sales price. We included neighborhood information 
+        for a more comprehensive model such as crime rate, school quality, demographics etc. We analyzed
+        sales price time series data to learn about seasonality, trend, the best time to sell and buy,
+        and if a certain neighborhood housing price would fair well during a recession. This dashboard
+        uses map features, selection buttons and info boxes to provide an interactive user experience
+        to showcase our machine learning project.</font>")
+        
+      })
+      
       # Laurel He
       output$laurel_bio = renderUI({
         
@@ -1700,7 +1752,8 @@ function(input, output, session) {
       select(-c(PID, Latitude, Longitude)),
     filter = 'top',
     options = list(scrollX = TRUE,
-                   scrollY = TRUE))
+                   scrollY = TRUE,
+                   pageLength = 5))
     # %>%
       # formatStyle(c(1:29), target='row',  backgroundColor = 'white', background = TRUE)
     )

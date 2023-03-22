@@ -38,7 +38,7 @@ haversine_distance <- function(lat1, lon1, lat2, lon2) {
 }
 
 # neighborhood info
-all_nb <- 'Ames is a city located in the state of Iowa in the United States, home to Iowa State University and a vibrant scientific community.'
+all_nb <- ' Ames is a city located in the state of Iowa in the United States, home to Iowa State University and a vibrant scientific community.'
 IDOTTR <- ' is an affordable neighborhood with historic homes and easy access to downtown amenities, parks, and shopping areas.'
 NAmes <- ' is an affordable neighborhood with a mix of mid-century and modern homes, mature trees, parks, and easy access to amenities.'
 Gilbert <- " is a budget-friendly neighborhood known for its rural charm, community events, and convenient location to the city's amenities."

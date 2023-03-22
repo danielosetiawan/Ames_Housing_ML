@@ -172,6 +172,7 @@ dashboardPage(
                        inputId = 'compare_1',
                        label = 'Property #1',
                        choices = df_predictions$Prop_Addr,
+                       selected = '209 HARTFORD DR',
                        options = pickerOptions(
                          `live-search` = TRUE,
                          virtualScroll = TRUE,
@@ -187,8 +188,10 @@ dashboardPage(
                        
                        choices = list("Shops" = 1, 
                                    "Restaurants" = 2, 
-                                   "Parks" = 3),
+                                   "Parks" = 3,
+                                   "Church" = 4),
                        direction = 'vertical',
+                       status = "info",
                        checkIcon = list(
                          yes = icon("ok", 
                                     lib = "glyphicon"))
@@ -199,7 +202,7 @@ dashboardPage(
                        inputId = 'compare_2',
                        label = 'Property #2',
                        choices = df_predictions$Prop_Addr,
-                       selected = '3320 FOXLEY DR',
+                       selected = '2527 CLAYTON DR',
                        options = pickerOptions(
                          `live-search` = TRUE,
                          virtualScroll = TRUE,
@@ -325,9 +328,12 @@ dashboardPage(
                   tags$b('How did we come to our conclusion?'),
                   tags$br(),tags$br(),
                   uiOutput('conclusion'),
-                  div(tableOutput("table"), style = "font-size: 75%; width: 75%"),
-                  # front = plotOutput('scatplot', height = 250, inline=TRUE),
-                  # plotOutput('scatplot', height = 250, inline=TRUE),
+                  splitLayout(
+                    cellWidths = c("55%", "45%"),
+                    div(tableOutput("table"), style = "font-size: 75%; width: 75%"),
+                    div(plotOutput("rank_bar")), 
+                    style = "height: 280px;"
+                  )
                 )
               ),
               
@@ -438,11 +444,36 @@ dashboardPage(
             title = 'About',
             fluidRow(
               # ------------------------------
+              # About Project
+              # ------------------------------
+              
+              column(
+                width = 4,
+                fluidRow(
+                  box(
+                    title = div(
+                    ),
+                    width = 12,
+                    status = 'warning',
+                    boxProfile(
+                      #image = './img/about_me/.jpg',
+                      title = 'About Project',
+                      #subtitle = 'Data Science Fellow',
+                      bordered = TRUE,
+                      uiOutput(align = 'center',
+                               outputId = 'about_project')
+                      
+                    )
+                  )
+                )
+              ),
+              
+              # ------------------------------
               # About Me: Laurel He
               # ------------------------------
               
               column(
-                width = 6,
+                width = 4,
                 fluidRow(
                   box(
                     title = div(
@@ -469,7 +500,7 @@ dashboardPage(
               # ------------------------------
               
               column(
-                width = 6,
+                width = 4,
                 fluidRow(
                   box(
                     title = div(
