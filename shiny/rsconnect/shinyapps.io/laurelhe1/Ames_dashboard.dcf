@@ -1,0 +1,13 @@
+name: Ames_dashboard
+title: Ames_dashboard
+username:
+account: laurelhe1
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 8146725
+bundleId: 6781519
+url: https://laurelhe1.shinyapps.io/Ames_dashboard/
+when: 1674838747.35146
+lastSyncTime: 1674838747.35148
+asMultiple: FALSE
+asStatic: FALSE

@@ -16,7 +16,7 @@ library(glue)
 
 df_predictions = read.csv("../home_flipping.csv")
 df_predictions2 = read.csv("./flipping_predictions.csv") # you may not need this if you alter df_predictions to not have garagearea
-undervalued25 = read.csv('./undervalued_homes.csv')
+# undervalued25 = read.csv('./undervalued_homes.csv')
 df_coefs = read_csv('./final_predictions.csv')
 df_feats = read.csv('./final_features.csv')
 df_places = read.csv('./Ames_places.csv')

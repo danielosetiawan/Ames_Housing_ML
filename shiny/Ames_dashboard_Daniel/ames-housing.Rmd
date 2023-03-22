@@ -6,11 +6,11 @@ output: html_notebook
 
 
 ```{r}
-df_predictions = read.csv("../home_flipping.csv")
-undervalued25 = read.csv('./undervalued_homes.csv')
-df_coefs = read.csv('./final_predictions.csv')
-df_feats = read.csv('./final_features.csv')
-df_places = read.csv('./Ames_places.csv')
+df_predictions = read.csv("../shiny_data/home_flipping.csv")
+# undervalued25 = read.csv('./undervalued_homes.csv')
+df_coefs = read.csv('../shiny_data/final_predictions.csv')
+df_feats = read.csv('../shiny_data/final_features.csv')
+df_places = read.csv('../shiny_data/Ames_places.csv')
 
 df = read.csv("../../data/cleaned_housing.csv")
 locs = read.csv('../../data/Ames_loc.csv')
@@ -26,7 +26,7 @@ df %>%
 ```
 
 ```{r}
-undervalued25
+
 ```
 ```{r}
 
@@ -53,7 +53,7 @@ address = '3110 KINGMAN RD'
 property = df_predictions %>%
   filter(Prop_Addr == address)
 
-df_predictions$Neighborhood
+# df_predictions$Neighborhood
 ```
 
 ```{r}
@@ -71,7 +71,7 @@ haversine_distance <- function(lat1, lon1, lat2, lon2) {
 ```
 
 ```{r}
-# comps = df_predictions %>% filter(Prop_Addr != address)
+comps = df_predictions %>% filter(Prop_Addr != address)
 for (i in 1:nrow(df_predictions)) {
   # if (df_predictions$Prop_Addr[i] != address) {
   df_predictions$distance[i] = haversine_distance(
@@ -123,6 +123,9 @@ nb = 'Veenker'
 df_predictions
 ```
 
+```{r}
+address
+```
 
 ```{r}
 df_predictions %>%
