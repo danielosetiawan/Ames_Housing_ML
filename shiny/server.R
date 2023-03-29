@@ -4,15 +4,9 @@
 
 # ----------------------------------------------------------------
 
-
-
 function(input, output, session) {
   
   observe({
-  # observeEvent(input$neighborhood, {
-    # observeEvent(input$neighborhood_flip, {
-    #   observeEvent(input$address, {
-    #     observeEvent(input$address_flip, {
     
     # ----------------------------------------------------------------
     # Vertical Panel: Ames Housing Map
@@ -565,7 +559,6 @@ function(input, output, session) {
           updatePickerInput(session, "address", selected = valbox_address)
         })
 
-        # shinyjs::addClass("Box1", 'vbox1')
         shinyjs::runjs("
     $(document).on('click', '.small-box', function() {
       Shiny.setInputValue('valueboxes_click', Math.random());
@@ -577,8 +570,6 @@ function(input, output, session) {
       update_property(2)
       update_property(3)
       update_property(4)
-      
-      
       
       output$pointer = renderUI({
         if (rv$tabSelected == 'Search') {
@@ -751,16 +742,6 @@ function(input, output, session) {
       ######### UPPER VALUE BOX #2 ################
       #############################################
       
-    #   observeEvent(input$valueboxes_click1, {
-    #     valbox_address2 <- comps()[2, ]$Prop_Addr
-    #     updatePickerInput(session, "address", selected = valbox_address2)
-    #   })
-    #   
-    #   shinyjs::runjs("
-    # $(document).on('click', '.small-box', function() {
-    #   Shiny.setInputValue('valueboxes_click2', Math.random());
-    #   });
-    #   ")
       
       output$valuebox2 <- renderValueBox({
         
@@ -921,17 +902,6 @@ function(input, output, session) {
       ######### UPPER VALUE BOX #3 ################
       #############################################
       
-    #   observeEvent(input$valueboxes_click1, {
-    #     valbox_address3 <- comps()[3, ]$Prop_Addr
-    #     updatePickerInput(session, "address", selected = valbox_address3)
-    #   })
-    #   
-    #   shinyjs::runjs("
-    # $(document).on('click', '.small-box', function() {
-    #   Shiny.setInputValue('valueboxes_click3', Math.random());
-    #   });
-    #   ")
-      
       output$valuebox3 <- renderValueBox({
         if (rv$tabSelected == 'Search') {
           num = 3
@@ -1087,17 +1057,6 @@ function(input, output, session) {
       #############################################  
       ######### UPPER VALUE BOX #4 ################
       #############################################
-      
-    #   observeEvent(input$valueboxes_click1, {
-    #     valbox_address4 <- comps()[4, ]$Prop_Addr
-    #     updatePickerInput(session, "address", selected = valbox_address4)
-    #   })
-    #   
-    #   shinyjs::runjs("
-    # $(document).on('click', '.small-box', function() {
-    #   Shiny.setInputValue('valueboxes_click4', Math.random());
-    #   });
-    #   ")
       
       output$valuebox4 <- renderValueBox({
         if (rv$tabSelected == 'Search') {
@@ -1586,7 +1545,6 @@ function(input, output, session) {
       # Visualize Prediction: Predicted Price
       # -------------------------------------
       
-      # session$onFlushed(once=T, function(){
       output$predicted = renderValueBox({
         
         price = paste0(round(predicted_price() / 1000), 'K')
@@ -1598,78 +1556,6 @@ function(input, output, session) {
           color = 'green'
         )
       })
-      
-      # -------------------------------------
-      # Visualize Prediction: Added Sq. Feet
-      # -------------------------------------
-      
-      # output$addedarea = renderValueBox({
-      #   
-      #   added_sqft = sqft() - df_features()$GrLivArea
-      #   
-      #   valueBox(
-      #     subtitle = 'Added Sq. Ft.',
-      #     value = HTML(paste0('<b><h3>', added_sqft, '</b></h3>')),
-      #     icon = icon('sort-amount-up-alt'),
-      #     color = 'blue'
-      #   )
-      # })
-      
-      # -----------------------------------
-      # Visualize Prediction: Scatter Plot
-      # -----------------------------------
-      
-      output$scatplot = renderPlot({
-        
-        orig_predict = df_features() %>%
-          as_vector() %*% 
-          df_coefs$coefs
-        
-        ggplot(data = df_predictions, aes(x = GrLivArea, y = SalePrice)) +
-          scale_color_manual(values = c('After renovation' = 'red', 
-                                        'Before renovation' = 'orange', 
-                                        'Original price' = 'green')) +
-          # theme_bw() +
-          
-        # ----------------------------
-        # Scatter plot: Original Price
-        # ----------------------------
-        geom_point(data = df_property(),
-                   aes(x=GrLivArea, y = SalePrice, 
-                       color = 'Original price'),
-                   size = 3, shape = 7, alpha = 1, stroke = 1.25) + 
-          geom_point(size = 0.5) +
-          
-          # -------------------------------
-        # Scatter plot: Before Renovation
-        # -------------------------------
-        geom_point(data = data.frame('GrLivArea' = df_features()$GrLivArea,
-                                     'SalePrice' = orig_predict),
-                   aes(x=GrLivArea, y = SalePrice, 
-                       color = 'Before renovation'),
-                   size = 3, shape = 7, alpha = 1, stroke = 1.25) +
-          
-          # ------------------------------
-        # Scatter plot: After Renovation
-        # ------------------------------
-        
-        geom_point(data = data.frame('GrLivArea' = sqft(),
-                                     'SalePrice' = predicted_price()),
-                   aes(x=GrLivArea, y = SalePrice, 
-                       color = 'After renovation'),
-                   size = 3, shape = 7, alpha = 1, stroke = 1.25) +
-          
-          # ------------------------------
-        # Scatter plot: Final Touchups
-        # ------------------------------
-        
-        
-        scale_y_continuous(breaks = c(1e5, 3e5, 5e5, 7e5),
-                           labels = c('100K', '300K', '500K', '700K')) +
-          labs(x = 'Gross Living Area', y = 'Price', color = '')
-        
-      })
-      
       
       
       # -------------------
@@ -1689,7 +1575,6 @@ function(input, output, session) {
         and if a certain neighborhood housing price would fair well during a recession. This dashboard
         uses map features, selection buttons and info boxes to provide an interactive user experience
         to showcase our machine learning project.</font>")
-        
       })
       
       # Laurel He
@@ -1709,8 +1594,6 @@ function(input, output, session) {
       # Daniel Setiawan
       output$daniels_bio = renderUI({
         
-        
-        
         HTML("<font size='-1'>  I'm an alumnus of UCSB with a BS in Chemistry. 
         I currently work as an R&D engineer at a quantum computing startup, 
         where I had the opportunity to interface with various electronics (RF/DC) 
@@ -1720,28 +1603,8 @@ function(input, output, session) {
         as there are many ways to creatively tell a story using data.</font>")
         
       })
-      
-      
-      
-      # Daniel Erickson
-      output$daniele_bio = renderUI({
-        
-        HTML("<font size='-1'>  I received my BS in mathematics from the University
-        of Minnesota, and I earned my Ph.D in mathematics from Oregon State University.
-        I am interested in the wealth of information that tools from data science
-        and machine learning can provide and how they can uncover aspects of reality
-        that would be difficult to otherwise parse. I am excited to begin my career
-        outside of education and tackle real-world problems with the skillset I've developed.  </font>")
-        
-      })
     })
-  #   })
-  # })
-  # })
-  
-  
-  
-  
+
   # ------------------
   # SIDEBAR : DATASET
   # ------------------
@@ -1754,8 +1617,6 @@ function(input, output, session) {
     options = list(scrollX = TRUE,
                    scrollY = TRUE,
                    pageLength = 5))
-    # %>%
-      # formatStyle(c(1:29), target='row',  backgroundColor = 'white', background = TRUE)
     )
   
   # -----------------------
@@ -1765,9 +1626,9 @@ function(input, output, session) {
   sqft = reactive({
     input$sqft_slider
   })
-
+  
   df_neighborhood = reactive({
-
+    
     if (input$neighborhood == 'All Neighborhoods') {
       df_predictions
     } else {
@@ -1775,9 +1636,9 @@ function(input, output, session) {
         filter(Neighborhood == input$neighborhood)
     }
   })
-
+  
   df_neighborhood_flip = reactive({
-
+    
     if (input$neighborhood_flip == 'All Neighborhoods') {
       df_predictions
     } else {
@@ -1785,36 +1646,36 @@ function(input, output, session) {
         filter(Neighborhood == input$neighborhood_flip)
     }
   })
-
+  
   df_property = reactive({ # features for current home and main panel
     df_predictions %>%
       filter(Prop_Addr == input$address)
   })
-
-
+  
+  
   df_property1 = reactive({ # property comparison #1
     df_predictions %>%
       filter(Prop_Addr == input$compare_1)
   })
-
+  
   df_property2 = reactive({ # property comparison #2
     df_predictions %>%
       filter(Prop_Addr == input$compare_2)
   })
-
+  
   df_property_flip = reactive({ # features for selected property in homeflipping
     df_predictions %>%
       filter(Prop_Addr == input$address_flip)
   })
-
+  
   df_features = reactive({ # features for dot matrix
     df_feats %>%
       filter(Prop_Addr == input$address_flip) %>%
       select(-Prop_Addr)
   })
-
-
-
+  
+  
+  
   df_undervalued = reactive({
     (df_neighborhood_flip() %>%
        # head(25) %>%
@@ -1826,13 +1687,13 @@ function(input, output, session) {
                                 TRUE ~ 'fair price'),
               Delta = ifelse(Value == 'fair price', '',
                              paste0(abs(round(as.numeric(Delta/1e3))), 'K'))))[-1:-3,]
-
+    
   })
-
-
+  
+  
   predicted_price = reactive({
-
-
+    
+    
     df_features() %>%
       mutate(GrLivArea = sqft(),
              GarageQual = input$garage,
@@ -1855,36 +1716,35 @@ function(input, output, session) {
                input$month == 'November' ~ 11,
                input$month == 'December' ~ 12,
                TRUE ~ 12)
-             ) %>%
+      ) %>%
       as_vector() %*%
       df_coefs$coefs
-
+    
   })
-
-comps = reactive({
+  
+  comps = reactive({
     for (i in 1:nrow(df_predictions)) {
       df_predictions$distance[i] = haversine_distance(
         df_property()$Latitude, df_property()$Longitude,
         df_predictions$Latitude[i], df_predictions$Longitude[i]
       )
     }
-
-  final = df_predictions %>%
-    filter(distance != 0,
-           between(SalePrice, 0.9*df_property()$SalePrice, 1.1*df_property()$SalePrice),
-           between(GrLivArea, 0.8*df_property()$GrLivArea, 1.2*df_property()$GrLivArea),
-           # between(LotArea, 0.5*df_property()$LotArea, 1.5*df_property()$LotArea),
-           between(OverallQual, df_property()$OverallQual-2, 3+df_property()$OverallQual),
-           between(OverallCond, df_property()$OverallCond-2, 3+df_property()$OverallCond)
-    ) %>%
-    arrange(distance) %>%
-    select(distance, SalePrice, Prop_Addr, GrLivArea,
-           BedroomAbvGr, FullBath, HalfBath) %>%
-    distinct() %>%
-    head(4)
+    
+    final = df_predictions %>%
+      filter(distance != 0,
+             between(SalePrice, 0.9*df_property()$SalePrice, 1.1*df_property()$SalePrice),
+             between(GrLivArea, 0.8*df_property()$GrLivArea, 1.2*df_property()$GrLivArea),
+             between(OverallQual, df_property()$OverallQual-2, 3+df_property()$OverallQual),
+             between(OverallCond, df_property()$OverallCond-2, 3+df_property()$OverallCond)
+      ) %>%
+      arrange(distance) %>%
+      select(distance, SalePrice, Prop_Addr, GrLivArea,
+             BedroomAbvGr, FullBath, HalfBath) %>%
+      distinct() %>%
+      head(4)
   })
+  
 }
-
 
 
 
